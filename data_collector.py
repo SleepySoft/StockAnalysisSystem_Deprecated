@@ -7,31 +7,66 @@ import stock_analysis_system as sAs
 
 # ===================================== Plug-in Interface =====================================
 
-class IMarketInformation:
-    # Column: stock_code|stock_name
-    def FetchStockList(self, extra_param=None) -> {str, str}: pass
-    # Columns: company_name|stock_name_a|stock_code_a|stock_name_b|stock_code_b|industry
-    # Columns: english_name|reg_address|listing_date_a|listing_date_b
-    # Columns: area|provinces|city|web_address
+class ITickFetcher:
+    pass
+
+
+class IBarFetcher:
+    pass
+
+
+class IFinaFetcher:
+    # In:
+    #   stock_code: str -> Stock code
+    #   report_type: list of str -> public.constant.ANNUAL_REPORT_TYPES
+    # Return: map()
+    #   Key: str -> public.constant.ANNUAL_REPORT_TYPES
+    #   Value: DataFrame -> Columns: ......; Index: Year/Date; Cell: Currency unit in CNY Yuan
+    def FetchStockAnnualFinaData(
+            self, stock_code: str, report_type: [str],
+            year_from: int, year_to: int, extra_param=None) -> {str: pd.DataFrame}: pass
+
+    # Reserved
+    def FetchStockQuarterlyFinaData(self):
+        pass
+
+
+class IMarketFetcher:
+    # Return: DataFrame -> Columns may include but not limited to:
+    #     company_name|stock_name_a|stock_code_a|stock_name_b|stock_code_b|industry
+    #     english_name|reg_address|listing_date_a|listing_date_b
+    #     area|provinces|city|web_address
+    def FetchStockIntroduction(self, extra_param=None) -> pd.DataFrame: pass
+
+    # Reserved
+    # In: stock_code: str -> Stock code
     def FetchStockInformation(self, stock_code: str, extra_param=None) -> pd.DataFrame: pass
 
-    # Columns: name|code
-    def FetchIndexList(self, extra_param=None) -> pd.DataFrame: pass
-    # Columns: stock_code|weight
-    def FetchIndexComponent(self, index_code: str, extra_param=None) -> pd.DataFrame: pass
+    # Reserved
+    def FetchIndexIntroduction(self, extra_param=None) -> pd.DataFrame:
+        pass
+    # Reserved
+    def FetchIndexInformation(self, extra_param=None) -> pd.DataFrame:
+        pass
+    # Reserved
+    def FetchIndexComponent(self, index_code: str, extra_param=None) -> pd.DataFrame:
+        pass
 
 
-class IStockFinancialData:
+class IReportFetcher:
     # In:
-    #   report_type -> public.constant.ANNUAL_REPORT_TYPES
-    # Return: map()
-    #   Key: balance_sheet, income_statement, cash_flow_statement
-    #   Columns: ......; Index: Date
-    def FetchStockAnnualReport(self, stock_code: str, report_type: list, extra_param=None) -> {str: pd.DataFrame}: pass
-
-
-class IStockHistoryData:
-    def FetchStockHistoryDailyData(self, stock_code: str, extra_param=None) -> pd.DataFrame: pass
+    #   stock_code: str -> Stock code
+    #   report_period: str -> public.constant.REPORT_PERIOD_TYPES
+    #   extension: list of str -> pdf|tsv|......
+    #   date_from, date_to: str of date -> pdf|tsv|......
+    # Return: pd.DataFrame
+    #   Column:
+    #       stock: str -> Stock code
+    #       date: str of date -> 2010|2010-09|2010-09-08
+    #       content: bytes -> File data
+    def FetchFinaReport(
+            self, stock_code: str, report_period: str, extensions: [str],
+            date_from: [str], date_to: [str], extra_param=None) -> pd.DataFrame: pass
 
 
 # ===================================== DataCollector Module =====================================
@@ -150,16 +185,20 @@ class DataCollector:
 
     # --------------------------------------- User Interface ---------------------------------------
 
-    # Columns: company_name|stock_name_a|stock_code_a|stock_name_b|stock_code_b|industry
-    # Columns: english_name|reg_address|listing_date_a|listing_date_b
-    # Columns: area|provinces|city|web_address
-    def FetchStockInformation(self, context: FetchContext, stock_code: str, extra_param=None) -> pd.DataFrame:
-        return self.__safe_dynamic_run(context, 'FetchStockInformation', stock_code, extra_param)
+    def FetchStockAnnualFinaData(
+            self, context: FetchContext, stock_code: str, report_type: [str],
+            year_from: int, year_to: int, extra_param=None) -> {str: pd.DataFrame}:
+        return self.__safe_dynamic_run(context, 'FetchStockAnnualFinaData',
+                                       stock_code, report_type, year_from, year_to, extra_param)
 
-    # Key: balance_sheet, income_statement, cash_flow_statement
-    # Columns: accounting_annual as index|......
-    def FetchStockAnnualReport(self, context: FetchContext, stock_code: str, report_type: list, extra_param=None) -> {str: pd.DataFrame}:
-        return self.__safe_dynamic_run(context, 'FetchStockAnnualReport', stock_code, report_type, extra_param)
+    def FetchStockIntroduction(self, context: FetchContext, extra_param=None) -> pd.DataFrame:
+        return self.__safe_dynamic_run(context, 'FetchStockIntroduction', extra_param)
+
+    def FetchFinaReport(
+            self, context: FetchContext, stock_code: str, report_period: str, extensions: [str],
+            date_from: [str], date_to: [str], extra_param=None) -> pd.DataFrame:
+        return self.__safe_dynamic_run(context, 'FetchFinaReport', stock_code,
+                                       report_period, extensions, date_from, date_to, extra_param)
 
     # --------------------------------------- Execute ---------------------------------------
 

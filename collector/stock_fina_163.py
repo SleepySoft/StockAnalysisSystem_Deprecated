@@ -24,42 +24,23 @@ class StockFinancialDataFrom163:
     def SetEnvoriment(self, sAs):
         pass
 
-    # Key: balance_sheet, income_statement, cash_flow_statement
-    # Columns: ......
-    def FetchStockAnnualReport(self, stock_code: str, report_type: list, extra_param=None) -> {str: pd.DataFrame}:
+    def FetchStockAnnualFinaData(
+            self, stock_code: str, report_type: [str],
+            year_from: int, year_to: int, extra_param=None) -> {str: pd.DataFrame}:
         result = {}
-        if 'balance_sheet' in report_type:
+        if 'balance_sheet' in report_type or 'all' in report_type:
             url_balance_sheets = 'http://quotes.money.163.com/service/zcfzb_' + stock_code + '.html?type=year'
             df_balance_sheets = self.__fetch_from_163(url_balance_sheets)
-            result['balance_sheet'] = df_balance_sheets
-        if 'income_statement' in report_type:
+            result['balance_sheet'] = self.__parse_to_yuan(df_balance_sheets)
+        if 'income_statement' in report_type or 'all' in report_type:
             url_income_statement = 'http://quotes.money.163.com/service/lrb_' + stock_code + '.html?type=year'
             df_income_statement = self.__fetch_from_163(url_income_statement)
-            result['income_statement'] = df_income_statement
-        if 'cash_flow_statement' in report_type:
+            result['income_statement'] = self.__parse_to_yuan(df_income_statement)
+        if 'cash_flow_statement' in report_type or 'all' in report_type:
             url_cash_flow_statement = 'http://quotes.money.163.com/service/xjllb_' + stock_code + '.html?type=year'
             df_cash_flow_statement = self.__fetch_from_163(url_cash_flow_statement)
-            result['cash_flow_statement'] = df_cash_flow_statement
+            result['cash_flow_statement'] = self.__parse_to_yuan(df_cash_flow_statement)
         return result
-
-        # name_list = []
-        # name_list.extend(df_balance_sheets.index)
-        # name_list.extend(df_income_statement.index)
-        # name_list.extend(df_cash_flow_statement.index)
-        #
-        # named_list = []
-        # unnamed_list = []
-        # for n in name_list:
-        #     s = sAs.GetInstance.GetAliasesTable().GetStandardName(n.replace('(万元)', ''))
-        #     if s == '':
-        #         unnamed_list.append(n)
-        #     else:
-        #         named_list.append(n)
-        # print(unnamed_list)
-
-        # with open('Index.txt', 'w') as f:
-        #     for l in df_balance_sheets.index:
-        #         f.write(l + '\r\n')
 
     def __fetch_from_163(self, url: str) -> pd.DataFrame:
         try:
@@ -78,6 +59,21 @@ class StockFinancialDataFrom163:
             return None
         finally:
             pass
+
+    def __parse_to_yuan(self, df: pd.DataFrame) -> pd.DataFrame:
+        if df is None:
+            return None
+        columns = []
+        for c in df.columns.tolist():
+            if c.find('(万元)') >= 0 or c.find('（万元）') >= 0:
+                columns.append(c.replace('(万元)', '').replace('（万元）', ''))
+                # TODO: Distinguish empty and zero
+                column = df[c].map(lambda a: str(public.common.str2float_safe(a, 0.0) * 10000))
+                df[c] = column
+            else:
+                columns.append(c)
+        df.columns = columns
+        return df
 
 def GetModuleClass() -> object:
     return StockFinancialDataFrom163

@@ -25,7 +25,7 @@ class MarketInformationFromSohu:
     # Columns: Name|Code
     # From 'http://q.stock.sohu.com/cn/zs.shtml' ->
     #      'http://hq.stock.sohu.com/zs/zs-2.html'
-    def FetchIndexList(self, extra_param=None) -> pd.DataFrame:
+    def FetchIndexIntroduction(self, extra_param=None) -> pd.DataFrame:
         content_text = public.common.DownloadText('http://hq.stock.sohu.com/zs/zs-2.html')
         try:
             pos_start = content_text.find('<script>PEAK_ODIA')

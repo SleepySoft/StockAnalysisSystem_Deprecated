@@ -77,13 +77,13 @@ class StockAnalysisSystem:
         self.__check_init(True)
         return self.__component_data_center
 
-    def GetStrategyManager(self):
-        self.__check_init(True)
-        return self.__component_strategy_manager
-
     def GetDataCollector(self):
         self.__check_init(True)
         return self.__component_data_collector
+
+    def GetStrategyManager(self):
+        self.__check_init(True)
+        return self.__component_strategy_manager
 
     # ------------------------------------ private ------------------------------------
 

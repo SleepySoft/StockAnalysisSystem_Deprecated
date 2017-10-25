@@ -193,7 +193,7 @@ class DBAccess:
         if cursor is None:
             return False
         try:
-            df.to_sql(table_name, connection, flavor='sqlite', if_exists='replace', index=True)
+            df.to_sql(table_name, connection, flavor='sqlite', if_exists=if_exists, index=True)
         except Exception as e:
             print(e)
             return False

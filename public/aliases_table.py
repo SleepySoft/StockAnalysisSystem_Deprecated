@@ -18,15 +18,17 @@ import public.common
 import stock_analysis_system as sAs
 
 
+# 20170911: We don't have to use a english name as standard name.
+#           Just choose one name as standard. And normalize to it.
+
 class AliasesTable:
-    TABLE_NAME = 'AliasesTable'
-    TABLE_FIELD = ['standard_name', 'default_name', 'aliases_name']
+    ALIASES_TABLE = 'AliasesTable'
+    ALIASES_TABLE_FIELD = ['standard_name', 'aliases_name']
 
     def __init__(self):
-        self.__standard_missing_list = []
         self.__standard2aliases_table = {}
-        self.__standard2default_table = {}
         self.__aliases2standard_table = {}
+        self.__uncategorized_name_list = []
 
     def Init(self) -> bool:
         if not self.LoadTable() and not self.RebuildTable():
@@ -34,12 +36,12 @@ class AliasesTable:
             return False
         return True
 
-    def Readablize(self, name: list or str) -> list or str:
-        if isinstance(name, str):
-            return self.__do_readablize(name)
-        elif isinstance(name, list):
-            return [self.__do_readablize(n) for n in name]
-        return None
+    # def Readablize(self, name: list or str) -> list or str:
+    #     if isinstance(name, str):
+    #         return self.__do_readablize(name)
+    #     elif isinstance(name, list):
+    #         return [self.__do_readablize(n) for n in name]
+    #     return None
 
     def Standardize(self, name: list or str) -> list or str:
         if isinstance(name, str):
@@ -48,16 +50,15 @@ class AliasesTable:
             return [self.__do_standardize(n) for n in name]
         return None
 
-    def GetDefaultName(self, name: str) -> str:
-        name = self.GetStandardName(name)
-        if name in self.__standard2default_table:
-            return self.__standard2default_table.get(name, '')
-        if name in self.__standard2aliases_table:
-            aliases_list = self.__standard2aliases_table.get(name, [])
-            if len(aliases_list) != 0:
-                return aliases_list[0]
-        return ''
-
+    # def GetDefaultName(self, name: str) -> str:
+    #     name = self.GetStandardName(name)
+    #     if name in self.__standard2default_table:
+    #         return self.__standard2default_table.get(name, '')
+    #     if name in self.__standard2aliases_table:
+    #         aliases_list = self.__standard2aliases_table.get(name, [])
+    #         if len(aliases_list) != 0:
+    #             return aliases_list[0]
+    #     return ''
 
     def GetStandardName(self, name: str) -> str:
         if name in self.__standard2aliases_table.keys():
@@ -68,16 +69,16 @@ class AliasesTable:
         name = self.__aliases2standard_table.get(name, name)
         return self.__standard2aliases_table.get(name, [])
 
-    def GetTheNameWithoutStandardName(self) -> list:
-        return self.__standard_missing_list
+    def GetUncategorizedNameList(self) -> list:
+        return self.__uncategorized_name_list
 
     # -----------------------------------------------------------------------------------------
 
-    def __do_readablize(self, name: str):
-        s_name = self.GetDefaultName(name)
-        if s_name != '':
-            return s_name
-        return name
+    # def __do_readablize(self, name: str):
+    #     s_name = self.GetDefaultName(name)
+    #     if s_name != '':
+    #         return s_name
+    #     return name
 
     # Record the names who didn't have standard name yet.
     def __do_standardize(self, name: str):
@@ -85,13 +86,14 @@ class AliasesTable:
         name_s = self.GetStandardName(mame_t)
         if name_s != '':
             return name_s
-        if mame_t not in self.__standard_missing_list:
-            self.__standard_missing_list.append(mame_t)
+        if mame_t not in self.__uncategorized_name_list:
+            self.__uncategorized_name_list.append(mame_t)
             sAs.GetInstance.GetNameTableDB().ExecuteInsertInto(
-                AliasesTable.TABLE_NAME,
-                {AliasesTable.TABLE_FIELD[0]: '',
-                 AliasesTable.TABLE_FIELD[1]: mame_t,
-                 AliasesTable.TABLE_FIELD[2]: '[]'})
+                AliasesTable.ALIASES_TABLE,
+                {
+                    AliasesTable.ALIASES_TABLE_FIELD[0]: '',
+                    AliasesTable.ALIASES_TABLE_FIELD[1]: json.dumps([mame_t, ])
+                 })
         return mame_t
 
     def __trim_name(self, name: str) -> str:
@@ -123,31 +125,33 @@ class AliasesTable:
 
     def LoadTable(self) -> bool:
         tmp_list = sAs.GetInstance.GetNameTableDB().ListFromDB(
-            AliasesTable.TABLE_NAME, AliasesTable.TABLE_FIELD)
+            AliasesTable.ALIASES_TABLE, AliasesTable.ALIASES_TABLE_FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
-        for s, d, aj in tmp_list:
-            if len(s) != 0 and len(aj) != 0:
-                al = json.loads(aj)
+        for s, aj in tmp_list:
+            if len(aj) == 0:
+                print('LoadTable() - Error: aj == 0')
+                continue
+            al = json.loads(aj)
+            if len(s) != 0:
                 for a in al:
                     self.__add_aliases(s, a)
-                self.__add_aliases(s, d, True)
             else:
-                self.__standard_missing_list.append(d)
+                if len(al) > 0:
+                    self.__uncategorized_name_list.append(al[0])
         return True
 
     def SaveTable(self) -> bool:
         tmp_list = []
         for k in self.__standard2aliases_table.keys():
             tmp_list.append(k)
-            tmp_list.append(self.__standard2default_table.get(k, ''))
             tmp_list.append(json.dumps(self.__standard2aliases_table.get(k, '')))
-        for n in self.__standard_missing_list:
+        for n in self.__uncategorized_name_list:
             tmp_list.append('')
-            tmp_list.append(n)
-            tmp_list.append(json.dumps(n))
+            tmp_list.append(json.dumps([n, ]))
         sAs.GetInstance.GetNameTableDB().ListToDB(
-            AliasesTable.TABLE_NAME, tmp_list, -1, 3, AliasesTable.TABLE_FIELD)
+            AliasesTable.ALIASES_TABLE, tmp_list, -1, 2,
+            AliasesTable.ALIASES_TABLE_FIELD)
         return True
 
         # tmp_list = []
@@ -161,14 +165,12 @@ class AliasesTable:
         for k in self.__standard2aliases_table.keys():
             tmp_list.append(k)
             aliases = self.__standard2aliases_table.get(k, [])
-            default = aliases[0] if len(aliases) > 0 else '-'
-            tmp_list.append(self.__standard2default_table.get(k, default))
             tmp_list.append('|'.join(aliases))
-        for n in self.__standard_missing_list:
+        for n in self.__uncategorized_name_list:
             tmp_list.append('-')
             tmp_list.append(n)
-            tmp_list.append(n)
-        df = pd.DataFrame(np.array(tmp_list).reshape(-1, 3))
+        df = pd.DataFrame(np.array(tmp_list).reshape(-1, 2))
+        df.columns = ['standard_name', 'aliases_name']
         try:
             df.to_csv(file_name, encoding='utf_8_sig')
             return True
@@ -192,18 +194,18 @@ class AliasesTable:
         if '英文表达法' not in df.columns and '会计科目名称' not in df.columns:
             print('Cannot find the column in web.')
             return False
-        colomn_aliases_name = df['会计科目名称']
-        colomn_standard_name = df['英文表达法']
-        for s, a in zip(colomn_standard_name, colomn_aliases_name):
-            self.__add_aliases(public.common.NamingStandardization(s), a, True)
+        column_aliases_name = df['英文表达法']
+        column_standard_name = df['会计科目名称']
+        for s, a in zip(column_standard_name, column_aliases_name):
+            self.__add_aliases(self.__trim_name(s), a)
         return True
 
     def __update_from_local(self) -> bool:
         df = pd.read_csv('public/NameTable.csv', header=0)
-        colomn_aliases_name = df['中文']
-        colomn_standard_name = df['英文']
-        for s, a in zip(colomn_standard_name, colomn_aliases_name):
-            self.__add_aliases(public.common.NamingStandardization(s), a, True)
+        column_aliases_name = df['英文']
+        column_standard_name = df['中文']
+        for s, a in zip(column_standard_name, column_aliases_name):
+            self.__add_aliases(self.__trim_name(s), a)
         return True
 
     @staticmethod
@@ -243,20 +245,23 @@ class AliasesTable:
 
     # ----------------------------------------- Cache for Quick Indexing -----------------------------------------
 
-    def __add_aliases(self, standard_name: str, aliases_name: str, default: bool = False):
+    def __add_aliases(self, standard_name: str, aliases_name: str):
+        if standard_name == '' and aliases_name == '':
+            return
+        if aliases_name == '':
+            self.__uncategorized_name_list.append(aliases_name)
+            return
         if standard_name == '':
-            if aliases_name != '':
-                self.__standard_missing_list.append(aliases_name)
+            self.__uncategorized_name_list.append(aliases_name)
             return
         if aliases_name in self.__aliases2standard_table.keys():
-            print('Aliases ' + aliases_name + ' already existed!')
             return
         self.__aliases2standard_table[aliases_name] = standard_name
-        if self.__standard2aliases_table.get(standard_name) is None:
+        if self.__standard2aliases_table.get(standard_name, None) is None:
             self.__standard2aliases_table[standard_name] = []
         if aliases_name not in self.__standard2aliases_table[standard_name]:
             self.__standard2aliases_table[standard_name].append(aliases_name)
-        if default:
-            self.__standard2default_table[standard_name] = aliases_name
+        if aliases_name in self.__uncategorized_name_list:
+            self.__uncategorized_name_list.remove(aliases_name)
 
 

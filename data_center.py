@@ -20,130 +20,54 @@ import public.constant
 import stock_analysis_system as sAs
 
 
-# Query, Download and Storage
-class DataCenterCore:
-    STOCK_INFORMATION_TABLE_DESC = [
-        ['company_name', 'varchar(255)'],
-        ['stock_name_a', 'varchar(16)'],
-        ['stock_code_a', 'varchar(16)'],
-        ['stock_name_b', 'varchar(16)'],
-        ['stock_code_b', 'varchar(16)'],
-        ['industry', 'varchar(100)'],
-
-        ['area', 'varchar(100)'],
-        ['city', 'varchar(100)'],
-        ['provinces', 'varchar(100)'],
-        ['web_address', 'varchar(100)'],
-
-        ['reg_address', 'varchar(255)'],
-        ['english_name', 'varchar(255)'],
-        ['listing_date_a', 'date'],
-        ['listing_date_b', 'date']
-        ]
-
-    FINANCIAL_STATEMENTS_FIELDS = [
-        'StockCode',
-        'AccountingAnnual',
-        'FinancialData'
-    ]
-    FINANCIAL_STATEMENTS_TABLE_DESC = [
-        ['Serial', 'int'],
-        ['StockCode', 'varchar(20)'],
-        ['AccountingAnnual', 'int'],
-        ['FinancialData', 'TEXT'],
-    ]
-
-    def __init__(self):
-        pass
-
+class DataWeb:
     def Init(self) -> bool:
-        execute_statues = True
-        for t in public.constant.ANNUAL_REPORT_TYPES:
-            if not sAs.GetInstance.GetDataCenterDB().TableExists(t):
-                execute_statues = execute_statues and sAs.GetInstance.GetDataCenterDB().CreateTable(
-                    t, DataCenterCore.FINANCIAL_STATEMENTS_TABLE_DESC)
-        if not execute_statues:
-            print('DataCenterCore : Financial Statement Table Create Fail!')
-            return False
         return True
 
-    # [(stock_name : stock_code)]
-    def GetStockList(self) -> [(str, str)]:
-        result = self.__query_stock_list()
-        if result is None or len(result) == 0:
-            if not self.__download_stock_information():
-                return None
-        return self.__query_stock_list()
+    # Return: map(), not None
+    #   Key: str -> public.constant.ANNUAL_REPORT_TYPES
+    #   Value: DataFrame -> Columns: ......; Index: Year/Date; Cell: Currency unit in CNY Yuan
+    @staticmethod
+    def DownloadStockAnnualFinaData(stock_code: str, annual_report_type: str) -> {str: pd.DataFrame}:
+        ctx = data_collector.FetchContext()
+        ar_dict = sAs.GetInstance.GetDataCollector().FetchStockAnnualFinaData(
+            ctx, stock_code, [annual_report_type, ], 0, 9999)
+        if ar_dict is None or not isinstance(ar_dict, dict):
+            print('Download annual report from data collector fail.')
+            return {}
+        # report = ar_dict.get(annual_report_type, None)
+        # if report is None:
+        #     print('DownloadAnnualReport() - Fail.')
+        #     return None
+        ar_dict_keys = ar_dict.keys()
+        for k in ar_dict_keys:
+            report_origin = ar_dict.get(k, None)
+            report = DataWeb.__check_format_downloaded_annual_report(report_origin)
+            if report is None:
+                print('__check_format_downloaded_annual_report() - Error format of ' + k + ' and cannot recover.')
+            ar_dict[k] = report
+        return ar_dict
 
-    # In:
-    #   report_type -> public.constant.ANNUAL_REPORT_TYPES
-    def GetStockAnnualReportData(self, stock_code: str, year_from: int, year_to: int, report_type: [str]) -> {str: pd.DataFrame}:
-        condition = " StockCode = '" + stock_code + "'"
-        if year_from > 0 and year_to > 0:
-            year_from = 0 if year_from < 0 else year_from
-            year_to = year_from if year_to < year_from else year_to
-            condition += ' AND AccountingAnnual >= ' + str(year_from) + ' AND AccountingAnnual <= ' + str(year_to)
-        result = {}
-        for t in report_type:
-            result[t] = self.__get_annual_report(stock_code, t, condition)
-        return result
-
-    # -------------------------------------- private --------------------------------------
-
-    # --------------------------- Stock list ---------------------------
-
-    def __query_stock_list(self) -> [(str, str)]:
-        return sAs.GetInstance.GetDataCenterDB().ListFromDB(
-            'StockInformation', ['stock_code_a', 'stock_name_a'])
-
-    def __download_stock_information(self) -> bool:
+    # Return: DataFrame -> Columns may include but not limited to:
+    #     company_name|stock_name_a|stock_code_a|stock_name_b|stock_code_b|industry
+    #     english_name|reg_address|listing_date_a|listing_date_b
+    #     area|provinces|city|web_address
+    @staticmethod
+    def DownloadStockIntroduction() -> pd.DataFrame:
         ctx = data_collector.FetchContext()
         ctx.SpecifyPlugin('MarketInformationFromSZSE')
-        df = sAs.GetInstance.GetDataCollector().FetchStockInformation(ctx, '')
-        if df is None or len(df) == 0:
-            return False
-        return sAs.GetInstance.GetDataCenterDB().DataFrameToDB('StockInformation', df)
+        return sAs.GetInstance.GetDataCollector().FetchStockIntroduction(ctx)
 
-    # --------------------------- Annual Reprot ---------------------------
-
-    def __get_annual_report(self, stock_code: str, annual_report_type: str, condition: str) -> pd.DataFrame:
-        # 1.Query
-        result = self.__query_annual_report(annual_report_type, condition)
-        if result is not None and len(result) > 0:
-            return result.get(stock_code, None)
-
-        # 2.Download
-        ar_dict = self.__download_annual_report(stock_code, annual_report_type)
-        if ar_dict is None or not isinstance(ar_dict, dict):
-            print('__download_annual_report() : Wrong result - ', type(ar_dict))
-            return None
-        report = ar_dict.get(annual_report_type, None)
-        if report is None:
-            print('__get_annual_report() - Fail.')
-            return None
-
-        # 3.Format
-        report = self.__check_format_downloaded_annual_report(report)
-        if report is None:
-            print('__check_format_downloaded_annual_report() - Error format of annual report and cannot recover.')
-            return None
-
-        # 4.Save
-        self.__save_annual_report(stock_code, report, annual_report_type)
-
-        return report
-
-    def __query_annual_report(self, annual_report_table: str, condition: str) -> {str: pd.DataFrame}:
-        annual_report = sAs.GetInstance.GetDataCenterDB().DataFrameFromDB(
-            annual_report_table, DataCenterCore.FINANCIAL_STATEMENTS_FIELDS, condition)
-        if annual_report is None or len(annual_report) == 0:
-            return None
-        return self.__json_df_to_annual_df(annual_report)
-
+    # Return: pd.DataFrame
+    #   Column:
+    #       stock: str -> Stock code
+    #       date: str of date -> 2010|2010-09|2010-09-08
+    #       content: bytes -> File data
     @staticmethod
-    def __download_annual_report(stock_code: str, annual_report_type: str) -> {str: pd.DataFrame}:
+    def DownloadAnnualFinaReport(stock_code: str, extension: str, year_from: int, year_to: int):
         ctx = data_collector.FetchContext()
-        return sAs.GetInstance.GetDataCollector().FetchStockAnnualReport(ctx, stock_code, [annual_report_type, ])
+        return sAs.GetInstance.GetDataCollector().FetchStockIntroduction(
+            ctx, stock_code, 'annual', [extension, ], str(year_from), str(year_to))
 
     @staticmethod
     def __check_format_downloaded_annual_report(annual_report: pd.DataFrame) -> pd.DataFrame:
@@ -173,38 +97,132 @@ class DataCenterCore:
 
         # Remove empty row
         annual_report = annual_report.loc[annual_report.index != '']
-        annual_report.to_csv('D:/test.csv')
+        # annual_report.to_csv('D:/test.csv')
 
         return annual_report
 
 
+class DataDB:
+    STOCK_INFORMATION_TABLE_DESC = [
+        ['company_name', 'varchar(255)'],
+        ['stock_name_a', 'varchar(16)'],
+        ['stock_code_a', 'varchar(16)'],
+        ['stock_name_b', 'varchar(16)'],
+        ['stock_code_b', 'varchar(16)'],
+        ['industry', 'varchar(100)'],
+
+        ['area', 'varchar(100)'],
+        ['city', 'varchar(100)'],
+        ['provinces', 'varchar(100)'],
+        ['web_address', 'varchar(100)'],
+
+        ['reg_address', 'varchar(255)'],
+        ['english_name', 'varchar(255)'],
+        ['listing_date_a', 'date'],
+        ['listing_date_b', 'date']
+        ]
+
+    FINANCIAL_STATEMENTS_TABLE = \
+        'FinancialDataTable'
+    FINANCIAL_STATEMENTS_FIELDS = [
+        'stock_code',
+        'report_type',
+        'accounting_annual',
+        'financial_data'
+    ]
+    FINANCIAL_STATEMENTS_TABLE_DESC = [
+        ['serial', 'int'],
+        ['stock_code', 'varchar(20)'],
+        ['report_type', 'int'],
+        ['accounting_annual', 'int'],
+        ['financial_data', 'TEXT'],
+    ]
+
+    def __init__(self, data_web: DataWeb):
+        self.__data_web = data_web
+
+    def Init(self,) -> bool:
+        execute_statues = True
+        if sAs.GetInstance.GetDataCenterDB().TableExists(
+                DataDB.FINANCIAL_STATEMENTS_TABLE):
+            execute_statues = sAs.GetInstance.GetDataCenterDB().CreateTable(
+                DataDB.FINANCIAL_STATEMENTS_TABLE,
+                DataDB.FINANCIAL_STATEMENTS_TABLE_DESC) and execute_statues
+        if not execute_statues:
+            print('DataDB : Financial Statement Table Create Fail!')
+            return False
+        return True
+
+    def QueryStockInformation(self) -> pd.DataFrame:
+        df = sAs.GetInstance.GetDataCenterDB().DataFrameFromDB('StockInformation', [])
+        if df is None:
+            df = self.__data_web.DownloadStockIntroduction()
+            if df is not None:
+                sAs.GetInstance.GetDataCenterDB().DataFrameToDB('StockInformation', df)
+        return df
+
+    # Return value: None if fail
+    def QueryAnnualReport(self, stock_code: str, year_from: int, year_to: int) -> pd.DataFrame:
+        condition = " stock_code = '" + stock_code + "'"
+        year_begin, year_end = public.common.correct_start_end(
+            year_from, year_to, 2000, public.common.Date()[0])
+        condition += ' AND accounting_annual >= ' + str(year_begin) + ' AND accounting_annual <= ' + str(year_end)
+        ar_dict = self.__query_annual_report(DataDB.FINANCIAL_STATEMENTS_TABLE, condition)
+        df = ar_dict.get(stock_code, None)
+        if df is None:
+            df = self.__download_store_annual_report(stock_code)
+        return df
+
+    def __download_store_annual_report(self, stock_code: str):
+        df = pd.DataFrame()
+        ar_dict = self.__data_web.DownloadStockAnnualFinaData(stock_code, 'all')
+        if ar_dict is None or len(ar_dict) == 0:
+            print('Get annual report from DataWeb is empty.')
+            return df
+        for k in ar_dict.keys():
+            report = ar_dict.get(k, None)
+            if report is not None:
+                self.__store_annual_report(stock_code, k, report)
+                df = public.common.MergeDataFrameOnIndex(df, report)
+        return df
+
+    # -------------------------------------- private --------------------------------------
+
     # Not use EAV, use JSON.
-    def __save_annual_report(self, stock_code: str, annual_report: pd.DataFrame, annual_report_table: str) -> bool:
+    def __store_annual_report(self, stock_code: str, report_type: str, annual_report: pd.DataFrame) -> bool:
         if annual_report is None:
             return False
-        df_json = self.__annual_df_2_json_df(stock_code, annual_report)
+        report_type_enum = public.constant.annual_report_type2enum(report_type)
+        df_json = self.__annual_df_2_json_df(stock_code, report_type_enum, annual_report)
         if df_json is None or len(df_json) == 0:
             return False
         # Not need to insert serial number
-        df_json.columns = DataCenterCore.FINANCIAL_STATEMENTS_FIELDS
-        ret = self.__del_annual_report(stock_code, [], [annual_report_table]) and \
-                sAs.GetInstance.GetDataCenterDB().DataFrameToDB(annual_report_table, df_json, 'append')
-        return ret
+        df_json.columns = DataDB.FINANCIAL_STATEMENTS_FIELDS
+        self.__del_annual_report(stock_code, [report_type_enum], [])
+        return sAs.GetInstance.GetDataCenterDB().DataFrameToDB(
+            DataDB.FINANCIAL_STATEMENTS_TABLE, df_json, 'append')
+
+    def __query_annual_report(self, annual_report_table: str, condition: str) -> {str: pd.DataFrame}:
+        annual_report = sAs.GetInstance.GetDataCenterDB().DataFrameFromDB(
+            annual_report_table, DataDB.FINANCIAL_STATEMENTS_FIELDS, condition)
+        if annual_report is None or len(annual_report) == 0:
+            return {}
+        return self.__json_df_to_annual_df(annual_report)
 
     @staticmethod
-    def __del_annual_report(stock_code: str, annuals: [int], tables: [str]) -> bool:
-        ret = True
+    def __del_annual_report(stock_code: str, report_types: [int], annuals: [int]) -> bool:
+        types = ','.join([str(t) for t in report_types])
         years = ','.join([str(y) for y in annuals])
-        condition = "StockCode = '" + stock_code + "'"
+        condition = "stock_code = '" + stock_code + "'"
+        if types != '':
+            condition += ' AND report_type IN (' + types + ')'
         if years != '':
-            condition +=  ' AND AccountingAnnual IN (' + years + ')'
-        for table in tables:
-            ret &= sAs.GetInstance.GetDataCenterDB().ExecuteDelete(table, condition)
-        return ret
+            condition += ' AND accounting_annual IN (' + years + ')'
+        return sAs.GetInstance.GetDataCenterDB().ExecuteDelete(DataDB.FINANCIAL_STATEMENTS_TABLE, condition)
 
     # df <-> json
     @staticmethod
-    def __annual_df_2_json_df(stock_code: str, df: pd.DataFrame) -> pd.DataFrame:
+    def __annual_df_2_json_df(stock_code: str, report_type, df: pd.DataFrame) -> pd.DataFrame:
         lines = []
         columns = df.columns.tolist()
         columns = sAs.GetInstance.GetAliasesTable().Standardize(columns)
@@ -212,122 +230,301 @@ class DataCenterCore:
             line = []
             year = index.split('-')[0]
             line.append(stock_code)                 # The 1st column
-            line.append(year)                       # The 2nd column
+            line.append(report_type)                # The 2nd column
+            line.append(year)                       # The 3rd column
             properties = {}
             for r, c in zip(row, columns):
                 properties[c] = r
-            line.append(json.dumps(properties))     # The 3rd column
+            line.append(json.dumps(properties))     # The 4th column
             lines.append(line)
         return pd.DataFrame(lines)
 
     @staticmethod
     def __json_df_to_annual_df(df_json: pd.DataFrame) -> {str: pd.DataFrame}:
-        if DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[0] not in df_json.columns or\
-            DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[1] not in df_json.columns or\
-                DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[2] not in df_json.columns:
-            return None
-        df_trim = df_json[[DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[0],       # StockCode -> #0
-                           DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[1],       # AccountingAnnual -> #1
-                           DataCenterCore.FINANCIAL_STATEMENTS_FIELDS[2]]]      # FinancialData -> #2
-        map_df_stocks = {}
+        if DataDB.FINANCIAL_STATEMENTS_FIELDS[0] not in df_json.columns or\
+            DataDB.FINANCIAL_STATEMENTS_FIELDS[2] not in df_json.columns or\
+                DataDB.FINANCIAL_STATEMENTS_FIELDS[3] not in df_json.columns:
+            return {}
+        df_trim = df_json[[DataDB.FINANCIAL_STATEMENTS_FIELDS[0],       # stock_code -> #0
+                           DataDB.FINANCIAL_STATEMENTS_FIELDS[2],       # accounting_annual -> #1
+                           DataDB.FINANCIAL_STATEMENTS_FIELDS[3]]]      # financial_data -> #2
+        map_stock_prop = {}
         for index, row in df_trim.iterrows():
             stock_code = row[0]
             accounting_annual = row[1]
             financial_data = row[2]
 
+            map_properties = map_stock_prop.get(stock_code, None)
+            if map_properties is None:
+                map_properties = {}
+                map_stock_prop[stock_code] = map_properties
+
             properties = json.loads(financial_data)
-            properties['AccountingAnnual'] = accounting_annual
-            df_line = pd.DataFrame(properties, index=['properties'])
-
-            if map_df_stocks.get(stock_code, None) is not None:
-                map_df_stocks[stock_code] = map_df_stocks[stock_code].append(df_line)
+            exist_properties = map_properties.get(accounting_annual, None)
+            if exist_properties is not None:
+                exist_properties.update(properties)
             else:
-                map_df_stocks[stock_code] = df_line
+                map_properties[accounting_annual] = properties
 
-        for k in map_df_stocks.keys():
-            df_ref = map_df_stocks.get(k)
-            df_ref.set_index('AccountingAnnual', inplace=True, drop=True)
-            df_ref.columns = sAs.GetInstance.GetAliasesTable().Readablize(df_ref.columns.tolist())
+        map_df_stocks = {}
+        for stock_code in map_stock_prop.keys():
+            map_properties = map_stock_prop.get(stock_code)
+            for annual in map_properties:
+                properties = map_properties.get(annual, None)
+                properties['accounting_annual'] = accounting_annual
+                df_line = pd.DataFrame([properties], columns=properties.keys())
+                df_line.set_index('accounting_annual', inplace=True)
+
+                df_exists = map_df_stocks.get(stock_code, None)
+                if df_exists is not None:
+                    map_df_stocks[stock_code] = df_exists.append(df_line)
+                else:
+                    map_df_stocks[stock_code] = df_line
+        for stock_code in map_df_stocks.keys():
+            df = map_df_stocks.get(stock_code)
+            if df is not None and 'accounting_annual' in df.columns.tolist():
+                df.set_index('accounting_annual', inplace=True)
+                df.sort_index(inplace=True)
+
+        # for k in map_df_stocks.keys():
+        #     df_ref = map_df_stocks.get(k)
+        #     df_ref.set_index('accounting_annual', inplace=True, drop=True)
+            # df_ref.columns = sAs.GetInstance.GetAliasesTable().Readablize(df_ref.columns.tolist())
         return map_df_stocks
 
 
-class DataCenter:
-    def __init__(self):
-        self.__core = DataCenterCore()
-        # {stock_code: {table_name, df}}
-        self.__cache_annual_report = {}
+class DataCache:
+
+    def __init__(self, data_db: DataDB):
+        self.__data_db = data_db
+        self.__cached_stock_info = None
+        self.__cached_stock_table = {}
+        self.__cached_annual_report = {}
 
     def Init(self) -> bool:
-        return self.__core.Init()
+        return True
 
-    def CacheAnnualReportData(self, stock_codes: [str]):
-        for stock in stock_codes:
-            self.__cache_annual_report[stock] = \
-                self.__core.GetStockAnnualReportData(
-                stock, 0, 0, public.constant.ANNUAL_REPORT_TYPES)
+    def GetStockTable(self) -> dict:
+        if self.__cached_stock_table is None or len(self.__cached_stock_table) == 0:
+            self.__cache_stock_information()
+        return self.__cached_stock_table
 
-    # return -> {year, value}
-    def GetStockAnnualReportDataSerial(self, stock_code: str, accounting: str, years: [int]) -> {int: float}:
-        pass
+    def GetStockInformation(self) -> pd.DataFrame:
+        if self.__cached_stock_info is None or len(self.__cached_stock_info) == 0:
+            self.__cache_stock_information()
+        return self.__cached_stock_info
 
-    # return -> {StockCode, DataFrame}
-    def GetStockAnnualReportDataTable(self, stock_codes: [str], accounting: [str], years: [int] = []) -> {str: pd.DataFrame}:
-        ret = {}
-        if isinstance(stock_codes, str):
-            stock_codes = [stock_codes, ]
-        account_s = sAs.GetInstance.GetAliasesTable().Standardize(accounting)
-        for stock in stock_codes:
-            if len(accounting) > 0:
-                df_stock = pd.DataFrame(columns=account_s)
-            else:
-                df_stock = None
-            for report_type in public.constant.ANNUAL_REPORT_TYPES:
-                report = self.__get_cached_stock_annual_report(stock, report_type)
-                if report is None:
-                    self.CacheAnnualReportData([stock, ])
-                report = self.__get_cached_stock_annual_report(stock, report_type)
-                if report is not None:
-                    if len(years) != 0:
-                        report = report.loc[[str(y) for y in years]]
-                    if df_stock is not None:
-                        public.common.DataFrameColumnCopy(report, df_stock, account_s)
-                    else:
-                        df_stock = report
-            if len(accounting) > 0:
-                df_stock.columns = accounting
-            else:
-                df_stock.columns = sAs.GetInstance.GetAliasesTable().Readablize(df_stock.columns.tolist())
-            if len(years) != 0:
-                df_stock.index = years
-            ret[stock] = df_stock
+    def GetAnnualFinaReport(self, stock_code: str, year_from: int, year_to: int) -> pd.DataFrame:
+        df = self.__cached_annual_report.get(stock_code, None)
+        year_start, year_end = public.common.correct_start_end(
+            year_from, year_to, 2000, public.common.Date()[0])
+        if df is not None:
+            missing_year = public.common.set_missing(range(year_start, year_end), df.index)
+            if len(missing_year) == 0:
+                return df.loc[year_start: year_end]
+        df = self.__cache_annual_report(stock_code, year_start, year_end)
+        return df
+
+    # ---------------------------------------- private ----------------------------------------
+
+    def __cache_stock_information(self):
+        self.__cached_stock_info = self.__data_db.QueryStockInformation()
+        if self.__cached_stock_info is not None:
+            self.__cached_stock_table = self.__cached_stock_info.set_index('stock_code_a')['stock_name_a'].to_dict()
+
+    def __cache_annual_report(self, stock_code: str, year_from: int, year_to: int) -> pd.DataFrame:
+        df = self.__data_db.QueryAnnualReport(stock_code, year_from, year_to)
+        if df is None or len(df) == 0:
+            print('Get annual report from DataDB is empty.')
+        exist_df = self.__cached_annual_report.get(stock_code, None)
+        if exist_df is None:
+            self.__cached_annual_report[stock_code] = df
+        else:
+            self.__cached_annual_report[stock_code] = pd.concat([exist_df, df], axis=1)
+        return df
+
+
+class DataCenter:
+
+    def __init__(self):
+        self.__data_web = DataWeb()
+        self.__data_db = DataDB(self.__data_web)
+        self.__data_cache = DataCache(self.__data_db)
+
+    def Init(self) -> bool:
+        ret = True
+        ret &= self.__data_web.Init()
+        ret &= self.__data_db.Init()
+        ret &= self.__data_cache.Init()
         return ret
 
-    # --------------------------------------- private ---------------------------------------
+    # Return : map
+    #    Key -> Stock code
+    #    Value -> Stock name
+    def GetStockTable(self) -> {str, str}:
+        return self.__data_cache.GetStockTable()
 
-    def __get_cached_stock_data(self, stock_code: str) -> {str: pd.DataFrame}:
-        return self.__cache_annual_report.get(stock_code, None)
-
-    # report_type -> public.constant.ANNUAL_REPORT_TYPES
-    def __get_cached_stock_annual_report(self, stock_code: str, report_type: str) -> pd.DataFrame:
-        tables = self.__cache_annual_report.get(stock_code, None)
-        if tables is None:
-            return None
-        return tables.get(report_type, None)
-
-    # For test
-    @staticmethod
-    def SubAnnualReportTable(df: pd.DataFrame, years: [int], accounting: [str]) -> pd.DataFrame:
-        return DataCenter.__sub_annual_report_table(df, years, accounting)
-
-    @staticmethod
-    def __sub_annual_report_table(df: pd.DataFrame, years: [int], accounting: [str]) -> pd.DataFrame:
-        df_sub = pd.DataFrame()
-        for a in accounting:
-            if a not in df.columns:
-                serial = np.empty(df.shape[0])
-                serial.fill(np.nan)
+    # return -> DataFrame
+    def GetStockAnnualReportData(self,
+                                 stock_code: str, accounting: [str], year_from: int, year_to: int) -> pd.DataFrame:
+        year_start, year_end = public.common.correct_start_end(year_from, year_to, 2000, public.common.Date()[0])
+        account_s = sAs.GetInstance.GetAliasesTable().Standardize(accounting)
+        if len(account_s) > 0:
+            df_stock = pd.DataFrame(columns=account_s)
+        else:
+            df_stock = None
+        report = self.__data_cache.GetAnnualFinaReport(stock_code, year_start, year_end)
+        if report is None or len(report) == 0:
+            print('Get annual report from DataCache is empty.')
+        if report is not None:
+            if df_stock is not None:
+                public.common.DataFrameColumnCopy(report, df_stock, account_s)
             else:
-                serial = df[a]
-            df_sub.insert(len(df_sub.columns), a, serial)
-        return df_sub.loc[years]
+                df_stock = report
+
+            print(df_stock)
+
+            if len(accounting) > 0:
+                df_stock.columns = accounting
+            if len(df_stock) > 0:
+                df_stock.index = report.index
+                df_stock.sort_index(inplace=True)
+                df_stock.convert_objects(convert_numeric=True)
+            return df_stock
+        return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # def __get_annual_report(self, stock_code: str, annual_report_type: str, condition: str) -> pd.DataFrame:
+    #     # 1.Query
+    #     result = self.__query_annual_report(annual_report_type, condition)
+    #     if result is not None and len(result) > 0:
+    #         return result.get(stock_code, None)
+    #
+    #     # 2.Download
+    #     ar_dict = self.__download_annual_report(stock_code, annual_report_type)
+    #     if ar_dict is None or not isinstance(ar_dict, dict):
+    #         print('__download_annual_report() : Wrong result - ', type(ar_dict))
+    #         return None
+    #     report = ar_dict.get(annual_report_type, None)
+    #     if report is None:
+    #         print('__get_annual_report() - Fail.')
+    #         return None
+    #
+    #     # 3.Format
+    #     report = self.__check_format_downloaded_annual_report(report)
+    #     if report is None:
+    #         print('__check_format_downloaded_annual_report() - Error format of annual report and cannot recover.')
+    #         return None
+    #
+    #     # 4.Save
+    #     self.__save_annual_report(stock_code, report, annual_report_type)
+    #
+    #     return report
+    #
+    # def CacheAnnualReportData(self, stock_codes: [str]):
+    #     for stock in stock_codes:
+    #         self.__cache_annual_report[stock] = \
+    #             self.__core.GetStockAnnualReportData(
+    #             stock, 0, 0, public.constant.ANNUAL_REPORT_TYPES)
+
+
+
+    # def DownloadAnnualReportPDF(self, root_path: str, stock_codes: [str], annual: [int]):
+    #     ctx = data_collector.FetchContext()
+    #     sAs.GetInstance.GetDataCollector().DownloadStockAnnualReport(
+    #         ctx,
+    #     )
+    #
+    # # --------------------------------------- private ---------------------------------------
+    #
+    # def __get_cached_stock_data(self, stock_code: str) -> {str: pd.DataFrame}:
+    #     return self.__cache_annual_report.get(stock_code, None)
+    #
+    # # report_type -> public.constant.ANNUAL_REPORT_TYPES
+    # def __get_cached_stock_annual_report(self, stock_code: str, report_type: str) -> pd.DataFrame:
+    #     tables = self.__cache_annual_report.get(stock_code, None)
+    #     if tables is None:
+    #         return None
+    #     return tables.get(report_type, None)
+
+    # # For test
+    # @staticmethod
+    # def SubAnnualReportTable(df: pd.DataFrame, years: [int], accounting: [str]) -> pd.DataFrame:
+    #     return DataCenter.__sub_annual_report_table(df, years, accounting)
+
+    # @staticmethod
+    # def __sub_annual_report_table(df: pd.DataFrame, years: [int], accounting: [str]) -> pd.DataFrame:
+    #     df_sub = pd.DataFrame()
+    #     for a in accounting:
+    #         if a not in df.columns:
+    #             serial = np.empty(df.shape[0])
+    #             serial.fill(np.nan)
+    #         else:
+    #             serial = df[a]
+    #         df_sub.insert(len(df_sub.columns), a, serial)
+    #     return df_sub.loc[years]
 
