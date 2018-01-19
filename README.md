@@ -16,4 +16,5 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 5. 分析模块（策略模块）应该可以动态扩充和组合
 
 暂停更新，感觉设计有问题，寻求更好的设计（如bigquant），并期望融合回测框架（如zipline）。
+
 Pause update. Meet design problem. Seeking for a better design.
