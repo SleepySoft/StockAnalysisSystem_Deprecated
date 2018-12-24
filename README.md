@@ -18,3 +18,44 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 暂停更新，感觉设计有问题，寻求更好的设计（如bigquant），并期望融合回测框架（如zipline）。
 
 Pause update. Meet design problem. Seeking for a better design.
+
+-----------------------------------------------------------
+
+20181224 准备填坑，计划如下：
+
+加入界面：pyqt
+黑/灰名单功能：手动录入 -> DB
+所有信息本地存储，检查更新或手动更新
+复权指数抓取 -> DB
+财报抓取 ->文件
+财务数据抓取：严格字段名及单位 -> DB -> Analysis
+股票日历：开/闭市，牛市熊市区间标记
+指数贡献一览
+
+尝试用以下的表对股票进行分析：
+
+炒作可能性   |                                 公司质量                                     |   
+             |     垃圾     |      差      |      中等      |      稳健      |     极好     |
+   极高      |                                                                               
+    高       |                                                                               
+   中等      |                                                                               
+   稳健      |                                                                               
+    低       |                                                                               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
