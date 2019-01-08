@@ -9,13 +9,17 @@ author:Sleepy
 @modify:
 """
 import traceback
+from Collector.stock_calendar import StockCalendar
 import stock_analysis_system as sAs
 
 
 def main():
+    sc = StockCalendar()
+    sc.check_update()
+    sc.load_from_db()
+    pass
     # cf = Collector_FinanceData_163()
     # cf.Fetch('002184')
-    sAs.GetInstance.Init()
     # l = sAs.GetInstance.GetDataCenter().GetStockList()
     # dc = DataCollector()
     #
@@ -38,7 +42,8 @@ def main():
     #     '600000', 2000, 2017, DataCenter.ANNUAL_REP_TYPE_ALL)
     # print(df)
 
-    strategy_report = sAs.GetInstance.GetStrategyManager().ExecuteStrategy()
+    # sAs.GetInstance.Init()
+    # strategy_report = sAs.GetInstance.GetStrategyManager().ExecuteStrategy()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
