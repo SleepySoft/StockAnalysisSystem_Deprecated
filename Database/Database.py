@@ -22,9 +22,9 @@ class Database:
         return cls._instance
 
     def __init__(self):
-        self.__sAsUtility = DatabaseRW('sAsUtility.db')
-        self.__sAsDailyData = DatabaseRW('sAsDailyData.db')
-        self.sAsFinanceData = DatabaseRW('sAsFinanceData.db')
+        self.__sAsUtility = DatabaseRW('Data/sAsUtility.db')
+        self.__sAsDailyData = DatabaseRW('Data/sAsDailyData.db')
+        self.__sAsFinanceData = DatabaseRW('Data/sAsFinanceData.db')
 
     def GetUtilityDB(self) -> DatabaseRW:
         return self.__sAsUtility
@@ -33,6 +33,6 @@ class Database:
         return self.__sAsDailyData
 
     def FinanceDataDB(self) -> DatabaseRW:
-        return self.sAsFinanceData
+        return self.__sAsFinanceData
 
 
