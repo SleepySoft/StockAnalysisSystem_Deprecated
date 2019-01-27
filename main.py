@@ -1,52 +1,31 @@
-#!usr/bin/env python
-#-*- coding:utf-8 _*-
-"""
-@version:
-author:Sleepy
-@time: 2017/08/21
-@file: main.py
-@function:
-@modify:
-"""
+import sys
 import traceback
-from Collector.stock_calendar import StockCalendar
-import stock_analysis_system as sAs
+import main_ui
+
+from PyQt5.QtWidgets import QApplication
 
 
 def main():
-    sc = StockCalendar()
-    sc.check_update()
-    sc.load_from_db()
-    pass
-    # cf = Collector_FinanceData_163()
-    # cf.Fetch('002184')
-    # l = sAs.GetInstance.GetDataCenter().GetStockList()
-    # dc = DataCollector()
-    #
-    # ctx = FetchContext()
-    #
-    # si = dc.FetchStockInformation(ctx, '')
-    # ar = dc.FetchStockAnnualReport(ctx, '600000')
-
-    # text = public.common.DownloadText('http://quotes.money.163.com/service/zcfzb_600000.html?type=year', 'gb2312')
-    # text = public.common.DownloadText('http://quotes.money.163.com/service/lrb_600000.html?type=year', 'gb2312')
-    # text = public.common.DownloadText('http://quotes.money.163.com/service/xjllb_600000.html?type=year', 'gb2312')
-    # bytes = public.common.Download('http://quotes.money.163.com/service/xjllb_600000.html?type=year')
-    # with open('d:/t.csv', 'wb') as f:
-    #     f.write(bytes)
-    # # df = pd.read_csv('d:/t.csv', encoding='utf-8')
-    # df = pd.read_csv(BytesIO(bytes), encoding='gb2312')
-    # print(df)
-
-    # df = sAs.GetInstance.GetDataCenter().GetStockAnnualReportData(
-    #     '600000', 2000, 2017, DataCenter.ANNUAL_REP_TYPE_ALL)
-    # print(df)
-
-    # sAs.GetInstance.Init()
-    # strategy_report = sAs.GetInstance.GetStrategyManager().ExecuteStrategy()
+    app = QApplication(sys.argv)
+    main_wnd = main_ui.MainWindow()
+    main_wnd.show()
+    app.exec_()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+
+def exception_hook(type, value, tback):
+    # log the exception here
+    print('Exception hook triggered.')
+    print(type)
+    print(value)
+    print(tback)
+    # then call the default handler
+    sys.__excepthook__(type, value, tback)
+
+
+sys.excepthook = exception_hook
+
 
 if __name__ == "__main__":
     try:
