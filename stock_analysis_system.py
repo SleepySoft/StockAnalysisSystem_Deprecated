@@ -10,7 +10,7 @@ author:YuQiu
 """
 
 import public.db_access
-import public.aliases_table
+from AliasTable import AliasTable
 
 
 class StockAnalysisSystem:
@@ -33,7 +33,7 @@ class StockAnalysisSystem:
         self.__db_plug_in = public.db_access.DBAccess()
         self.__db_name_table = public.db_access.DBAccess()
         self.__db_data_center = public.db_access.DBAccess()
-        self.__aliases_table = public.aliases_table.AliasesTable()
+        self.__aliases_table = AliasTable.AliasesTable()
 
         import data_center
         import data_collector
@@ -69,7 +69,7 @@ class StockAnalysisSystem:
         self.__check_init(True)
         return self.__db_data_center
 
-    def GetAliasesTable(self) -> public.aliases_table.AliasesTable:
+    def GetAliasesTable(self) -> AliasTable.AliasesTable:
         self.__check_init(True)
         return self.__aliases_table
 
