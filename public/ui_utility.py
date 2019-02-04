@@ -8,7 +8,8 @@ from types import SimpleNamespace
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget, QPushButton, \
-    QDockWidget, QAction, qApp, QMessageBox, QDialog, QVBoxLayout, QLabel, QGroupBox, QBoxLayout
+    QDockWidget, QAction, qApp, QMessageBox, QDialog, QVBoxLayout, QLabel, QGroupBox, QBoxLayout, QTableWidget, \
+    QTableWidgetItem
 
 import readme
 
@@ -201,5 +202,29 @@ class CommonMainWindow(QMainWindow):
             sys.exit(0)
         else:
             pass
+
+
+# =========================================== CommonMainWindow ===========================================
+
+class EasyQTableWidget(QTableWidget):
+    def __init__(self, *__args):
+        super(EasyQTableWidget, self).__init__(*__args)
+
+    def AppendRow(self, content: [str]):
+        row_count = self.__table_standard_name.rowCount()
+        for col in range(0, len(content)):
+            self.insertRow(row_count)
+            self.setItem(row_count, col, QTableWidgetItem(content[col]))
+
+    def GetCurrentRow(self) -> [str]:
+        row_index = self.GetCurrentIndex()
+        if row_index == -1:
+            return []
+        return [self.model().index(row_index, col_index).data() for col_index in range(self.columnCount())]
+
+    def GetCurrentIndex(self) -> int:
+        return self.selectionModel().currentIndex().row() if self.selectionModel().hasSelection() else -1
+
+
 
 

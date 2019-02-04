@@ -25,8 +25,8 @@ class AliasTableUi(QWidget):
         self.__line_alias = QLineEdit()
         self.__line_standard = QLineEdit()
         self.__line_standard_edit = QLineEdit()
-        self.__table_alias = QTableWidget(0, 2)
-        self.__table_standard_name = QTableWidget(0, 2)
+        self.__table_alias = EasyQTableWidget(0, 2)
+        self.__table_standard_name = EasyQTableWidget(0, 2)
 
         self.__button_add = QPushButton(self.__translate('', '添加别名'))
         self.__button_del_alias = QPushButton(self.__translate('', '删除别名'))
@@ -70,11 +70,25 @@ class AliasTableUi(QWidget):
         self.__table_standard_name.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.__table_standard_name.setSelectionMode(QAbstractItemView.SingleSelection)
 
+        self.__table_alias.clicked.connect(self.on_click_table_alias)
+        self.__table_standard_name.clicked.connect(self.on_click_table_standard_name)
+
         self.__button_add.clicked.connect(self.on_button_click_add)
         self.__button_del_alias.clicked.connect(self.on_button_click_del_alias)
         self.__button_load_csv.clicked.connect(self.on_button_click_load_csv)
         self.__button_del_standard.clicked.connect(self.on_button_click_del_standard)
         self.__button_update_standard.clicked.connect(self.on_button_click_update_standard)
+
+    def on_click_table_alias(self):
+        row_content = self.__table_alias.GetCurrentRow()
+        if len(row_content) >= 2:
+            self.__line_alias.setText(row_content[0])
+            self.__line_standard.setText(row_content[1])
+
+    def on_click_table_standard_name(self):
+        standard_name = self.__table_standard_name.GetCurrentRow()
+        if len(standard_name) >= 1:
+            self.__line_standard_edit.setText(standard_name[0])
 
     def on_button_click_add(self):
         alias = self.__line_alias.text()
@@ -100,7 +114,6 @@ class AliasTableUi(QWidget):
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
             self.__alias_table.LoadFromCsv(file_path, True)
-
 
     def on_button_click_del_standard(self):
         select_model = self.__table_standard_name.selectionModel()
