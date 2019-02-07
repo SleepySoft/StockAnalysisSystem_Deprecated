@@ -3,8 +3,8 @@
 """
 @version:
 author:Sleepy
-@time: 2017/08/08
-@file: AliasTable.py
+@time: 2019/02/02
+@file: MappingTable.py
 @function:
 @modify:
 """
@@ -40,6 +40,8 @@ class AliasTable:
     def AddAlias(self, aliases_name: str, standard_name: str):
         if standard_name == '' and aliases_name == '':
             return
+        if aliases_name in self.__standard_name_list:
+            return
         if standard_name != '' and standard_name not in self.__standard_name_list:
             self.__standard_name_list.append(standard_name)
         if aliases_name != '':
@@ -64,6 +66,8 @@ class AliasTable:
         if standard_name in self.__standard_name_list:
             self.__standard_name_list.remove(standard_name)
             self.__standard_name_list.append(standard_name_new)
+        if standard_name in self.__aliases_standard_table.keys():
+            del self.__aliases_standard_table[standard_name]
 
     def Standardize(self, name: list or str) -> list or str:
         if isinstance(name, str):

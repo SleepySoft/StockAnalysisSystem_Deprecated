@@ -211,9 +211,9 @@ class EasyQTableWidget(QTableWidget):
         super(EasyQTableWidget, self).__init__(*__args)
 
     def AppendRow(self, content: [str]):
-        row_count = self.__table_standard_name.rowCount()
+        row_count = self.rowCount()
+        self.insertRow(row_count)
         for col in range(0, len(content)):
-            self.insertRow(row_count)
             self.setItem(row_count, col, QTableWidgetItem(content[col]))
 
     def GetCurrentRow(self) -> [str]:

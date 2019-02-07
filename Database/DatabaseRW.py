@@ -194,6 +194,10 @@ class DatabaseRW:
             df.columns = columns
         return self.DataFrameToDB(table_name, df)
 
+    def DictToDB(self, table_name: str, dict_: dict, columns: [str] = None) -> bool:
+        df = pd.DataFrame(list(dict_.items()), columns=columns)
+        return self.DataFrameToDB(table_name, df)
+
     def DataFrameToDB(self, table_name: str, df: pd.DataFrame, if_exists: str = 'replace') -> bool:
         connection, cursor = self.BuildConnectionCursor()
         if cursor is None:
@@ -219,6 +223,19 @@ class DatabaseRW:
         cursor.close()
         connection.close()
         return values
+
+    def DictFromDB(self, table_name, columns: [str], condition: str = '') -> dict:
+        connection, cursor = self.ExecuteSelect(table_name, columns, condition)
+        if cursor is None:
+            return None
+        values = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        dict_ = {}
+        for key, val in values:
+            dict_[key] = val
+        return dict_
 
     def DataFrameFromDB(self, table_name: str, columns: [str] = [], condition: str = '') -> pd.DataFrame:
         sql = self.__gen_sql_select(table_name, columns, condition)

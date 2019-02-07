@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f2f62898-8dab-47ee-a1c9-b860548fa2ea" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/AliasTable/AliasTableUi.py" beforeDir="false" afterPath="$PROJECT_DIR$/AliasTable/AliasTableUi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doc/DBDesign.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Doc/DBDesign.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doc/DevelopNote.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Doc/DevelopNote.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AliasTable/AliasTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTable/AliasTable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AliasTable/AliasTableUi.py" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTable/AliasTableUi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AliasTable/NameTable.csv" beforeDir="false" afterPath="$PROJECT_DIR$/MappingTable/NameTable.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/sAsUtility.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/sAsUtility.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/DatabaseRW.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/DatabaseRW.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_ui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/public/ui_utility.py" beforeDir="false" afterPath="$PROJECT_DIR$/public/ui_utility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stock_analysis_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/stock_analysis_system.py" afterDir="false" />
     </list>
     <ignored path="StockAnalysisSystem.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -27,8 +32,8 @@
       <file leaf-file-name="main_ui.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_ui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="93" column="42" selection-start-line="93" selection-start-column="42" selection-end-line="93" selection-end-column="42" />
+            <state relative-caret-position="177">
+              <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
               <folding>
                 <element signature="e#43#72#0" expanded="true" />
               </folding>
@@ -36,13 +41,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AliasTableUi.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/AliasTable/AliasTableUi.py">
+      <file leaf-file-name="ColumnTableUi.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/MappingTable/ColumnTableUi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="85" column="56" lean-forward="true" selection-start-line="85" selection-start-column="56" selection-end-line="85" selection-end-column="56" />
+            <state relative-caret-position="209">
+              <caret line="76" column="42" selection-start-line="76" selection-start-column="42" selection-end-line="76" selection-end-column="42" />
               <folding>
-                <element signature="e#134#276#0" expanded="true" />
+                <element signature="e#137#290#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -51,8 +56,8 @@
       <file leaf-file-name="ui_utility.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/ui_utility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="214" column="42" lean-forward="true" selection-start-line="214" selection-start-column="42" selection-end-line="214" selection-end-column="42" />
+            <state relative-caret-position="124">
+              <caret line="213" column="24" selection-start-line="213" selection-start-column="24" selection-end-line="213" selection-end-column="24" />
               <folding>
                 <element signature="e#44#54#0" expanded="true" />
               </folding>
@@ -60,23 +65,47 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AliasTable.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AliasTable/AliasTable.py">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="32" column="28" lean-forward="true" selection-start-line="32" selection-start-column="28" selection-end-line="32" selection-end-column="28" />
+            <state relative-caret-position="114">
+              <caret line="11" selection-start-line="11" selection-end-line="11" />
               <folding>
-                <element signature="e#136#147#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Database.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Database/Database.py">
+      <file leaf-file-name="AliasTableUi.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MappingTable/AliasTableUi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-38">
-              <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+            <state relative-caret-position="122">
+              <caret line="77" column="72" selection-start-line="77" selection-start-column="68" selection-end-line="77" selection-end-column="72" />
+              <folding>
+                <element signature="e#136#278#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ColumnTable.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MappingTable/ColumnTable.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AliasTable.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MappingTable/AliasTable.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="29" column="16" lean-forward="true" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
+              <folding>
+                <element signature="e#138#149#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -84,8 +113,8 @@
       <file leaf-file-name="DatabaseRW.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Database/DatabaseRW.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="606">
-              <caret line="170" column="62" lean-forward="true" selection-start-line="170" selection-start-column="62" selection-end-line="170" selection-end-column="62" />
+            <state relative-caret-position="189">
+              <caret line="233" lean-forward="true" selection-start-line="233" selection-end-line="233" />
             </state>
           </provider>
         </entry>
@@ -105,7 +134,6 @@
       <find>BuildConnection</find>
       <find>return</find>
       <find>__add_aliases</find>
-      <find>ALIASES_TABLE_FIELD</find>
       <find>__standard2aliases_table</find>
       <find>__standard_name_list</find>
       <find>json</find>
@@ -116,15 +144,27 @@
       <find>__menu_view</find>
       <find>pop</find>
       <find>RebuildTable</find>
-      <find>__update_alias_table</find>
       <find>Load Aliases Table Fail</find>
       <find>__button_load_csv</find>
-      <find>__table_alias</find>
       <find>dump</find>
+      <find>__table_alias</find>
+      <find>ALIASES_TABLE_FIELD</find>
+      <find>alias_table</find>
+      <find>__count_alias</find>
+      <find>DumpToDB</find>
+      <find>UpdateColumn</find>
+      <find>__table_standard_name</find>
+      <find>__update_alias_table</find>
+      <find>Load</find>
+      <find>Init</find>
+      <find>__alias_table_module_ui</find>
+      <find>LoadFromDB</find>
     </findStrings>
     <replaceStrings>
-      <replace>__table_alias</replace>
       <replace>__aliases_standard_table</replace>
+      <replace>__table_alias</replace>
+      <replace>COLUMN_TABLE_FIELD</replace>
+      <replace>column_table</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\D\Code\git\StockAnalysisSystem</dir>
@@ -134,7 +174,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/AliasTable/AliasTable.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/MappingTable/ColumnTable.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/Database/DatabaseRW.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/MappingTable/AliasTable.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -144,7 +186,6 @@
         <option value="$PROJECT_DIR$/Interface/Collector.py" />
         <option value="$PROJECT_DIR$/collector/stock_calendar.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/Database/DatabaseRW.py" />
         <option value="$PROJECT_DIR$/Collector/stock_calendar.py" />
         <option value="$PROJECT_DIR$/Database/Database.py" />
         <option value="$PROJECT_DIR$/readme.py" />
@@ -152,10 +193,15 @@
         <option value="$PROJECT_DIR$/public/aliases_table.py" />
         <option value="$PROJECT_DIR$/aliases_table.py" />
         <option value="$PROJECT_DIR$/AliasTable.py" />
-        <option value="$PROJECT_DIR$/AliasTable/AliasTable.py" />
-        <option value="$PROJECT_DIR$/main_ui.py" />
-        <option value="$PROJECT_DIR$/public/ui_utility.py" />
         <option value="$PROJECT_DIR$/AliasTable/AliasTableUi.py" />
+        <option value="$PROJECT_DIR$/AliasTable/AliasTable.py" />
+        <option value="$PROJECT_DIR$/MappingTable/AliasTableUi.py" />
+        <option value="$PROJECT_DIR$/MappingTable/AliasTable.py" />
+        <option value="$PROJECT_DIR$/MappingTable/ColumnTable.py" />
+        <option value="$PROJECT_DIR$/public/ui_utility.py" />
+        <option value="$PROJECT_DIR$/main_ui.py" />
+        <option value="$PROJECT_DIR$/Database/DatabaseRW.py" />
+        <option value="$PROJECT_DIR$/MappingTable/ColumnTableUi.py" />
       </list>
     </option>
   </component>
@@ -165,22 +211,21 @@
     <option name="width" value="1940" />
     <option name="height" value="1050" />
   </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
-              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="AliasTable" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
@@ -195,13 +240,17 @@
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
+              <item name="MappingTable" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
+              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
               <item name="public" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -313,13 +362,14 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19167218" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50033045" side_tool="true" visible="true" weight="0.34756994" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50165236" side_tool="true" visible="true" weight="0.3460972" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4990086" weight="0.29749632" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3298969" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="8" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="9" weight="0.32830188" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49966952" visible="true" weight="0.34756994" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49834764" visible="true" weight="0.3460972" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -327,7 +377,6 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.18998528" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -343,11 +392,65 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="10" />
+      <option name="time" value="32" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/AliasTable/AliasTableUi.py">
+    <entry file="file://$PROJECT_DIR$/main_ui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1615">
+          <caret line="93" column="42" selection-start-line="93" selection-start-column="42" selection-end-line="93" selection-end-column="42" />
+          <folding>
+            <element signature="e#43#72#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTableUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1615">
+          <caret line="89" column="35" lean-forward="true" selection-start-line="89" selection-start-column="35" selection-end-line="89" selection-end-column="35" />
+          <folding>
+            <element signature="e#134#276#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/ui_utility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3876">
+          <caret line="214" column="42" lean-forward="true" selection-start-line="214" selection-start-column="42" selection-end-line="214" selection-end-column="42" />
+          <folding>
+            <element signature="e#44#54#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/Database.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DatabaseRW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3173">
+          <caret line="170" column="62" lean-forward="true" selection-start-line="170" selection-start-column="62" selection-end-line="170" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+          <folding>
+            <element signature="e#138#149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTableUi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
           <caret line="6" column="17" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="17" />
@@ -367,12 +470,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AliasTable/AliasTable.py">
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTable.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1368">
           <caret line="77" column="27" selection-start-line="77" selection-start-column="8" selection-end-line="77" selection-end-column="27" />
           <folding>
-            <element signature="e#136#147#0" expanded="true" />
+            <element signature="e#138#149#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -482,33 +585,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="212">
           <caret line="25" column="51" selection-start-line="25" selection-start-column="51" selection-end-line="25" selection-end-column="51" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="6" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/Database.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-38">
-          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/DatabaseRW.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="606">
-          <caret line="170" column="62" lean-forward="true" selection-start-line="170" selection-start-column="62" selection-end-line="170" selection-end-column="62" />
         </state>
       </provider>
     </entry>
@@ -526,42 +602,104 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_ui.py">
+    <entry file="file://$PROJECT_DIR$/Database/Database.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="93" column="42" selection-start-line="93" selection-start-column="42" selection-end-line="93" selection-end-column="42" />
+        <state relative-caret-position="-155">
+          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../../SDK/Anaconda3/Lib/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="139">
+          <caret line="260" column="8" selection-start-line="260" selection-start-column="8" selection-end-line="260" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
           <folding>
-            <element signature="e#43#72#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../../SDK/Anaconda3/Lib/site-packages/pandas/io/sql.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="529" column="40" lean-forward="true" selection-start-line="529" selection-start-column="40" selection-end-line="529" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../../SDK/Anaconda3/Lib/site-packages/pandas/core/generic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="139">
+          <caret line="1304" column="8" selection-start-line="1304" selection-start-column="8" selection-end-line="1304" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/ui_utility.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="214" column="42" lean-forward="true" selection-start-line="214" selection-start-column="42" selection-end-line="214" selection-end-column="42" />
+        <state relative-caret-position="124">
+          <caret line="213" column="24" selection-start-line="213" selection-start-column="24" selection-end-line="213" selection-end-column="24" />
           <folding>
             <element signature="e#44#54#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AliasTable/AliasTable.py">
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTableUi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="32" column="28" lean-forward="true" selection-start-line="32" selection-start-column="28" selection-end-line="32" selection-end-column="28" />
+        <state relative-caret-position="122">
+          <caret line="77" column="72" selection-start-line="77" selection-start-column="68" selection-end-line="77" selection-end-column="72" />
           <folding>
-            <element signature="e#136#147#0" expanded="true" />
+            <element signature="e#136#278#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AliasTable/AliasTableUi.py">
+    <entry file="file://$PROJECT_DIR$/MappingTable/AliasTable.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="85" column="56" lean-forward="true" selection-start-line="85" selection-start-column="56" selection-end-line="85" selection-end-column="56" />
+        <state relative-caret-position="198">
+          <caret line="29" column="16" lean-forward="true" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
           <folding>
-            <element signature="e#134#276#0" expanded="true" />
+            <element signature="e#138#149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main_ui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
+          <folding>
+            <element signature="e#43#72#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DatabaseRW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="233" lean-forward="true" selection-start-line="233" selection-end-line="233" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MappingTable/ColumnTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MappingTable/ColumnTableUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="76" column="42" selection-start-line="76" selection-start-column="42" selection-end-line="76" selection-end-column="42" />
+          <folding>
+            <element signature="e#137#290#0" expanded="true" />
           </folding>
         </state>
       </provider>
