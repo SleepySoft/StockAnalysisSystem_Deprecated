@@ -10,7 +10,7 @@ author:YuQiu
 """
 
 import pandas as pd
-import public.common
+import Utiltity.common
 
 
 class MarketInformationFromSohu:
@@ -26,7 +26,7 @@ class MarketInformationFromSohu:
     # From 'http://q.stock.sohu.com/cn/zs.shtml' ->
     #      'http://hq.stock.sohu.com/zs/zs-2.html'
     def FetchIndexIntroduction(self, extra_param=None) -> pd.DataFrame:
-        content_text = public.common.DownloadText('http://hq.stock.sohu.com/zs/zs-2.html')
+        content_text = Utiltity.common.DownloadText('http://hq.stock.sohu.com/zs/zs-2.html')
         try:
             pos_start = content_text.find('<script>PEAK_ODIA')
             if pos_start < 0:

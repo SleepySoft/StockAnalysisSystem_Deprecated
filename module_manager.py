@@ -11,7 +11,7 @@ author:Sleepy
 import os
 import traceback
 
-import public.common
+import Utiltity.common
 
 
 class IPluginClass:
@@ -68,7 +68,7 @@ class ModuleManager:
     @staticmethod
     def SortModules(modules: [IPluginClass]) -> [IPluginClass]:
         pre_sort_list = [(m.Name(), [d for d in m.Depends()]) for m in modules]
-        sorted_list = public.common.topological_sort(pre_sort_list)
+        sorted_list = Utiltity.common.topological_sort(pre_sort_list)
         sorted_module = []
         for name in sorted_list:
             for module in modules:

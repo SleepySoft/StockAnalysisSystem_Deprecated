@@ -14,7 +14,7 @@ import json
 import numpy as np
 import pandas as pd
 
-import public.common
+import Utiltity.common
 from Database.Database import Database
 
 
@@ -219,7 +219,7 @@ class AliasTable:
         return True
 
     def __update_from_local(self) -> bool:
-        df = pd.read_csv('public/NameTable.csv', header=0)
+        df = pd.read_csv('Utiltity/NameTable.csv', header=0)
         column_aliases_name = df['英文']
         column_standard_name = df['中文']
         for s, a in zip(column_standard_name, column_aliases_name):
@@ -229,7 +229,7 @@ class AliasTable:
     @staticmethod
     def __fetch_standard_table() -> pd.DataFrame:
         # From baike.baidu.com
-        soup = public.common.GetWebAsSoap(
+        soup = Utiltity.common.GetWebAsSoap(
             'https://baike.baidu.com/item/%E4%BC%9A%E8%AE%A1%E7%A7%91%E7%9B%AE%E4%B8%AD%E8%8B%B1%E6%96%87%E5%AF%B9%E7%85%A7%20%EF%BC%88%E5%8C%97%E4%BA%AC%E5%B8%82%E5%AE%A1%E8%AE%A1%E5%B1%80%E5%8F%91%E5%B8%83%EF%BC%89',
             'utf-8')
         table = soup.find('table', {'log-set-param': 'table_view'})

@@ -11,7 +11,7 @@ author:Sleepy
 from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLineEdit, QTableWidgetItem, \
     QAbstractItemView, QFileDialog
 
-from public.ui_utility import *
+from Utiltity.ui_utility import *
 from MappingTable.AliasTable import *
 
 

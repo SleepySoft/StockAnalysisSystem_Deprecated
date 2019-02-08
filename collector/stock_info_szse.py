@@ -10,7 +10,7 @@ author:YuQiu
 """
 
 import pandas as pd
-import public.common
+import Utiltity.common
 from io import BytesIO
 from openpyxl import load_workbook
 
@@ -26,7 +26,7 @@ class MarketInformationFromSZSE:
 
     # Download excel from www.szse.cn
     def FetchStockIntroduction(self, extra_param=None) -> pd.DataFrame:
-        content = public.common.Download('http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=xlsx&CATALOGID=1110&tab1PAGENO=1&ENCODE=1&TABKEY=tab1')
+        content = Utiltity.common.Download('http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=xlsx&CATALOGID=1110&tab1PAGENO=1&ENCODE=1&TABKEY=tab1')
         wb = load_workbook(filename=BytesIO(content))
         sheets = wb.get_sheet_names()
         sheet0 = sheets[0]

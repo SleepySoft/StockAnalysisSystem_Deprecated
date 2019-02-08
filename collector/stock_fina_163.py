@@ -11,7 +11,7 @@ author:Sleepy
 import traceback
 import numpy as np
 import pandas as pd
-import public.common
+import Utiltity.common
 from io import BytesIO
 
 
@@ -44,7 +44,7 @@ class StockFinancialDataFrom163:
 
     def __fetch_from_163(self, url: str) -> pd.DataFrame:
         try:
-            df = public.common.DownloadCsvAsDF(url, 'gb2312')
+            df = Utiltity.common.DownloadCsvAsDF(url, 'gb2312')
             df = df.T
             df.columns = df.iloc[0]
             df = df[1:]
@@ -68,7 +68,7 @@ class StockFinancialDataFrom163:
             if c.find('(万元)') >= 0 or c.find('（万元）') >= 0:
                 columns.append(c.replace('(万元)', '').replace('（万元）', ''))
                 # TODO: Distinguish empty and zero
-                column = df[c].map(lambda a: str(public.common.str2float_safe(a, 0.0) * 10000))
+                column = df[c].map(lambda a: str(Utiltity.common.str2float_safe(a, 0.0) * 10000))
                 df[c] = column
             else:
                 columns.append(c)

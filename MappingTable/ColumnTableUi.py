@@ -12,7 +12,7 @@ author:Sleepy
 
 from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLineEdit, QTableWidgetItem, \
     QAbstractItemView, QFileDialog, QComboBox
-from public.ui_utility import *
+from Utiltity.ui_utility import *
 from MappingTable.ColumnTable import *
 
 
@@ -47,13 +47,17 @@ class ColumnTableUi(QWidget):
 
         main_layout.addLayout(horizon_layout([QLabel(self.__translate('', '选择映射表：')), self.__combox_table]))
         main_layout.addWidget(self.__table_column_index)
-        main_layout.addLayout(horizon_layout([QLabel(self.__translate('', '列名：')), self.__label_column_sel]))
-        main_layout.addLayout(horizon_layout([QLabel(self.__translate('', '列序号：')),
-                                              self.__label_index, self.__button_del_column]))
+        main_layout.addLayout(horizon_layout([QLabel(self.__translate('', '列名：')), self.__label_column_sel,
+                                              QLabel(self.__translate('', '序号：')), self.__label_index,
+                                              self.__button_del_column]))
         main_layout.addLayout(horizon_layout([QLabel(self.__translate('', '新列名：')),
                                               self.__line_column_edit, self.__button_add, self.__button_update_column]))
 
     def __config_control(self):
+        self.__label_index.setFixedWidth(10)
+        self.__label_index.setMinimumWidth(10)
+        self.__label_index.setMaximumWidth(10)
+
         for column_table in self.__column_table_list:
             self.__combox_table.addItem(column_table.GetTableName(), column_table)
         self.__combox_table.currentIndexChanged.connect(self.on_combox_changed)
@@ -112,9 +116,8 @@ class ColumnTableUi(QWidget):
         if self.__current_column_table is None:
             return
         column_table = self.__current_column_table.GetColumnNameIndexTable()
-        for column_name in sorted(column_table.keys()):
-            column_index = column_table[column_name]
-            self.__table_column_index.AppendRow([column_name, str(column_index)])
+        for k, v in sorted(column_table.items(), key=lambda x: x[1]):
+            self.__table_column_index.AppendRow([k, str(v)])
 
     # Interface
 

@@ -9,7 +9,7 @@ author:YuQiu
 @modify:
 """
 
-import public.db_access
+import Utiltity.db_access
 from MappingTable import AliasTable
 
 
@@ -30,9 +30,9 @@ class StockAnalysisSystem:
             return True
         self.__initing = True
 
-        self.__db_plug_in = public.db_access.DBAccess()
-        self.__db_name_table = public.db_access.DBAccess()
-        self.__db_data_center = public.db_access.DBAccess()
+        self.__db_plug_in = Utiltity.db_access.DBAccess()
+        self.__db_name_table = Utiltity.db_access.DBAccess()
+        self.__db_data_center = Utiltity.db_access.DBAccess()
         self.__aliases_table = AliasTable.AliasesTable()
 
         import data_center
@@ -57,15 +57,15 @@ class StockAnalysisSystem:
 
         return result
 
-    def GetPluginDB(self) -> public.db_access.DBAccess:
+    def GetPluginDB(self) -> Utiltity.db_access.DBAccess:
         self.__check_init(True)
         return self.__db_plug_in
 
-    def GetNameTableDB(self) -> public.db_access.DBAccess:
+    def GetNameTableDB(self) -> Utiltity.db_access.DBAccess:
         self.__check_init(True)
         return self.__db_name_table
 
-    def GetDataCenterDB(self) -> public.db_access.DBAccess:
+    def GetDataCenterDB(self) -> Utiltity.db_access.DBAccess:
         self.__check_init(True)
         return self.__db_data_center
 

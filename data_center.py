@@ -15,8 +15,8 @@ import pandas as pd
 import json
 
 import data_collector
-import public.common
-import public.constant
+import Utiltity.common
+import Utiltity.constant
 import stock_analysis_system as sAs
 
 
@@ -25,7 +25,7 @@ class DataWeb:
         return True
 
     # Return: map(), not None
-    #   Key: str -> public.constant.ANNUAL_REPORT_TYPES
+    #   Key: str -> Utiltity.constant.ANNUAL_REPORT_TYPES
     #   Value: DataFrame -> Columns: ......; Index: Year/Date; Cell: Currency unit in CNY Yuan
     @staticmethod
     def DownloadStockAnnualFinaData(stock_code: str, annual_report_type: str) -> {str: pd.DataFrame}:
@@ -164,8 +164,8 @@ class DataDB:
     # Return value: None if fail
     def QueryAnnualReport(self, stock_code: str, year_from: int, year_to: int) -> pd.DataFrame:
         condition = " stock_code = '" + stock_code + "'"
-        year_begin, year_end = public.common.correct_start_end(
-            year_from, year_to, 2000, public.common.Date()[0])
+        year_begin, year_end = Utiltity.common.correct_start_end(
+            year_from, year_to, 2000, Utiltity.common.Date()[0])
         condition += ' AND accounting_annual >= ' + str(year_begin) + ' AND accounting_annual <= ' + str(year_end)
         ar_dict = self.__query_annual_report(DataDB.FINANCIAL_STATEMENTS_TABLE, condition)
         df = ar_dict.get(stock_code, None)
@@ -183,7 +183,7 @@ class DataDB:
             report = ar_dict.get(k, None)
             if report is not None:
                 self.__store_annual_report(stock_code, k, report)
-                df = public.common.MergeDataFrameOnIndex(df, report)
+                df = Utiltity.common.MergeDataFrameOnIndex(df, report)
         return df
 
     # -------------------------------------- private --------------------------------------
@@ -192,7 +192,7 @@ class DataDB:
     def __store_annual_report(self, stock_code: str, report_type: str, annual_report: pd.DataFrame) -> bool:
         if annual_report is None:
             return False
-        report_type_enum = public.constant.annual_report_type2enum(report_type)
+        report_type_enum = Utiltity.constant.annual_report_type2enum(report_type)
         df_json = self.__annual_df_2_json_df(stock_code, report_type_enum, annual_report)
         if df_json is None or len(df_json) == 0:
             return False
@@ -316,10 +316,10 @@ class DataCache:
 
     def GetAnnualFinaReport(self, stock_code: str, year_from: int, year_to: int) -> pd.DataFrame:
         df = self.__cached_annual_report.get(stock_code, None)
-        year_start, year_end = public.common.correct_start_end(
-            year_from, year_to, 2000, public.common.Date()[0])
+        year_start, year_end = Utiltity.common.correct_start_end(
+            year_from, year_to, 2000, Utiltity.common.Date()[0])
         if df is not None:
-            missing_year = public.common.set_missing(range(year_start, year_end), df.index)
+            missing_year = Utiltity.common.set_missing(range(year_start, year_end), df.index)
             if len(missing_year) == 0:
                 return df.loc[year_start: year_end]
         df = self.__cache_annual_report(stock_code, year_start, year_end)
@@ -367,7 +367,7 @@ class DataCenter:
     # return -> DataFrame
     def GetStockAnnualReportData(self,
                                  stock_code: str, accounting: [str], year_from: int, year_to: int) -> pd.DataFrame:
-        year_start, year_end = public.common.correct_start_end(year_from, year_to, 2000, public.common.Date()[0])
+        year_start, year_end = Utiltity.common.correct_start_end(year_from, year_to, 2000, Utiltity.common.Date()[0])
         account_s = sAs.GetInstance.GetAliasesTable().Standardize(accounting)
         if len(account_s) > 0:
             df_stock = pd.DataFrame(columns=account_s)
@@ -378,7 +378,7 @@ class DataCenter:
             print('Get annual report from DataCache is empty.')
         if report is not None:
             if df_stock is not None:
-                public.common.DataFrameColumnCopy(report, df_stock, account_s)
+                Utiltity.common.DataFrameColumnCopy(report, df_stock, account_s)
             else:
                 df_stock = report
 
@@ -489,7 +489,7 @@ class DataCenter:
     #     for stock in stock_codes:
     #         self.__cache_annual_report[stock] = \
     #             self.__core.GetStockAnnualReportData(
-    #             stock, 0, 0, public.constant.ANNUAL_REPORT_TYPES)
+    #             stock, 0, 0, Utiltity.constant.ANNUAL_REPORT_TYPES)
 
 
 
@@ -504,7 +504,7 @@ class DataCenter:
     # def __get_cached_stock_data(self, stock_code: str) -> {str: pd.DataFrame}:
     #     return self.__cache_annual_report.get(stock_code, None)
     #
-    # # report_type -> public.constant.ANNUAL_REPORT_TYPES
+    # # report_type -> Utiltity.constant.ANNUAL_REPORT_TYPES
     # def __get_cached_stock_annual_report(self, stock_code: str, report_type: str) -> pd.DataFrame:
     #     tables = self.__cache_annual_report.get(stock_code, None)
     #     if tables is None:
