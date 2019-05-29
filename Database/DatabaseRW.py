@@ -16,6 +16,14 @@ import numpy as np
 import pandas as pd
 
 
+SQL_QUERY_TABLE_COLUMN = '''SELECT p.name as ColumnName
+FROM sqlite_master m
+left outer join pragma_table_info((m.name)) p
+     on m.name <> p.name
+WHERE m.name = '<<table_name>>'
+;'''
+
+
 class DatabaseRW:
 
     def __init__(self, db: str = 0, user: str = '', password: str = '', extra: str = ''):
@@ -30,6 +38,9 @@ class DatabaseRW:
         self.__password = password
         self.__extra = extra
         return True
+
+    def GetDatabaseName(self):
+        return self.__db_name
 
     # ----------------------------------- connection and cursor -----------------------------------
 
@@ -148,8 +159,21 @@ class DatabaseRW:
         sql = 'CREATE TABLE IF NOT EXISTS ' + table_name + ' (' + fields + ');'
         return self.QuickExecuteDDL(sql)
 
-    def DropTable(self, table_name) -> bool:
+    def DropTable(self, table_name: str) -> bool:
         return self.QuickExecuteDDL('DROP TABLE ' + table_name)
+
+    def GetTableColumns(self, table_name: str) -> list:
+        sql = SQL_QUERY_TABLE_COLUMN.replace(table_name)
+        connection, cursor = self.QuickExecuteDML(sql, True)
+        if cursor is not None:
+            columns = cursor.fetchall()
+            columns = [c[0] for c in columns]
+            cursor.close()
+        else:
+            columns = []
+        if connection is not None:
+            connection.close()
+        return columns
 
     # ----------------------------------- Advance DML -----------------------------------
 
