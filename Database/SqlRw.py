@@ -5,7 +5,7 @@
 @version:
 author:Sleepy
 @time: 2019/01/08
-@file: DatabaseRW.py
+@file: SqlRw.py
 @function:
 @modify:
 """
@@ -24,7 +24,7 @@ WHERE m.name = '<<table_name>>'
 ;'''
 
 
-class DatabaseRW:
+class SqlAccess:
 
     def __init__(self, db: str = 0, user: str = '', password: str = '', extra: str = ''):
         self.__db_name = db

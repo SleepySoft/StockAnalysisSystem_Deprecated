@@ -238,14 +238,6 @@ def __prepare_default_test_data() -> ItkvTable:
     return table
 
 
-def __value_should_be(identity: str, since: datetime, until: datetime):
-    pass
-
-
-def __document_count(identity: str, since: datetime, until: datetime):
-    pass
-
-
 def test_basic_update_query_drop():
     table = __prepare_default_test_data()
 

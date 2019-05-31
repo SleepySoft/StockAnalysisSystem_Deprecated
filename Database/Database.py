@@ -10,7 +10,7 @@ author:Sleepy
 @modify:
 """
 
-from Database.DatabaseRW import DatabaseRW
+from Database.SqlRw import SqlAccess
 
 
 class Database:
@@ -22,17 +22,17 @@ class Database:
         return cls._instance
 
     def __init__(self):
-        self.__sAsUtility = DatabaseRW('Data/sAsUtility.db')
-        self.__sAsDailyData = DatabaseRW('Data/sAsDailyData.db')
-        self.__sAsFinanceData = DatabaseRW('Data/sAsFinanceData.db')
+        self.__sAsUtility = SqlAccess('Data/sAsUtility.db')
+        self.__sAsDailyData = SqlAccess('Data/sAsDailyData.db')
+        self.__sAsFinanceData = SqlAccess('Data/sAsFinanceData.db')
 
-    def GetUtilityDB(self) -> DatabaseRW:
+    def GetUtilityDB(self) -> SqlAccess:
         return self.__sAsUtility
 
-    def GetDailyDataDB(self) -> DatabaseRW:
+    def GetDailyDataDB(self) -> SqlAccess:
         return self.__sAsDailyData
 
-    def FinanceDataDB(self) -> DatabaseRW:
+    def FinanceDataDB(self) -> SqlAccess:
         return self.__sAsFinanceData
 
 
