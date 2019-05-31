@@ -43,23 +43,44 @@ def datetime2text(time: datetime) -> str:
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
-'''
-Itkv = Identity, DateTime, Key, Value
-This table is based on NoSQL (MongoDB)
-It must contain an Identity and a Timestamp as unique index
-Other Key-Value pairs are extendable
-'''
-
-
 class ItkvTable:
+    """ A table which can easily extend its column, with identity and time as its main key.
+    Itkv = Identity, DateTime, Key, Value
+    This table is based on NoSQL (MongoDB)
+    It must contain an Identity and a Timestamp as unique index
+    Other Key-Value pairs are extendable
+    """
+
     def __init__(self, client: MongoClient, database: str, table: str):
         self.__client = client
         self.__database = database
         self.__table = table
 
+    def drop(self):
+        collection = self.__get_collection()
+        if collection is None:
+            return True
+        collection.drop()
+
+    def count(self) -> int:
+        collection = self.__get_collection()
+        if collection is None:
+            return 0
+        return collection.count()
+
     def upsert(self, identity: str, time: datetime or str, data: dict, extra_spec: dict = None) -> dict:
-        # Update a record, insert if not exists.
-        # identity and time are also the conditions to find the entries
+        """ Update a record, insert if not exists.
+        Args:
+            identity    : str or list of str, None if you don't want to specify
+            time        : datetime or time format str, None if you don't want to specify
+            extra_spec  : dict, to specify the extra conditions, None if you don't want to specify
+            identity and time are also the conditions to find the entries
+        Return value:
+            The result of API returns, as dict
+        Raises:
+            None
+        """
+
         collection = self.__get_collection()
         if collection is None:
             return False
@@ -71,12 +92,22 @@ class ItkvTable:
             'DateTime': datetime2text(time),
             **data
         }
-        return collection.update(spec, document, True)
+        return collection.update(spec, {'$set': document}, True)
 
-    def delete(self, identity: str or list, since: datetime = None, until: datetime = None,
+    def delete(self, identity: str or list = None, since: datetime = None, until: datetime = None,
                extra_spec: dict = None, keys: list = None):
-        # Update a record, insert if not exists.
-        # keys - The keys you want to remove, None to move the whole entry
+        """ Delete document or delete key-value in document.
+        Args:
+            identity        : str or list of str, None if you don't want to specify
+            since, until    : datetime or time format str, None if you don't want to specify
+            extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+            keys            : The keys you want to remove, None to move the whole document
+        Return value:
+            The result of API returns, as dict
+        Raises:
+            None
+        """
+
         collection = self.__get_collection()
         if collection is None:
             return False
@@ -88,12 +119,24 @@ class ItkvTable:
             del_keys = {}
             for key in keys:
                 del_keys[key] = 1
-            return collection.update(spec, {'$unset': del_keys}, False, True)
+            return collection.update(spec, {'$unset': del_keys}, False, True, True)
 
     # Query records
     # keys - The keys you want to list in your query, None to list all
-    def query(self, identity: str or list, since: datetime = None, until: datetime = None,
+    def query(self, identity: str or list = None, since: datetime = None, until: datetime = None,
               extra_spec: dict = None, keys: list = None) -> list:
+        """ Query records
+        Args:
+            identity        : str or list of str, None if you don't want to specify
+            since, until    : datetime or time format str, None if you don't want to specify
+            extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+            keys            : The keys you want to remove, None to move the whole entry
+        Return value:
+            Result as dict list
+        Raises:
+            None
+        """
+
         collection = self.__get_collection()
         if collection is None:
             return False
@@ -122,12 +165,16 @@ class ItkvTable:
                         since: datetime or str = None,
                         until: datetime or str = None,
                         extra_spec: dict = None) -> dict:
-        # Generate find spec for NoSQL query.
-        # Parameters
-        #   @identity - str or list of str, None if you don't want to specify
-        #   @since, until - datetime or time format str, None if you don't want to specify
-        #   @extra_spec - dict, to specify the extra conditions, None if you don't want to specify
-        # Return value: The spec dict
+        """ Generate find spec for NoSQL query.
+        Args:
+            identity        : str or list of str, None if you don't want to specify
+            since, until    : datetime or time format str, None if you don't want to specify
+            extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+        Return value:
+            The spec dict
+        Raises:
+            None
+        """
 
         if identity is None:
             spec = {}
@@ -146,7 +193,7 @@ class ItkvTable:
             raise Exception('<since> should be time format str or datetime, or just None')
 
         if isinstance(until, str):
-            until = text_auto_time(since)
+            until = text_auto_time(until)
         elif isinstance(until, datetime) or until is None:
             pass
         else:
@@ -168,6 +215,29 @@ class ItkvTable:
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
 
+def __prepare_default_test_data() -> ItkvTable:
+    client = MongoClient(config.DB_HOST, config.DB_PORT, serverSelectionTimeoutMS=5)
+    assert(client is not None)
+
+    table = ItkvTable(client, 'TestDatabase', 'TestTable')
+    table.drop()
+    table.upsert('identity1', '2000-05-01', {
+        'PI': 3.1415926,
+        'Speed of Light': 299792458,
+        'Password': "Who's your daddy",
+        "Schindler's List": ['Trump', 'Bili', 'Anonymous'],
+        'Author': 'Sleepy',
+    })
+    table.upsert('identity2', '2020-03-01', {
+        'A1': 111,
+        'B1': 222,
+        'C1': 333,
+        "D1": 444,
+        'Author': 'Sleepy',
+    })
+    return table
+
+
 def __value_should_be(identity: str, since: datetime, until: datetime):
     pass
 
@@ -176,38 +246,158 @@ def __document_count(identity: str, since: datetime, until: datetime):
     pass
 
 
-def test_basic_feature():
-    client = MongoClient(config.DB_HOST, config.DB_PORT, serverSelectionTimeoutMS=5)
-    assert(client is not None)
+def test_basic_update_query_drop():
+    table = __prepare_default_test_data()
 
-    table = ItkvTable(client, 'TestDatabase', 'TestTable')
+    result = table.query('identity1')
+    assert(len(result) == 1)
+    document = result[0]
+    assert(document['PI'] == 3.1415926)
+    assert(document['Speed of Light'] == 299792458)
+    assert(document['Password'] == "Who's your daddy")
+    assert(document["Schindler's List"] == ['Trump', 'Bili', 'Anonymous'])
+
+    table.drop()
+
+    result = table.query('identity1')
+    assert(len(result) == 0)
+
+
+def test_query():
+    table = __prepare_default_test_data()
+
+    # Test since option
+
+    result = table.query(since='2010-01-01')
+    assert(len(result) == 1)
+
+    result = table.query(since='2020-03-01')
+    assert(len(result) == 1)
+
+    result = table.query(since='2020-03-01 00:00:01')
+    assert(len(result) == 0)
+
+    result = table.query(since='2000-05-01')
+    assert(len(result) == 2)
+
+    # Test until option
+
+    result = table.query(until='2010-01-01')
+    assert(len(result) == 1)
+
+    result = table.query(until='2000-05-01')
+    assert(len(result) == 1)
+
+    result = table.query(until='2000-04-30 23:59:29')
+    assert(len(result) == 0)
+
+    result = table.query(until='2030-01-01')
+    assert(len(result) == 2)
+
+    # Test extra_spec
+
+    result = table.query(extra_spec={'A1': 111})
+    assert(len(result) == 1)
+
+    result = table.query(extra_spec={'PI': 3.14})
+    assert(len(result) == 0)
+
+    result = table.query(extra_spec={'Author': 'Sleepy'})
+    assert(len(result) == 2)
+
+
+def test_delete_document():
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete('identity1')
+    assert(len(table.query()) == 1)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(since='2015-01-01')
+    assert(len(table.query()) == 1)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(since='2000-01-01')
+    assert(len(table.query()) == 0)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(until='2019-09-01')
+    assert(len(table.query()) == 1)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(until='2020-09-01')
+    assert(len(table.query()) == 0)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(extra_spec={'A1': 111})
+    assert(len(table.query()) == 1)
+
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+    table.delete(extra_spec={'Author': 'Sleepy'})
+    assert(len(table.query()) == 0)
+
+
+def test_delete_key_value():
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+
+    table.delete(keys=['PI', 'A1', 'Author'])
+    collection = table.query()
+
+    assert(len(collection) == 2)
+    for document in collection:
+        assert('PI' not in document.keys())
+        assert('A1' not in document.keys())
+        assert('Author' not in document.keys())
+
+
+def test_update_key_value():
+    table = __prepare_default_test_data()
+    assert(len(table.query()) == 2)
+
+    table.upsert('identity1', data={
+        'PI': 3.14,
+        'Password': "Greed is good",
+        'New': 'New Item',
+    })
+
+    table.upsert('identity3', '2015-06-06', data={
+        'D1': 555,
+        'Password': "Greed is good",
+        'New': 'New Item',
+    })
 
     table.upsert('identity1', '2000-05-01', {
         'PI': 3.1415926,
         'Speed of Light': 299792458,
         'Password': "Who's your daddy",
-        "Schindler's List": ['Trump', 'Bili', 'Anonymous']
+        "Schindler's List": ['Trump', 'Bili', 'Anonymous'],
+        'Author': 'Sleepy',
     })
     table.upsert('identity2', '2020-03-01', {
         'A1': 111,
         'B1': 222,
         'C1': 333,
-        "D1": 444
+        "D1": 444,
+        'Author': 'Sleepy',
     })
-
-    result = table.query('identity1')
-    assert(len(result) == 1)
-    collection = result[0]
-    assert(collection['PI'] == 3.1415926)
-    assert(collection['Speed of Light'] == 299792458)
-    assert(collection['Password'] == "Who's your daddy")
-    assert(collection["Schindler's List"] == ['Trump', 'Bili', 'Anonymous'])
-
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------
 
 def main():
-    test_basic_feature()
+    # test_basic_update_query_drop()
+    # test_query()
+    # test_delete_document()
+    test_delete_key_value();
+
+    # If program reaches here, all test passed.
+    print('All test passed.')
 
 
 # ------------------------------------------------- Exception Handling -------------------------------------------------
