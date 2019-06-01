@@ -12,7 +12,7 @@ author:Sleepy
 
 import pandas as pd
 from Database.Database import Database
-from MappingTable.ColumnTable import ColumnTable
+from DataTable.ColumnTable import ColumnTable
 
 
 class FlexibleTable:

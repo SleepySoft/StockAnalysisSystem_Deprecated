@@ -1,0 +1,7 @@
+DB_HOST = 'localhost'
+DB_PORT = 27017
+DB_USER = ''
+DB_PASS = ''
+
+TS_TOKEN = 'cd864ce6a897f6c34d771425f4cd0aa2355ad89056563ac3b4d78cd4'
+

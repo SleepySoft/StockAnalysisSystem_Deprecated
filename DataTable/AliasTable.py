@@ -4,7 +4,7 @@
 @version:
 author:Sleepy
 @time: 2019/02/02
-@file: MappingTable.py
+@file: DataTable.py
 @function:
 @modify:
 """
@@ -19,8 +19,8 @@ from Database.Database import Database
 
 
 class AliasTable:
-    ALIASES_TABLE = 'AliasTable'
-    ALIASES_TABLE_FIELD = ['aliases_name', 'standard_name']
+    TABLE = 'AliasTable'
+    FIELD = ['aliases_name', 'standard_name']
 
     def __init__(self):
         self.__standard_name_list = []
@@ -99,7 +99,7 @@ class AliasTable:
     def LoadFromDB(self) -> bool:
         self.Reset()
         tmp_list = Database().GetUtilityDB().ListFromDB(
-            AliasTable.ALIASES_TABLE, AliasTable.ALIASES_TABLE_FIELD)
+            AliasTable.TABLE, AliasTable.FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
         for alias, standard in tmp_list:
@@ -113,8 +113,8 @@ class AliasTable:
             tmp_list.append(alias)
             tmp_list.append(standard)
         Database().GetUtilityDB().ListToDB(
-            AliasTable.ALIASES_TABLE, tmp_list, -1, 2,
-            AliasTable.ALIASES_TABLE_FIELD)
+            AliasTable.TABLE, tmp_list, -1, 2,
+            AliasTable.FIELD)
         return True
 
     def LoadFromCsv(self, file_name: str, replace: bool=True):

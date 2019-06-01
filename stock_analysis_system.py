@@ -10,7 +10,7 @@ author:YuQiu
 """
 
 import Utiltity.db_access
-from MappingTable import AliasTable
+from DataTable import AliasTable
 
 
 class StockAnalysisSystem:

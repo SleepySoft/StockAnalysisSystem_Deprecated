@@ -383,9 +383,9 @@ def test_update_key_value():
 # ----------------------------------------------------- File Entry -----------------------------------------------------
 
 def main():
-    # test_basic_update_query_drop()
-    # test_query()
-    # test_delete_document()
+    test_basic_update_query_drop()
+    test_query()
+    test_delete_document()
     test_delete_key_value();
 
     # If program reaches here, all test passed.

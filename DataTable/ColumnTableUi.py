@@ -13,7 +13,7 @@ author:Sleepy
 from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLineEdit, QTableWidgetItem, \
     QAbstractItemView, QFileDialog, QComboBox
 from Utiltity.ui_utility import *
-from MappingTable.ColumnTable import *
+from DataTable.ColumnTable import *
 
 
 class ColumnTableUi(QWidget):

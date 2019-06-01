@@ -7,8 +7,8 @@ from PyQt5 import QtCore, Qt
 from PyQt5.QtWidgets import QDialog, QPushButton, QMainWindow, QWidget, QDockWidget, QAction
 
 from Utiltity.ui_utility import *
-from MappingTable.AliasTableUi import *
-from MappingTable.ColumnTableUi import *
+from DataTable.AliasTableUi import *
+from DataTable.ColumnTableUi import *
 
 
 # =========================================== InfoDialog ===========================================

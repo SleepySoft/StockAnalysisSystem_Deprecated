@@ -4,7 +4,7 @@
 @version:
 author:Sleepy
 @time: 2017/08/08
-@file: MappingTable.py
+@file: DataTable.py
 @function:
 @modify:
 """
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLi
     QAbstractItemView, QFileDialog
 
 from Utiltity.ui_utility import *
-from MappingTable.AliasTable import *
+from DataTable.AliasTable import *
 
 
 class AliasTableUi(QWidget):
