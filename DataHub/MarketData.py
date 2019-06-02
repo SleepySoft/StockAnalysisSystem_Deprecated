@@ -7,6 +7,9 @@ class MarketData:
     SECURITIES_SZ = 0x02
     SECURITIES_A_SHARES = SECURITIES_SH & SECURITIES_SZ
 
+    TABLE_TRADE_CALENDER = 'TradeCalender'
+    FIELD_TRADE_CALENDER = ['Exchange', 'TradeDate', 'Status']
+
     def __init__(self):
         pass
 
