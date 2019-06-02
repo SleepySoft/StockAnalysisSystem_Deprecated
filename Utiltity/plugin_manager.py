@@ -6,21 +6,8 @@ from inspect import getmembers, isfunction
 """
 A plug-in module should include following functions:
     plugin_prob() -> dict : Includes 'plugin name', 'plugin_version'
-    plugin_capacity() -> [str] : Lists the functions that module supports
-    
-    The function and parameter should follow the function in DataHub
+    plugin_capacities() -> [str] : Lists the capacity that module supports
 """
-
-
-def function_exists(obj, function_name: str) -> bool:
-    try:
-        return callable(getattr(obj, function_name))
-    except Exception as e:
-        print("Check callable fail.!")
-        print('Error =>', e)
-        return False
-    finally:
-        pass
 
 
 class PluginManager:
@@ -40,23 +27,34 @@ class PluginManager:
                 continue
             plugin_name = os.path.splitext(file_name)[0]
             plugin = __import__(self.__path + '.' + plugin_name, fromlist=[plugin_name])
-            if not function_exists(plugin, 'plugin_prob') or not function_exists(plugin, 'plugin_capacity'):
+            if not self.check_module_has_function(plugin, 'plugin_prob') or \
+                    not self.check_module_has_function(plugin, 'plugin_capacities'):
                 continue
             plugin_list = [(file_name, plugin)]
         self.__plugins = plugin_list
 
-    def get_support_module(self, function: str) -> [object]:
+    def find_module_has_capacity(self, capacity: str) -> [object]:
         """
-        Give a function. Finds the module that includes this function.
-        :param function: The function you want to support.
-        :return: The module list that supports this function.
+        Finds the module that supports the specified feature.
+        :param capacity: The capacity you want to check.
+        :return: The module list that has this capacity.
         """
         module_list = []
         for plugin in self.__plugins:
-            functions = self.__safe_execute(plugin, 'plugin_capacity')
-            if isinstance(functions, list) and function in functions:
+            capacities = self.__safe_execute(plugin, 'plugin_capacities')
+            if isinstance(capacities, list) and capacity in capacities:
                 module_list.append(plugin)
         return module_list
+
+    def check_module_has_function(self, module: object, function: str) -> bool:
+        try:
+            return callable(getattr(module, function))
+        except Exception as e:
+            print("Check callable fail.!")
+            print('Error =>', e)
+            return False
+        finally:
+            pass
 
     def get_module_functions(self, module: object) -> [str]:
         """

@@ -17,73 +17,90 @@ class StockAnalysisSystem:
     def __init__(self):
         self.__inited = False
         self.__initing = False
-        self.__db_plug_in = None
-        self.__db_name_table = None
-        self.__db_data_center = None
-        self.__aliases_table = None
-        self.__component_data_center = None
-        self.__component_data_collector = None
-        self.__component_strategy_manager = None
+
+        self.__collector_plugin = None
+        self.__strategy_plugin = None
+        self.__finance_data = None
+        self.__market_data = None
+        self.__trade_data = None
+
+        # self.__db_plug_in = None
+        # self.__db_name_table = None
+        # self.__db_data_center = None
+        # self.__aliases_table = None
+        # self.__component_data_center = None
+        # self.__component_data_collector = None
+        # self.__component_strategy_manager = None
 
     def Init(self) -> bool:
         if not self.__check_init(False):
             return True
         self.__initing = True
 
-        self.__db_plug_in = Utiltity.db_access.DBAccess()
-        self.__db_name_table = Utiltity.db_access.DBAccess()
-        self.__db_data_center = Utiltity.db_access.DBAccess()
-        self.__aliases_table = AliasTable.AliasesTable()
+        import module_manager
 
-        import data_center
-        import data_collector
-        import strategy_manager
+        self.__collector_plugin = None
+        self.__strategy_plugin = None
+        self.__finance_data = None
+        self.__market_data = None
+        self.__trade_data = None
 
-        self.__component_data_center = data_center.DataCenter()
-        self.__component_data_collector = data_collector.DataCollector()
-        self.__component_strategy_manager = strategy_manager.StrategyManager()
+        # self.__db_plug_in = Utiltity.db_access.DBAccess()
+        # self.__db_name_table = Utiltity.db_access.DBAccess()
+        # self.__db_data_center = Utiltity.db_access.DBAccess()
+        # self.__aliases_table = AliasTable.AliasesTable()
+        #
+        # import data_center
+        # import data_collector
+        # import strategy_manager
+        #
+        # self.__component_data_center = data_center.DataCenter()
+        # self.__component_data_collector = data_collector.DataCollector()
+        # self.__component_strategy_manager = strategy_manager.StrategyManager()
+        #
 
         result = True
-        result = self.__db_plug_in.Init('Data/Plug-in.db') and result
-        result = self.__db_name_table.Init('Data/NameTable.db') and result
-        result = self.__db_data_center.Init('Data/DataCenter.db') and result
-        result = self.__aliases_table.Init() and result                         # Depends on __db_name_table
-        result = self.__component_data_center.Init() and result                 # Depends on __db_data_center
-        result = self.__component_data_collector.Init() and result
-        result = self.__component_strategy_manager.Init() and result
+
+        # result = self.__db_plug_in.Init('Data/Plug-in.db') and result
+        # result = self.__db_name_table.Init('Data/NameTable.db') and result
+        # result = self.__db_data_center.Init('Data/DataCenter.db') and result
+        # result = self.__aliases_table.Init() and result                         # Depends on __db_name_table
+        # result = self.__component_data_center.Init() and result                 # Depends on __db_data_center
+        # result = self.__component_data_collector.Init() and result
+        # result = self.__component_strategy_manager.Init() and result
 
         self.__inited = True
         self.__initing = False
 
         return result
 
-    def GetPluginDB(self) -> Utiltity.db_access.DBAccess:
-        self.__check_init(True)
-        return self.__db_plug_in
-
-    def GetNameTableDB(self) -> Utiltity.db_access.DBAccess:
-        self.__check_init(True)
-        return self.__db_name_table
-
-    def GetDataCenterDB(self) -> Utiltity.db_access.DBAccess:
-        self.__check_init(True)
-        return self.__db_data_center
-
-    def GetAliasesTable(self) -> AliasTable.AliasesTable:
-        self.__check_init(True)
-        return self.__aliases_table
-
-    def GetDataCenter(self):
-        self.__check_init(True)
-        return self.__component_data_center
-
-    def GetDataCollector(self):
-        self.__check_init(True)
-        return self.__component_data_collector
-
-    def GetStrategyManager(self):
-        self.__check_init(True)
-        return self.__component_strategy_manager
+    # def GetPluginDB(self) -> Utiltity.db_access.DBAccess:
+    #     self.__check_init(True)
+    #     return self.__db_plug_in
+    #
+    # def GetNameTableDB(self) -> Utiltity.db_access.DBAccess:
+    #     self.__check_init(True)
+    #     return self.__db_name_table
+    #
+    # def GetDataCenterDB(self) -> Utiltity.db_access.DBAccess:
+    #     self.__check_init(True)
+    #     return self.__db_data_center
+    #
+    # def GetAliasesTable(self) -> AliasTable.AliasesTable:
+    #     self.__check_init(True)
+    #     return self.__aliases_table
+    #
+    # def GetDataCenter(self):
+    #     self.__check_init(True)
+    #     return self.__component_data_center
+    #
+    # def GetDataCollector(self):
+    #     self.__check_init(True)
+    #     return self.__component_data_collector
+    #
+    # def GetStrategyManager(self):
+    #     self.__check_init(True)
+    #     return self.__component_strategy_manager
 
     # ------------------------------------ private ------------------------------------
 
@@ -95,5 +112,6 @@ class StockAnalysisSystem:
                 print('System not been inited yet.')
             return False
         return True
+
 
 GetInstance = StockAnalysisSystem()

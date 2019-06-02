@@ -2,6 +2,13 @@ import pandas as pd
 from datetime import datetime
 
 
+NEED_COLLECTOR_CAPACITY = [
+    'TradeCalender',
+    'SecuritiesInfo',
+    'IndexComponent',
+]
+
+
 class MarketData:
     SECURITIES_SH = 0x01
     SECURITIES_SZ = 0x02
