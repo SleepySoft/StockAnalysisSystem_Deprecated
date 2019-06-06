@@ -1,9 +1,16 @@
-#!usr/bin/env python
-#-*- coding:utf-8 _*-
 import sys
 import traceback
 from datetime import datetime
-from Database.Database import Database
+
+try:
+    from Database.Database import Database
+except Exception as e:
+    from os import sys, path
+    root = path.dirname(path.dirname(path.abspath(__file__)))
+    sys.path.append(root)
+    from Database.Database import Database
+finally:
+    pass
 
 
 class UpdateTable:
@@ -21,6 +28,9 @@ class UpdateTable:
     def today_text(self) -> str:
         return datetime.today().strftime('%Y-%m-%d')
 
+    def today_updated(self, tag1: str, tag2: str, tag3: str):
+        return self.get_latest_update_time(tag1, tag2, tag3) == self.today()
+
     def renew_update_time(self, tag1: str, tag2: str, tag3: str):
         sql_update = ("UPDATE %s SET LastUpdate = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
                       (UpdateTable.TABLE, self.today_text(), tag1, tag2, tag3))
@@ -29,14 +39,14 @@ class UpdateTable:
                       (UpdateTable.TABLE, tag1, tag2, tag3, self.today_text()))
 
         if self.get_latest_update_time(tag1, tag2, tag3) is None:
-            return Database().GetUtilityDB().QuickExecuteDML(sql_insert, True)
+            return Database().get_utility_db().QuickExecuteDML(sql_insert, True)
         else:
-            return Database().GetUtilityDB().QuickExecuteDML(sql_update, True)
+            return Database().get_utility_db().QuickExecuteDML(sql_update, True)
 
     def delete_update_record(self, tag1: str, tag2: str, tag3: str):
         sql_delete = ("DELETE FROM %s WHERE  L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
                       (UpdateTable.TABLE, tag1, tag2, tag3))
-        return Database().GetUtilityDB().QuickExecuteDML(sql_delete, True)
+        return Database().get_utility_db().QuickExecuteDML(sql_delete, True)
 
     def get_latest_update_time(self, tag1: str, tag2: str, tag3: str) -> datetime:
         result = self.get_latest_update_time_record(tag1, tag2, tag3)
@@ -48,7 +58,7 @@ class UpdateTable:
             return date
 
     def get_latest_update_time_record(self, tag1: str, tag2: str, tag3: str) -> []:
-        return Database().GetUtilityDB().ListFromDB(
+        return Database().get_utility_db().ListFromDB(
             UpdateTable.TABLE, UpdateTable.FIELD, "L1Tag = '%s' AND L2Tag = '%s' AND L3Tag = '%s'" % (tag1, tag2, tag3))
 
 

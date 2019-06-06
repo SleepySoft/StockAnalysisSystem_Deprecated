@@ -9,8 +9,8 @@ author:Sleepy
 @function:
 @modify:
 """
-import os
 
+import os
 from Database.SqlRw import SqlAccess
 
 
@@ -36,13 +36,17 @@ class Database:
         self.__sAsDailyData = SqlAccess(data_path + 'sAsDailyData.db')
         self.__sAsFinanceData = SqlAccess(data_path + 'sAsFinanceData.db')
 
-    def GetUtilityDB(self) -> SqlAccess:
+        # self.__update_table = UpdateTable()
+
+    def get_utility_db(self) -> SqlAccess:
         return self.__sAsUtility
 
-    def GetDailyDataDB(self) -> SqlAccess:
+    def get_daily_data_db(self) -> SqlAccess:
         return self.__sAsDailyData
 
-    def FinanceDataDB(self) -> SqlAccess:
+    def finance_data_db(self) -> SqlAccess:
         return self.__sAsFinanceData
 
+    # def get_update_table(self) -> UpdateTable:
+    #     return self.__update_table
 

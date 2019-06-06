@@ -37,10 +37,10 @@ class StockCalendar:
     def dump_to_db(self, **kw) -> bool:
         if self.__calendar is None:
             return False
-        return Database().GetUtilityDB().DataFrameToDB('StockCalendar', self.__calendar.reset_index())
+        return Database().get_utility_db().DataFrameToDB('StockCalendar', self.__calendar.reset_index())
 
     def load_from_db(self, **kw) -> bool:
-        self.__calendar = Database().GetUtilityDB().DataFrameFromDB('StockCalendar', ["Date", "IsOpen"])
+        self.__calendar = Database().get_utility_db().DataFrameFromDB('StockCalendar', ["Date", "IsOpen"])
         if self.__calendar is not None:
             return True
         else:

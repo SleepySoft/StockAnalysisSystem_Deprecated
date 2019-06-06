@@ -8,11 +8,10 @@ author:Sleepy
 @function:
 @modify:
 """
-from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLineEdit, QTableWidgetItem, \
-    QAbstractItemView, QFileDialog
+from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QFileDialog
 
 from Utiltity.ui_utility import *
-from DataTable.AliasTable import *
+from Database.AliasTable import *
 
 
 class AliasTableUi(QWidget):

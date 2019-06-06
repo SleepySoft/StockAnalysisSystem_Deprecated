@@ -9,8 +9,7 @@ author:YuQiu
 @modify:
 """
 
-import Utiltity.db_access
-from DataTable import AliasTable
+from DataHub.MarketData import MarketData
 
 
 class StockAnalysisSystem:
@@ -20,6 +19,7 @@ class StockAnalysisSystem:
 
         self.__collector_plugin = None
         self.__strategy_plugin = None
+
         self.__finance_data = None
         self.__market_data = None
         self.__trade_data = None
@@ -37,12 +37,16 @@ class StockAnalysisSystem:
             return True
         self.__initing = True
 
-        import module_manager
+        from Utiltity.plugin_manager import PluginManager
 
-        self.__collector_plugin = None
-        self.__strategy_plugin = None
+        self.__collector_plugin = PluginManager('./Collector')
+        self.__strategy_plugin = PluginManager('./Strategy')
+
+        self.__collector_plugin.refresh()
+        self.__strategy_plugin.refresh()
+
         self.__finance_data = None
-        self.__market_data = None
+        self.__market_data = MarketData(self.__collector_plugin)
         self.__trade_data = None
 
         # self.__db_plug_in = Utiltity.db_access.DBAccess()
@@ -73,6 +77,9 @@ class StockAnalysisSystem:
         self.__initing = False
 
         return result
+
+    def get_market_data(self) -> MarketData:
+        return self.__market_data
 
     # def GetPluginDB(self) -> Utiltity.db_access.DBAccess:
     #     self.__check_init(True)
@@ -114,4 +121,4 @@ class StockAnalysisSystem:
         return True
 
 
-GetInstance = StockAnalysisSystem()
+instance = StockAnalysisSystem()

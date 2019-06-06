@@ -11,8 +11,7 @@ author:Sleepy
 
 
 import pandas as pd
-from Database.Database import Database
-from DataTable.ColumnTable import ColumnTable
+from Database.ColumnTable import ColumnTable
 
 
 class FlexibleTable:

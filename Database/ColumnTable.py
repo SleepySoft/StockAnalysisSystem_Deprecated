@@ -70,12 +70,12 @@ class ColumnTable:
 
     def LoadFromDB(self) -> bool:
         self.Reset()
-        self.__column_name_index_table = Database().GetUtilityDB().DictFromDB(
+        self.__column_name_index_table = Database().get_utility_db().DictFromDB(
             self.__table_name, ColumnTable.COLUMN_TABLE_FIELD)
         return True
 
     def DumpToDB(self) -> bool:
-        return Database().GetUtilityDB().DictToDB(
+        return Database().get_utility_db().DictToDB(
             self.__table_name, self.__column_name_index_table, ColumnTable.COLUMN_TABLE_FIELD)
 
     def __assign_new_index(self) -> int:

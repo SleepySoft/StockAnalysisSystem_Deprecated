@@ -121,7 +121,7 @@ class ModuleManager:
             class_ = module.GetModuleClass()
             inst = class_()
             if self.__verify_plugin_class(inst):
-                inst.SetEnvoriment(sAs.GetInstance)
+                inst.SetEnvoriment(sAs.instance)
                 return class_, inst
         except Exception as e:
             print("Create Plugin Class Fail!")

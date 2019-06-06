@@ -30,7 +30,7 @@ class DataWeb:
     @staticmethod
     def DownloadStockAnnualFinaData(stock_code: str, annual_report_type: str) -> {str: pd.DataFrame}:
         ctx = data_collector.FetchContext()
-        ar_dict = sAs.GetInstance.GetDataCollector().FetchStockAnnualFinaData(
+        ar_dict = sAs.instance.GetDataCollector().FetchStockAnnualFinaData(
             ctx, stock_code, [annual_report_type, ], 0, 9999)
         if ar_dict is None or not isinstance(ar_dict, dict):
             print('Download annual report from data collector fail.')
@@ -56,7 +56,7 @@ class DataWeb:
     def DownloadStockIntroduction() -> pd.DataFrame:
         ctx = data_collector.FetchContext()
         ctx.SpecifyPlugin('MarketInformationFromSZSE')
-        return sAs.GetInstance.GetDataCollector().FetchStockIntroduction(ctx)
+        return sAs.instance.GetDataCollector().FetchStockIntroduction(ctx)
 
     # Return: pd.DataFrame
     #   Column:
@@ -66,7 +66,7 @@ class DataWeb:
     @staticmethod
     def DownloadAnnualFinaReport(stock_code: str, extension: str, year_from: int, year_to: int):
         ctx = data_collector.FetchContext()
-        return sAs.GetInstance.GetDataCollector().FetchStockIntroduction(
+        return sAs.instance.GetDataCollector().FetchStockIntroduction(
             ctx, stock_code, 'annual', [extension, ], str(year_from), str(year_to))
 
     @staticmethod
@@ -92,7 +92,7 @@ class DataWeb:
 
         # Standardize columns
         columns = annual_report.columns.tolist()
-        columns = sAs.GetInstance.GetAliasesTable().Standardize(columns)
+        columns = sAs.instance.GetAliasesTable().Standardize(columns)
         annual_report.columns = columns
 
         # Remove empty row
@@ -143,9 +143,9 @@ class DataDB:
 
     def Init(self,) -> bool:
         execute_statues = True
-        if sAs.GetInstance.GetDataCenterDB().TableExists(
+        if sAs.instance.GetDataCenterDB().TableExists(
                 DataDB.FINANCIAL_STATEMENTS_TABLE):
-            execute_statues = sAs.GetInstance.GetDataCenterDB().CreateTable(
+            execute_statues = sAs.instance.GetDataCenterDB().CreateTable(
                 DataDB.FINANCIAL_STATEMENTS_TABLE,
                 DataDB.FINANCIAL_STATEMENTS_TABLE_DESC) and execute_statues
         if not execute_statues:
@@ -154,11 +154,11 @@ class DataDB:
         return True
 
     def QueryStockInformation(self) -> pd.DataFrame:
-        df = sAs.GetInstance.GetDataCenterDB().DataFrameFromDB('StockInformation', [])
+        df = sAs.instance.GetDataCenterDB().DataFrameFromDB('StockInformation', [])
         if df is None:
             df = self.__data_web.DownloadStockIntroduction()
             if df is not None:
-                sAs.GetInstance.GetDataCenterDB().DataFrameToDB('StockInformation', df)
+                sAs.instance.GetDataCenterDB().DataFrameToDB('StockInformation', df)
         return df
 
     # Return value: None if fail
@@ -199,11 +199,11 @@ class DataDB:
         # Not need to insert serial number
         df_json.columns = DataDB.FINANCIAL_STATEMENTS_FIELDS
         self.__del_annual_report(stock_code, [report_type_enum], [])
-        return sAs.GetInstance.GetDataCenterDB().DataFrameToDB(
+        return sAs.instance.GetDataCenterDB().DataFrameToDB(
             DataDB.FINANCIAL_STATEMENTS_TABLE, df_json, 'append')
 
     def __query_annual_report(self, annual_report_table: str, condition: str) -> {str: pd.DataFrame}:
-        annual_report = sAs.GetInstance.GetDataCenterDB().DataFrameFromDB(
+        annual_report = sAs.instance.GetDataCenterDB().DataFrameFromDB(
             annual_report_table, DataDB.FINANCIAL_STATEMENTS_FIELDS, condition)
         if annual_report is None or len(annual_report) == 0:
             return {}
@@ -218,14 +218,14 @@ class DataDB:
             condition += ' AND report_type IN (' + types + ')'
         if years != '':
             condition += ' AND accounting_annual IN (' + years + ')'
-        return sAs.GetInstance.GetDataCenterDB().ExecuteDelete(DataDB.FINANCIAL_STATEMENTS_TABLE, condition)
+        return sAs.instance.GetDataCenterDB().ExecuteDelete(DataDB.FINANCIAL_STATEMENTS_TABLE, condition)
 
     # df <-> json
     @staticmethod
     def __annual_df_2_json_df(stock_code: str, report_type, df: pd.DataFrame) -> pd.DataFrame:
         lines = []
         columns = df.columns.tolist()
-        columns = sAs.GetInstance.GetAliasesTable().Standardize(columns)
+        columns = sAs.instance.GetAliasesTable().Standardize(columns)
         for index, row in df.iterrows():
             line = []
             year = index.split('-')[0]
@@ -368,7 +368,7 @@ class DataCenter:
     def GetStockAnnualReportData(self,
                                  stock_code: str, accounting: [str], year_from: int, year_to: int) -> pd.DataFrame:
         year_start, year_end = Utiltity.common.correct_start_end(year_from, year_to, 2000, Utiltity.common.Date()[0])
-        account_s = sAs.GetInstance.GetAliasesTable().Standardize(accounting)
+        account_s = sAs.instance.GetAliasesTable().Standardize(accounting)
         if len(account_s) > 0:
             df_stock = pd.DataFrame(columns=account_s)
         else:

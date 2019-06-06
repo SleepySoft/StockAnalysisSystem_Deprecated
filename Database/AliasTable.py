@@ -98,7 +98,7 @@ class AliasTable:
 
     def LoadFromDB(self) -> bool:
         self.Reset()
-        tmp_list = Database().GetUtilityDB().ListFromDB(
+        tmp_list = Database().get_utility_db().ListFromDB(
             AliasTable.TABLE, AliasTable.FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
@@ -112,7 +112,7 @@ class AliasTable:
             standard = self.__aliases_standard_table[alias]
             tmp_list.append(alias)
             tmp_list.append(standard)
-        Database().GetUtilityDB().ListToDB(
+        Database().get_utility_db().ListToDB(
             AliasTable.TABLE, tmp_list, -1, 2,
             AliasTable.FIELD)
         return True

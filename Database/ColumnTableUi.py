@@ -10,10 +10,9 @@ author:Sleepy
 """
 
 
-from PyQt5.QtWidgets import QWidget, QTableWidget, QListWidget, QHBoxLayout, QLineEdit, QTableWidgetItem, \
-    QAbstractItemView, QFileDialog, QComboBox
+from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QComboBox
 from Utiltity.ui_utility import *
-from DataTable.ColumnTable import *
+from Database.ColumnTable import *
 
 
 class ColumnTableUi(QWidget):

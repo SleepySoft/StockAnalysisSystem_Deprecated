@@ -1,14 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from functools import partial
-from types import SimpleNamespace
 
-from PyQt5 import QtCore, Qt
-from PyQt5.QtWidgets import QDialog, QPushButton, QMainWindow, QWidget, QDockWidget, QAction
+from PyQt5 import Qt
 
-from Utiltity.ui_utility import *
-from DataTable.AliasTableUi import *
-from DataTable.ColumnTableUi import *
+from Database.AliasTableUi import *
+from Database.ColumnTableUi import *
 
 
 # =========================================== InfoDialog ===========================================

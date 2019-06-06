@@ -34,12 +34,12 @@ import stock_analysis_system as sAs
 
 
 def test__AliasesTable_ExportTable():
-    sAs.GetInstance.GetAliasesTable().ExportTable('D:/AliasesTable.csv')
+    sAs.instance.GetAliasesTable().ExportTable('D:/AliasesTable.csv')
 
 
 def test_run_strategy():
-    all_strategy = sAs.GetInstance.GetStrategyManager().GetStrategyNameList()
-    sAs.GetInstance.GetStrategyManager().ExecuteStrategy(all_strategy)
+    all_strategy = sAs.instance.GetStrategyManager().GetStrategyNameList()
+    sAs.instance.GetStrategyManager().ExecuteStrategy(all_strategy)
 
 
 def test_fetch_annual_pdf_from_szse():
@@ -71,7 +71,7 @@ def test_fetch_annual_pdf_from_szse():
 
 
 def main():
-    sAs.GetInstance.Init()
+    sAs.instance.Init()
     # test__DataCenter_GetStockTable()  # <- Passed on 20171012
     # test__AliasesTable_ExportTable()  # <- Passed on 20171012
 
