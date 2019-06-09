@@ -216,7 +216,7 @@ class ItkvTable:
 # ----------------------------------------------------- Test Code ------------------------------------------------------
 
 def __prepare_default_test_data() -> ItkvTable:
-    client = MongoClient(config.DB_HOST, config.DB_PORT, serverSelectionTimeoutMS=5)
+    client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
     assert(client is not None)
 
     table = ItkvTable(client, 'TestDatabase', 'TestTable')

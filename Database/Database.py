@@ -11,7 +11,19 @@ author:Sleepy
 """
 
 import os
-from Database.SqlRw import SqlAccess
+from SqlRw import SqlAccess
+
+# from os import sys, path
+# root_path = path.dirname(path.dirname(path.abspath(__file__)))
+#
+# try:
+#     from Database.SqlRw import SqlAccess
+# except Exception as e:
+#     sys.path.append(root_path)
+#
+#     from SqlRw import SqlAccess
+# finally:
+#     pass
 
 
 class Database:

@@ -2,26 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Collector/market_data_tushare.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Database/DataTable.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Utiltity/time_standard.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Collector/market_data_tushare_pro.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Utiltity/df_utility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/StockAnalysisSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StockAnalysisSystem.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Collector/market_data_tushare.py" beforeDir="false" afterPath="$PROJECT_DIR$/Collector/market_data_tushare.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/sAsUtility.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/sAsUtility.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DataHub/MarketData.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/MarketData.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTable/AliasTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/AliasTable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTable/AliasTableUi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/AliasTableUi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTable/ColumnTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/ColumnTable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTable/ColumnTableUi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/ColumnTableUi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataTable/UpdateTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/UpdateTable.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/Database.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/Database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utiltity/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/common.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utiltity/plugin_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/plugin_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/collector/stock_calendar.py" beforeDir="false" afterPath="$PROJECT_DIR$/collector/stock_calendar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_center.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_ui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/module_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stock_analysis_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/stock_analysis_system.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/NoSqlRw.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/NoSqlRw.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/UpdateTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/UpdateTable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utiltity/time_standard.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/time_utility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,27 +25,22 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Utiltity/plugin_manager.py">
+        <entry file="file://$PROJECT_DIR$/DataHub/MarketData.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="106" selection-start-line="106" selection-end-line="106" />
+            <state relative-caret-position="95">
+              <caret line="110" column="24" lean-forward="true" selection-start-line="110" selection-start-column="24" selection-end-line="110" selection-end-column="24" />
               <folding>
-                <element signature="e#0#9#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Collector/stock_calendar.py">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/DataHub/MarketData.py">
+        <entry file="file://$PROJECT_DIR$/Database/UpdateTable.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="103">
-              <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
+            <state relative-caret-position="-578">
+              <caret line="208" column="26" selection-start-line="208" selection-start-column="26" selection-end-line="208" selection-end-column="26" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -61,31 +49,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Utiltity/time_utility.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="116">
+              <caret line="52" selection-start-line="52" selection-end-line="52" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Database/Database.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
-              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
-              <folding>
-                <element signature="e#136#145#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="129">
+              <caret line="13" column="11" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Database/DataTable.py">
+        <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="33" selection-start-line="33" selection-end-line="33" />
+            <state relative-caret-position="266">
+              <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -104,8 +89,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__extra</find>
-      <find>StartExecuteDML</find>
       <find>QuickExecuteDDL</find>
       <find>time_limit</find>
       <find>SQL_QUERY_TABLE_COLUMN</find>
@@ -125,15 +108,24 @@
       <find>__plugins</find>
       <find>__safe_execute</find>
       <find>capacit</find>
-      <find>get_latest_update_time</find>
       <find>plugin_capacities</find>
       <find>plugin_prob</find>
+      <find>read_csv</find>
+      <find>check_date_continuity</find>
+      <find>today_updated</find>
+      <find>ut.today()</find>
+      <find>get_latest_update_time</find>
+      <find>Database</find>
+      <find>get_update_record</find>
+      <find>19940505</find>
+      <find>__Trade Calender</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
       <replace>plugin_features</replace>
       <replace>plugin_capacities</replace>
       <replace>plugin_tags</replace>
+      <replace>text2datetime()</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -145,8 +137,6 @@
         <option value="$PROJECT_DIR$/Database/DatabaseRW.py" />
         <option value="$PROJECT_DIR$/Database/DatabaseTable.py" />
         <option value="$PROJECT_DIR$/Database/NoSqlTable.py" />
-        <option value="$PROJECT_DIR$/Database/SqlRw.py" />
-        <option value="$PROJECT_DIR$/config.py" />
         <option value="$PROJECT_DIR$/Collector/stock_fina_tushare.py" />
         <option value="$PROJECT_DIR$/Interface/Collector.py" />
         <option value="$PROJECT_DIR$/DataHub/FinanceData.py" />
@@ -157,13 +147,19 @@
         <option value="$PROJECT_DIR$/stock_analysis_system.py" />
         <option value="$PROJECT_DIR$/Utiltity/time_standard.py" />
         <option value="$PROJECT_DIR$/Database/DataTable/UpdateTable.py" />
-        <option value="$PROJECT_DIR$/Database/Database.py" />
         <option value="$PROJECT_DIR$/DataTable/DataTable.py" />
         <option value="$PROJECT_DIR$/DataTable/UpdateTable.py" />
         <option value="$PROJECT_DIR$/Database/DataTable.py" />
         <option value="$PROJECT_DIR$/Utiltity/plugin_manager.py" />
         <option value="$PROJECT_DIR$/Collector/market_data_tushare.py" />
+        <option value="$PROJECT_DIR$/config.py" />
+        <option value="$PROJECT_DIR$/Database/SqlRw.py" />
+        <option value="$PROJECT_DIR$/Utiltity/df_utility.py" />
+        <option value="$PROJECT_DIR$/Collector/market_data_tushare_pro.py" />
         <option value="$PROJECT_DIR$/DataHub/MarketData.py" />
+        <option value="$PROJECT_DIR$/Utiltity/time_utility.py" />
+        <option value="$PROJECT_DIR$/Database/Database.py" />
+        <option value="$PROJECT_DIR$/Database/UpdateTable.py" />
       </list>
     </option>
   </component>
@@ -177,7 +173,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -224,12 +219,17 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="C:/SDK/Anaconda3" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\D\Code\git\StockAnalysisSystem\Collector" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\D\Code\git\StockAnalysisSystem\Database" />
       <recent name="C:\D\Code\git\StockAnalysisSystem" />
@@ -247,28 +247,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.MarketData">
-    <configuration name="DatabaseTable" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="StockAnalysisSystem" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Database" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\D\Code\git\StockAnalysisSystem\Database\NoSqlRw.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.UpdateTable (2)">
     <configuration name="MarketData" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -282,27 +261,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DataHub/MarketData.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="NoSqlRw" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="StockAnalysisSystem" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Database" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Database/NoSqlRw.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -332,6 +290,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="UpdateTable (2)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="StockAnalysisSystem" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Database" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Database/UpdateTable.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="UpdateTable" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -353,13 +332,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="df_utility" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="StockAnalysisSystem" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Utiltity" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Utiltity/df_utility.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.UpdateTable (2)" />
+        <item itemvalue="Python.df_utility" />
         <item itemvalue="Python.MarketData" />
         <item itemvalue="Python.UpdateTable (1)" />
         <item itemvalue="Python.UpdateTable" />
-        <item itemvalue="Python.DatabaseTable" />
-        <item itemvalue="Python.NoSqlRw" />
       </list>
     </recent_temporary>
   </component>
@@ -394,15 +394,15 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.18738404" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.22077923" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.38218924" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.4174397" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.25788498" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3283859" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3283859" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -413,80 +413,57 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Database/UpdateTable.py</url>
-          <line>90</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Collector/market_data_tushare.py</url>
-          <line>36</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/UpdateTable.py</url>
-          <line>9</line>
+          <line>11</line>
           <option name="timeStamp" value="27" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/DataHub/MarketData.py</url>
-          <line>19</line>
+          <line>22</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/DataHub/MarketData.py</url>
-          <line>85</line>
-          <option name="timeStamp" value="32" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Collector/market_data_tushare.py</url>
-          <line>48</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/DataHub/MarketData.py</url>
-          <line>97</line>
-          <option name="timeStamp" value="40" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Utiltity/plugin_manager.py</url>
-          <line>96</line>
+          <url>file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py</url>
+          <line>24</line>
           <option name="timeStamp" value="41" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Utiltity/plugin_manager.py</url>
-          <line>106</line>
+          <url>file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py</url>
+          <line>40</line>
           <option name="timeStamp" value="42" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Collector/market_data_tushare.py</url>
-          <line>47</line>
+          <url>file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py</url>
+          <line>42</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Collector/market_data_tushare.py</url>
-          <line>33</line>
-          <option name="timeStamp" value="44" />
+          <url>file://$PROJECT_DIR$/Database/UpdateTable.py</url>
+          <line>143</line>
+          <option name="timeStamp" value="64" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Database/UpdateTable.py</url>
+          <line>123</line>
+          <option name="timeStamp" value="66" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>a == b</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Collector/market_info_sohu.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="3200" column="54" selection-start-line="3200" selection-start-column="54" selection-end-line="3200" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/helpers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="198" selection-start-line="198" selection-end-line="198" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py" />
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/helpers.py" />
     <entry file="file://$PROJECT_DIR$/Database/DatabaseTable_.py" />
     <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -523,20 +500,6 @@
           <folding>
             <element signature="e#135#146#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/SqlRw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="109" column="8" selection-start-line="109" selection-start-column="8" selection-end-line="109" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" column="8" selection-start-line="5" selection-end-line="5" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -600,13 +563,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="29" lean-forward="true" selection-start-line="2" selection-start-column="16" selection-end-line="3" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/2and3/datetime.pyi">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="137">
@@ -628,23 +584,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/time_standard.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="24" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/UpdateTable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="10" lean-forward="true" selection-start-column="10" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Collector/stock_calendar.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharmCE2018.3/system/python_stubs/-776130529/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -652,51 +591,128 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/DataTable.py">
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/tushare/pro/data_pro.py" />
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/requests/adapters.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
+        <state relative-caret-position="330">
+          <caret line="487" selection-start-line="487" selection-end-line="487" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/Database.py">
+    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+        <state relative-caret-position="90">
+          <caret line="58" column="26" lean-forward="true" selection-start-line="58" selection-start-column="26" selection-end-line="58" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DataTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="37" selection-start-line="37" selection-end-line="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Collector/stock_calendar.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4009">
+          <caret line="218" column="38" selection-start-line="218" selection-start-column="32" selection-end-line="218" selection-end-column="38" />
           <folding>
-            <element signature="e#136#145#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/tushare/pro/data_pro.py">
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/tushare/pro/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="113">
-          <caret line="22" column="75" selection-start-line="22" selection-start-column="75" selection-end-line="22" selection-end-column="75" />
+        <state relative-caret-position="151">
+          <caret line="42" selection-start-line="42" selection-end-line="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="95">
+          <caret line="5" column="68" selection-start-line="5" selection-start-column="68" selection-end-line="5" selection-end-column="68" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Utiltity/plugin_manager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="106" selection-start-line="106" selection-end-line="106" />
+        <state relative-caret-position="-154">
+          <caret line="98" selection-start-line="98" selection-end-line="98" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/requests/adapters.py">
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/generic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7">
-          <caret line="491" column="55" lean-forward="true" selection-start-line="491" selection-start-column="55" selection-end-line="491" selection-end-column="55" />
+        <state relative-caret-position="159">
+          <caret line="2417" column="47" selection-start-line="2417" selection-start-column="41" selection-end-line="2417" selection-end-column="47" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/indexes/datetimes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-354">
+          <caret line="1378" column="4" selection-start-line="1378" selection-start-column="4" selection-end-line="1378" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/frame.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="84">
-          <caret line="33" selection-start-line="33" selection-end-line="33" />
+          <caret line="1859" column="21" selection-start-line="1859" selection-start-column="13" selection-end-line="1859" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/series.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="82">
+          <caret line="151" column="27" selection-start-line="151" selection-start-column="23" selection-end-line="151" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/SqlRw.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="224" column="8" selection-start-line="224" selection-start-column="8" selection-end-line="224" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/df_utility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="58">
+          <caret line="27" column="33" lean-forward="true" selection-start-line="27" selection-start-column="33" selection-end-line="27" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/_strptime.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="576" selection-start-line="576" selection-end-line="576" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -705,8 +721,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/MarketData.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="103">
-          <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
+        <state relative-caret-position="95">
+          <caret line="110" column="24" lean-forward="true" selection-start-line="110" selection-start-column="24" selection-end-line="110" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/Database.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="129">
+          <caret line="13" column="11" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/time_utility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="52" selection-start-line="52" selection-end-line="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/UpdateTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-578">
+          <caret line="208" column="26" selection-start-line="208" selection-start-column="26" selection-end-line="208" selection-end-column="26" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>

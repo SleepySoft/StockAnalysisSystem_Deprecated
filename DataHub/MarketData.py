@@ -2,18 +2,21 @@ import sys
 import traceback
 import pandas as pd
 
+from os import sys, path
+root_path = path.dirname(path.dirname(path.abspath(__file__)))
+
 try:
-    from Utiltity.time_standard import *
+    from Utiltity.df_utility import *
+    from Utiltity.time_utility import *
     from Database.Database import Database
     from Database import UpdateTable
     from Database.DataTable import DataTable
     from Utiltity.plugin_manager import PluginManager
 except Exception as e:
-    from os import sys, path
-    root = path.dirname(path.dirname(path.abspath(__file__)))
-    sys.path.append(root)
+    sys.path.append(root_path)
 
-    from Utiltity.time_standard import *
+    from Utiltity.df_utility import *
+    from Utiltity.time_utility import *
     from Database.Database import Database
     from Database import UpdateTable
     from Database.DataTable import DataTable
@@ -87,22 +90,36 @@ class MarketData:
         for exchange in MarketData.TRADE_EXCHANGE:
             latest_update = update_table.get_latest_update_time('TradeCalender', exchange, '')
             if latest_update is None:
-                since = datetime(2018, 1, 1)
+                since = datetime(1990, 1, 1)
                 until = today()
-            elif latest_update != update_table.today():
+            elif latest_update != yesterday():
                 since = latest_update
                 until = today()
-            self.__do_update_trace_calender(exchange, since, until)
+            if self.__do_update_trade_calender(exchange, since, until):
+                    update_table.renew_update_time()
 
-    def __do_update_trace_calender(self, exchange: str, since: datetime, until: datetime):
+    def __do_update_trade_calender(self, exchange: str, since: datetime, until: datetime):
         plugins = self.__plugin.find_module_has_capacity('TradeCalender')
-        if len(plugins) != 0:
-            self.__plugin.execute_module_function(plugins[0], 'fetch_data', {
+        for plugin in plugins:
+            df = self.__plugin.execute_module_function(plugin, 'fetch_data', {
                 'content': 'TradeCalender',
                 'exchange': exchange,
                 'since': since,
                 'until': until,
             })
+            if df is None or len(df) == 0:
+                continue
+            continuity, min_date, max_date = check_date_continuity(df, 'TradeDate')
+            if not continuity:
+                continue
+            if min_date < since:
+                df = df.loc[df['TradeDate'] >= since]
+            ret = Database.get_utility_db().DataFrameToDB('TradeCalender', df, if_exists='append')
+            return ret
+
+
+    def __do_check_trade_calender_data(self, df: pd.DataFrame):
+        pass
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
 

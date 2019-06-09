@@ -2,18 +2,21 @@ import pandas as pd
 import tushare as ts
 from datetime import date
 
+from os import sys, path
+root_path = path.dirname(path.dirname(path.abspath(__file__)))
+
 try:
     import config
     from Utiltity.common import *
 except Exception as e:
-    from os import sys, path
-    root = path.dirname(path.dirname(path.abspath(__file__)))
-    sys.path.append(root)
+    sys.path.append(root_path)
 
     import config
     from Utiltity.common import *
 finally:
     pass
+
+ts.set_token(config.TS_TOKEN)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -30,12 +33,16 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame:
         since = text2date(since)
     if isinstance(until, str):
         since = text2date(until)
-    pro = ts.pro_api(config.TS_TOKEN)
     ts_since = since.strftime('%Y%m%d')
     ts_until = until.strftime('%Y%m%d')
-    result = pro.trade_cal(exchange, start_date=ts_since, end_date=ts_until)
+
+    pro = ts.pro_api()
+    # If we specify the exchange parameter, it raises error.
+    result = pro.trade_cal('', start_date=ts_since, end_date=ts_until)
+
     if result is not None:
         result.rename(columns={'exchange': 'Exchange', 'cal_date': 'TradeDate', 'is_open': 'Status'}, inplace=True)
+        result.drop(result[result.Exchange != exchange].index, inplace=True)
     return result
 
 
@@ -58,9 +65,9 @@ def fetch_data(**kwargs) -> pd.DataFrame:
 
 def plugin_prob() -> dict:
     return {
-        'plugin_name': 'market_data_tushare',
+        'plugin_name': 'market_data_tushare_pro',
         'plugin_version': '0.0.0.1',
-        'tags': ['tushare']
+        'tags': ['tushare', 'pro', 'tusharepro']
     }
 
 
