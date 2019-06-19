@@ -19,60 +19,54 @@ finally:
 class UpdateTable:
     TABLE = 'UpdateTable'
     FIELD = ['Serial', 'L1Tag', 'L2Tag', 'L3Tag', 'Since', 'Until', 'LastUpdate']
+    INDEX_SINCE = 4
+    INDEX_UNTIL = 5
+    INDEX_LAST_UPDATE = 6
 
     def __init__(self):
         pass
 
-    def today_text(self) -> str:
-        return datetime.today().strftime('%Y-%m-%d')
-
     def get_since(self, tag1: str, tag2: str, tag3: str):
         record = self.get_update_record(tag1, tag2, tag3)
-        return None if len(record) == 0 else text_auto_time(record[0][4])
+        return None if len(record) == 0 else text_auto_time(record[0][UpdateTable.INDEX_SINCE])
 
     def get_until(self, tag1: str, tag2: str, tag3: str):
         record = self.get_update_record(tag1, tag2, tag3)
-        return None if len(record) == 0 else text_auto_time(record[0][5])
+        return None if len(record) == 0 else text_auto_time(record[0][UpdateTable.INDEX_UNTIL])
+
+    def get_last_update_time(self, tag1: str, tag2: str, tag3: str):
+        record = self.get_update_record(tag1, tag2, tag3)
+        return None if len(record) == 0 else text_auto_time(record[0][UpdateTable.INDEX_LAST_UPDATE])
+
+    def get_all_time(self, tag1: str, tag2: str, tag3: str):
+        record = self.get_update_record(tag1, tag2, tag3)
+        return [None, None, None] if len(record) == 0 else \
+            [text_auto_time(record[0][UpdateTable.INDEX_SINCE]),
+             text_auto_time(record[0][UpdateTable.INDEX_UNTIL]),
+             text_auto_time(record[0][UpdateTable.INDEX_LAST_UPDATE])]
 
     def update_since(self, tag1: str, tag2: str, tag3: str, since: datetime or str):
-        sql_update = ("UPDATE %s SET Since = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
-                      (UpdateTable.TABLE, text_auto_time(since), tag1, tag2, tag3))
-        sql_insert = ("INSERT INTO %s (L1Tag, L2Tag, L3Tag, Since, LastUpdate) VALUES ('%s', '%s', '%s', '%s', '%s');" %
-                      (UpdateTable.TABLE, tag1, tag2, tag3, text_auto_time(since), self.today_text()))
-
-        record = self.get_update_record(tag1, tag2, tag3)
-        if record is None or len(record) == 0:
-            return Database().get_utility_db().QuickExecuteDML(sql_insert, True)
-        elif record[0][4] is None or text_auto_time(since) < text_auto_time(record[0][4]):
-            return Database().get_utility_db().QuickExecuteDML(sql_update, True)
-        else:
-            return True
+        return self.__update_date_field(tag1, tag2, tag3, since, UpdateTable.INDEX_SINCE, lambda x, y: x < y)
 
     def update_until(self, tag1: str, tag2: str, tag3: str, until: datetime or str):
-        sql_update = ("UPDATE %s SET Until = '%s', LastUpdate = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
-                      (UpdateTable.TABLE, text_auto_time(until), self.today_text(), tag1, tag2, tag3))
-        sql_insert = ("INSERT INTO %s (L1Tag, L2Tag, L3Tag, Until, LastUpdate) VALUES ('%s', '%s', '%s', '%s', '%s');" %
-                      (UpdateTable.TABLE, tag1, tag2, tag3, text_auto_time(until), self.today_text()))
+        return self.__update_date_field(tag1, tag2, tag3, until, UpdateTable.INDEX_SINCE, lambda x, y: x > y)
+
+    def update_latest_update_time(self, tag1: str, tag2: str, tag3: str):
+        return self.__update_date_field(tag1, tag2, tag3, today(), UpdateTable.INDEX_SINCE, lambda x, y: x > y)
+
+    def __update_date_field(self, tag1: str, tag2: str, tag3: str, date: datetime or str, field: int, compare):
+        sql_update = ("UPDATE %s SET Until = '%s', %s = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
+                      (UpdateTable.TABLE, date, UpdateTable.FIELD[field], date, tag1, tag2, tag3))
+        sql_insert = ("INSERT INTO %s (L1Tag, L2Tag, L3Tag, %s) VALUES ('%s', '%s', '%s', '%s');" %
+                      (UpdateTable.TABLE, UpdateTable.FIELD[field], tag1, tag2, tag3, date))
 
         record = self.get_update_record(tag1, tag2, tag3)
         if record is None or len(record) == 0:
             return Database().get_utility_db().QuickExecuteDML(sql_insert, True)
-        elif record[0][5] is None or text_auto_time(until) > text_auto_time(record[0][5]):
+        elif record[0][field] is None or compare(text_auto_time(date), text_auto_time(record[0][field])):
             return Database().get_utility_db().QuickExecuteDML(sql_update, True)
         else:
             return True
-
-    # def renew_update_time(self, tag1: str, tag2: str, tag3: str):
-    #     sql_update = ("UPDATE %s SET LastUpdate = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
-    #                   (UpdateTable.TABLE, self.today_text(), tag1, tag2, tag3))
-    #
-    #     sql_insert = ("INSERT INTO %s (L1Tag, L2Tag, L3Tag, LastUpdate) VALUES ('%s', '%s', '%s', '%s');" %
-    #                   (UpdateTable.TABLE, tag1, tag2, tag3, self.today_text()))
-    #
-    #     if self.get_latest_update_time(tag1, tag2, tag3) is None:
-    #         return Database().get_utility_db().QuickExecuteDML(sql_insert, True)
-    #     else:
-    #         return Database().get_utility_db().QuickExecuteDML(sql_update, True)
 
     def get_update_record(self, tag1: str, tag2: str, tag3: str) -> []:
         return Database().get_utility_db().ListFromDB(
@@ -82,15 +76,6 @@ class UpdateTable:
         sql_delete = ("DELETE FROM %s WHERE  L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
                       (UpdateTable.TABLE, tag1, tag2, tag3))
         return Database().get_utility_db().QuickExecuteDML(sql_delete, True)
-
-    # def get_latest_update_time(self, tag1: str, tag2: str, tag3: str) -> datetime:
-    #     result = self.get_latest_update_time_record(tag1, tag2, tag3)
-    #     if len(result) == 0:
-    #         return None
-    #     else:
-    #         date_text = result[0][4]
-    #         date = datetime.strptime(date_text, '%Y-%m-%d')
-    #         return date
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
