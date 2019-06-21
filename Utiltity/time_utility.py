@@ -45,6 +45,7 @@ def text_auto_time(text: str) -> datetime:
         pass
     return None
 
+
 def text2date(text: str) -> datetime:
     return datetime.strptime(text, '%Y-%m-%d')
 

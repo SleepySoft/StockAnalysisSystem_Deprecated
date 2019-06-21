@@ -49,16 +49,16 @@ class UpdateTable:
         return self.__update_date_field(tag1, tag2, tag3, since, UpdateTable.INDEX_SINCE, lambda x, y: x < y)
 
     def update_until(self, tag1: str, tag2: str, tag3: str, until: datetime or str):
-        return self.__update_date_field(tag1, tag2, tag3, until, UpdateTable.INDEX_SINCE, lambda x, y: x > y)
+        return self.__update_date_field(tag1, tag2, tag3, until, UpdateTable.INDEX_UNTIL, lambda x, y: x > y)
 
     def update_latest_update_time(self, tag1: str, tag2: str, tag3: str):
-        return self.__update_date_field(tag1, tag2, tag3, today(), UpdateTable.INDEX_SINCE, lambda x, y: x > y)
+        return self.__update_date_field(tag1, tag2, tag3, today(), UpdateTable.INDEX_LAST_UPDATE, lambda x, y: x > y)
 
     def __update_date_field(self, tag1: str, tag2: str, tag3: str, date: datetime or str, field: int, compare):
-        sql_update = ("UPDATE %s SET Until = '%s', %s = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
-                      (UpdateTable.TABLE, date, UpdateTable.FIELD[field], date, tag1, tag2, tag3))
+        sql_update = ("UPDATE %s SET %s = '%s' WHERE L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
+                      (UpdateTable.TABLE, UpdateTable.FIELD[field], text_auto_time(date), tag1, tag2, tag3))
         sql_insert = ("INSERT INTO %s (L1Tag, L2Tag, L3Tag, %s) VALUES ('%s', '%s', '%s', '%s');" %
-                      (UpdateTable.TABLE, UpdateTable.FIELD[field], tag1, tag2, tag3, date))
+                      (UpdateTable.TABLE, UpdateTable.FIELD[field], tag1, tag2, tag3, text_auto_time(date)))
 
         record = self.get_update_record(tag1, tag2, tag3)
         if record is None or len(record) == 0:
