@@ -8,11 +8,13 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 try:
     import config
     from Utiltity.common import *
+    from Utiltity.time_utility import *
 except Exception as e:
     sys.path.append(root_path)
 
     import config
     from Utiltity.common import *
+    from Utiltity.time_utility import *
 finally:
     pass
 

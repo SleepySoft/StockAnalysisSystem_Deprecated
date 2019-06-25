@@ -1,17 +1,17 @@
 import sys
 import traceback
-from datetime import datetime
-from Database import Database
 
 from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from Utiltity.time_utility import *
+    from Database.Database import Database
 except Exception as e:
     sys.path.append(root_path)
 
     from Utiltity.time_utility import *
+    from Database.Database import Database
 finally:
     pass
 

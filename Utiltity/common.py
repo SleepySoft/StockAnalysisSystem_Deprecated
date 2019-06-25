@@ -8,41 +8,10 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 
 
-# -------------------------------------------- Time Format --------------------------------------------
+# -----------------------------------------------------------------------------------------------------
 
-def text2date(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d')
-
-
-def text2datetime(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M:%S')
-
-
-def text_auto_time(text: str) -> datetime:
-    # noinspection PyBroadException
-    try:
-        return datetime.strptime(text, '%Y-%m-%d')
-    except Exception:
-        pass
-    # noinspection PyBroadException
-    try:
-        return datetime.strptime(text, '%H:%M:%S')
-    except Exception:
-        pass
-    # noinspection PyBroadException
-    try:
-        return datetime.strptime(text, '%Y-%m-%d %H:%M:%S')
-    except Exception:
-        pass
-    return None
-
-
-def date2text(time: datetime) -> str:
-    return time.strftime('%Y-%m-%d')
-
-
-def datetime2text(time: datetime) -> str:
-    return time.strftime('%Y-%m-%d %H:%M:%S')
+def nop(*args):
+    pass
 
 
 # -------------------------------------------- Web related --------------------------------------------

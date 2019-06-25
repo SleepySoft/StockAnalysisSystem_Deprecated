@@ -10,20 +10,17 @@ author:Sleepy
 @modify:
 """
 
-import os
-from SqlRw import SqlAccess
+from os import sys, path
+root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
-# from os import sys, path
-# root_path = path.dirname(path.dirname(path.abspath(__file__)))
-#
-# try:
-#     from Database.SqlRw import SqlAccess
-# except Exception as e:
-#     sys.path.append(root_path)
-#
-#     from SqlRw import SqlAccess
-# finally:
-#     pass
+try:
+    from Database.SqlRw import SqlAccess
+except Exception as e:
+    sys.path.append(root_path)
+
+    from Database.SqlRw import SqlAccess
+finally:
+    pass
 
 
 class Database:
@@ -40,9 +37,7 @@ class Database:
         pass
 
     def __singleton_init(self):
-        full_path = os.path.realpath(__file__)
-        path, filename = os.path.split(full_path)
-        data_path = path + '/../Data/'
+        data_path = root_path + '/Data/'
 
         self.__sAsUtility = SqlAccess(data_path + 'sAsUtility.db')
         self.__sAsDailyData = SqlAccess(data_path + 'sAsDailyData.db')

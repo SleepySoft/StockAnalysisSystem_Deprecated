@@ -1,11 +1,13 @@
 import sys
 import traceback
 import pandas as pd
+import datetime
 
 from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
+    from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Database.Database import Database
@@ -15,6 +17,7 @@ try:
 except Exception as e:
     sys.path.append(root_path)
 
+    from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Database.Database import Database
@@ -26,39 +29,88 @@ finally:
 
 
 class DataUtility:
+
+    RESULT_CODE = object
+    RESULT_FALSE = False
+    RESULT_TRUE = True
+    RESULT_SUCCESSFUL = 2
+    RESULT_FAILED = 4
+    RESULT_NOT_SUPPORTED = 8
+    RESULT_NOT_IMPLEMENTED = None
+
+    # ------------------------------------------------------------------------------------------------------------------
+
     def __init__(self, plugin: PluginManager, update: UpdateTable):
         self.__plugin = plugin
         self.__update = update
 
-    def query_data(self, **kwargs) -> pd.DataFrame:
-        self.check_update()
-        pass
+    def get_update_table(self) -> UpdateTable:
+        return self.__update
 
-    def check_update(self, since: datetime, until: datetime):
-        if self.need_update():
-            self.execute_update()
+    def get_plugin_manager(self) -> PluginManager:
+        return self.__plugin
 
-    def need_update(self) -> bool:
-        update_tag = self.get_data_update_tag()
-        self.__update.
+    # --------------------------------------------------- public if ---------------------------------------------------
 
-    def execute_update(self):
-        pass
+    def query_data(self, tags: [str],
+                   timeval: (datetime.datetime, datetime.datetime) = None,
+                   extra: dict = None) -> pd.DataFrame:
+        if self.need_update(tags) == DataUtility.RESULT_TRUE:
+            self.execute_update(tags)
+        return self.data_from_cache(tags, timeval, extra)
 
-    def get_data_update_tag(self, **kwargs) -> [str, str, str]:
-        return ['', '', '']
+    def need_update(self, tags: [str]) -> RESULT_CODE:
+        return DataUtility.RESULT_NOT_IMPLEMENTED
 
-    def reference_data_range(self) -> [datetime, datetime]:
-        return [text2date('1900-01-01'), yesterday()]
+    def execute_update(self, tags: [str]) -> RESULT_CODE:
+        return DataUtility.RESULT_NOT_IMPLEMENTED
 
-    def reference_latest_update(self) -> datetime:
-        return yesterday()
+    # --------------------------------------------------- private if ---------------------------------------------------
 
-    def load_data(self, **kwargs):
-        pass
+    def data_from_cache(self, tags: [str],
+                        timeval: (datetime.datetime, datetime.datetime),
+                        extra: dict = None) -> pd.DataFrame:
+        return DataUtility.RESULT_NOT_IMPLEMENTED
 
-    def fetch_data(self, **kwargs):
-        pass
+    # -------------------------------------------------- probability --------------------------------------------------
+
+    def get_root_tags(self) -> [str]:
+        nop(self)
+        return []
+
+    def is_data_support(self, tags: [str]) -> bool:
+        nop(self, tags)
+        return False
+
+    def get_cached_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
+        nop(self, tags)
+        return None, None
+
+    def get_cache_last_update(self, tags: [str]) -> datetime.datetime:
+        nop(self, tags)
+        return None
+
+    # --------------------------------------------------- assistance ---------------------------------------------------
+
+    def _get_data_range(self, tags: list) -> (datetime.datetime, datetime.datetime):
+        _tags = self.__normalize_tags(tags)
+        return self.__update.get_since(*_tags), self.__update.get_until(*tags)
+
+    def _get_data_last_update(self, tags: list) -> datetime.datetime:
+        _tags = self.__normalize_tags(tags)
+        return self.__update.get_last_update_time(*_tags)
+
+    def _cache_data_satisfied(self, tags: list, since: datetime.datetime, until: datetime.datetime) -> bool:
+        _tags = self.__normalize_tags(tags)
+        _since, _until = self._get_data_range(_tags)
+        return since >= _since and until <= _until
+
+    def __normalize_tags(self, tags: list) -> tuple:
+        _tags = tags if isinstance(tags, list) else [tags]
+        while len(_tags) < 3:
+            _tags.append('')
+        return tuple(_tags)
+
 
 
 
