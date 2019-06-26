@@ -20,6 +20,14 @@ def yesterday() -> datetime.datetime:
     return text2date(date_text)
 
 
+def tomorrow_of(time: datetime.datetime):
+    return time + datetime.timedelta(days=1)
+
+
+def yesterday_of(time: datetime.datetime):
+    return time - datetime.timedelta(days=1)
+
+
 def text_auto_time(text: str) -> datetime.datetime:
     if isinstance(text, datetime.datetime):
         return text

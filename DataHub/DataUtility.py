@@ -59,8 +59,29 @@ class DataUtility:
             self.execute_update(tags)
         return self.data_from_cache(tags, timeval, extra)
 
-    def need_update(self, tags: [str]) -> RESULT_CODE:
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+    def need_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+        """
+        Check whether the tag specified data need update.
+        It will check data range first. If reference data range is not specified.
+            The 'update_since' and 'update_until' are always None
+            It will check the last update instead.
+        If reference last update is also not specified.
+            The 'need_update' will be RESULT_NOT_SUPPORTED
+            The 'update_since' and 'update_until' are always None if the last update checking is applied.
+        :param tags: The tags to identify the data
+        :return: Tuple: (
+            need_update :   RESULT_TRUE if need update,
+                            RESULT_FALSE if don't need update,
+                            RESULT_NOT_SUPPORTED if not not support update check,
+            update_since : The data we need update since.
+            update_until : The data we need update until.
+            )
+        """
+
+        need_update, update_since, update_until = self._check_update_by_range(tags)
+        if need_update == DataUtility.RESULT_NOT_SUPPORTED:
+            need_update, update_since, update_until = self._check_update_by_last_update(tags)
+        return need_update, update_since, update_until
 
     def execute_update(self, tags: [str]) -> RESULT_CODE:
         return DataUtility.RESULT_NOT_IMPLEMENTED
@@ -83,12 +104,20 @@ class DataUtility:
         return False
 
     def get_cached_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
-        nop(self, tags)
-        return None, None
+        _tags = self.__normalize_tags(tags)
+        return self.get_update_table().get_since_until(*_tags)
 
     def get_cache_last_update(self, tags: [str]) -> datetime.datetime:
+        _tags = self.__normalize_tags(tags)
+        return self.get_update_table().update_latest_update_time(*_tags)
+
+    def get_reference_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
         nop(self, tags)
-        return None
+        return [datetime.datetime(1990, 1, 1), yesterday()]
+
+    def get_reference_last_update(self, tags: [str]) -> datetime.datetime:
+        nop(self, tags)
+        return today()
 
     # --------------------------------------------------- assistance ---------------------------------------------------
 
@@ -104,6 +133,37 @@ class DataUtility:
         _tags = self.__normalize_tags(tags)
         _since, _until = self._get_data_range(_tags)
         return since >= _since and until <= _until
+
+    def _check_update_by_range(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+        ref_since, ref_until = self.get_reference_data_range(tags)
+        if ref_since is None and ref_until is None:
+            return DataUtility.RESULT_NOT_SUPPORTED, None, None
+
+        need_update = DataUtility.RESULT_FALSE
+        update_since, update_until = None, None
+        since, until = self.get_cached_data_range(tags)
+
+        if ref_since is not None:
+            if since is None or since > ref_since:
+                update_since = ref_since
+                need_update = DataUtility.RESULT_TRUE
+            else:
+                update_since = tomorrow_of(until)
+        if ref_until is not None:
+            if until is None or until < ref_until:
+                update_until = ref_until
+                need_update = DataUtility.RESULT_TRUE
+            else:
+                update_until = yesterday_of(ref_since)
+        return need_update, update_since, update_until
+
+    def _check_update_by_last_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+        reference_last_update = self.get_reference_last_update(tags)
+        if reference_last_update is None:
+            return DataUtility.RESULT_NOT_SUPPORTED, None, None
+        else:
+            need_update = DataUtility.RESULT_TRUE if reference_last_update != today() else DataUtility.RESULT_FALSE
+            return need_update, None, None
 
     def __normalize_tags(self, tags: list) -> tuple:
         _tags = tags if isinstance(tags, list) else [tags]

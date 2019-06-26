@@ -31,18 +31,11 @@ finally:
 
 NEED_COLLECTOR_CAPACITY = [
     'TradeCalender',
-    'SecuritiesInfo',
-    'IndexComponent',
 ]
-
-SECURITIES_SH = 0x01
-SECURITIES_SZ = 0x02
-SECURITIES_A_SHARES = SECURITIES_SH & SECURITIES_SZ
+TRADE_EXCHANGE = ['SSE', 'SZSE']
 
 TABLE_TRADE_CALENDER = 'TradeCalender'
 FIELD_TRADE_CALENDER = ['exchange', 'trade_date', 'status']
-
-TRADE_EXCHANGE = ['SSE', 'SZSE']
 
 
 class TradeCalendar(DataUtility):
