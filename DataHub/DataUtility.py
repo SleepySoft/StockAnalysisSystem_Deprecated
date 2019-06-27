@@ -55,8 +55,9 @@ class DataUtility:
     def query_data(self, tags: [str],
                    timeval: (datetime.datetime, datetime.datetime) = None,
                    extra: dict = None) -> pd.DataFrame:
-        if self.need_update(tags) == DataUtility.RESULT_TRUE:
-            self.execute_update(tags)
+        need_update, update_since, update_until = self.need_update(tags)
+        if need_update == DataUtility.RESULT_TRUE:
+            self.execute_update(tags, (update_since, update_until))
         return self.data_from_cache(tags, timeval, extra)
 
     def need_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
@@ -83,7 +84,7 @@ class DataUtility:
             need_update, update_since, update_until = self._check_update_by_last_update(tags)
         return need_update, update_since, update_until
 
-    def execute_update(self, tags: [str]) -> RESULT_CODE:
+    def execute_update(self, tags: [str], timeval: (datetime.datetime, datetime.datetime) = None) -> RESULT_CODE:
         return DataUtility.RESULT_NOT_IMPLEMENTED
 
     # --------------------------------------------------- private if ---------------------------------------------------

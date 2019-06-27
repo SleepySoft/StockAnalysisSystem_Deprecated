@@ -7,6 +7,7 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from DataHub.DataUtility import DataUtility
+    from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
@@ -18,6 +19,7 @@ except Exception as e:
     sys.path.append(root_path)
 
     from DataHub.DataUtility import DataUtility
+    from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
@@ -36,6 +38,7 @@ TRADE_EXCHANGE = ['SSE', 'SZSE']
 
 TABLE_TRADE_CALENDER = 'TradeCalender'
 FIELD_TRADE_CALENDER = ['exchange', 'trade_date', 'status']
+FIELD_TYPE_TRADE_CALENDER = ['object', 'datetime64[ns]', 'int64']
 
 
 class TradeCalendar(DataUtility):
@@ -46,29 +49,29 @@ class TradeCalendar(DataUtility):
 
     # --------------------------------------------------- Interface ---------------------------------------------------
 
-    def need_update(self, tags: [str]) -> DataUtility.RESULT_CODE:
-        latest_update = self._get_data_last_update(['TradeCalender', '', ''])
-        return latest_update != yesterday()
-
-    def execute_update(self, tags: [str]) -> DataUtility.RESULT_CODE:
+    def execute_update(self, tags: [str],
+                       timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
+        since, until = timeval
         for exchange in TRADE_EXCHANGE:
-            since, until = self.get_cached_data_range(tags)
-            if until is None:
+            if since is None:
                 since = datetime.datetime(1990, 1, 1)
-                until = today()
-            elif until == yesterday():
-                continue
-            else:
-                since = until
+            if until is None:
                 until = today()
             df = self.__do_fetch_trade_calender(exchange, since, until)
             if df is None:
                 continue
+
+            log_dbg('----------------------------------------------------')
+            log_dbg(exchange)
+            log_dbg(df)
+            log_dbg('----------------------------------------------------')
+
             exists_df = self.__cached_data.get(exchange)
             if exists_df is not None:
                 self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
             else:
                 self.__cached_data[exchange] = df
+        self.__save_cached_data()
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
@@ -104,10 +107,6 @@ class TradeCalendar(DataUtility):
         max_date = max(df['trade_date'])
         return min_date, max_date
 
-    # def get_cache_last_update(self, tags: [str]) -> datetime.datetime:
-    #     _tags = self.__normalize_tags(tags)
-    #     return self.get_update_table().update_latest_update_time(*_tags)
-
     # ---------------------------------------------------- private -----------------------------------------------------
 
     def __do_fetch_trade_calender(self, exchange: str, since: datetime.datetime, until: datetime.datetime):
@@ -119,13 +118,13 @@ class TradeCalendar(DataUtility):
                 'since': since,
                 'until': until,
             })
-            if df is None or len(df) == 0:
+            if not self.__verify_fetching_data_format(df) or len(df) == 0:
+                print('Format Error.')
                 continue
-            continuity, min_date, max_date = check_date_continuity(df, 'trade_date')
-            if not continuity:
-                continue
-            if min_date < since:
+            if since is not None:
                 df = df.loc[df['trade_date'] >= since]
+            if until is not None:
+                df = df.loc[df['trade_date'] <= until]
             return df
         return None
 
@@ -138,7 +137,35 @@ class TradeCalendar(DataUtility):
         return True
 
     def __save_cached_data(self) -> bool:
-        return Database().get_utility_db().DataFrameToDB('TradeCalender', self.__cached_data)
+        first = True
+        result = True
+        for key in self.__cached_data.keys():
+            df = self.__cached_data[key]
+            if df is None:
+                continue
+            if_exists = 'replace' if first else 'append'
+            if not Database().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
+                result = False
+        return result
+
+    def __verify_fetching_data_format(self, df: pd.DataFrame):
+        if df is None:
+            slog('Fetching data format error: Data is None')
+            return False
+        columns = list(df.columns)
+        for field, field_type in zip(FIELD_TRADE_CALENDER, FIELD_TYPE_TRADE_CALENDER):
+            if field not in columns:
+                slog('Fetching data format error: Field is missing - ' + field)
+                return False
+            _type = df[field].dtype
+            if _type != field_type:
+                slog('Fetching data format error: Field type mismatch - ' + str(_type) + ' vs ' + str(field_type))
+                return False
+        continuity, min_date, max_date = check_date_continuity(df, 'trade_date')
+        if not continuity:
+            slog('Fetching data format error: Date is not continuity.')
+            return False
+        return True
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------

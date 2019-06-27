@@ -14,6 +14,22 @@ def nop(*args):
     pass
 
 
+def slog(text: str):
+    print(text)
+
+
+def log_dbg(text: str):
+    print(text)
+
+
+def log_info(text: str):
+    slog(text)
+
+
+def log_error(text: str):
+    slog(text)
+
+
 # -------------------------------------------- Web related --------------------------------------------
 
 def Download(url: str) -> bytes:

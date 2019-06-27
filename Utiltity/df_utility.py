@@ -19,7 +19,7 @@ def check_date_continuity(df: pd.DataFrame, field: str) -> tuple:
     min_date = min(date_serial.index)
     max_date = max(date_serial.index)
     date_serial.reindex(index=pd.date_range(min_date, max_date), fill_value=0)
-    continuity = 0 not in date_serial.data
+    continuity = (0 not in date_serial.data)
     return continuity, min_date, max_date
 
 
