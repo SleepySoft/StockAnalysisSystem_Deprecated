@@ -83,10 +83,11 @@ class TradeCalendar(DataUtility):
         df = self.__cached_data.get(tags[0])
         if df is None:
             return None
-        if len(timeval) > 0 and timeval[0] is not None:
-            df = df[df['trade_date'] >= timeval[0]]
-        if len(timeval) > 1 and timeval[1] is not None:
-            df = df[df['trade_date'] <= timeval[1]]
+        if timeval is not None:
+            if len(timeval) > 0 and timeval[0] is not None:
+                df = df[df['trade_date'] >= timeval[0]]
+            if len(timeval) > 1 and timeval[1] is not None:
+                df = df[df['trade_date'] <= timeval[1]]
         return df
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -101,11 +102,11 @@ class TradeCalendar(DataUtility):
         if not self.is_data_support(tags):
             return None, None
         df = self.__cached_data.get(tags[0])
-        if df is None:
+        if df is None or len(df) == 0:
             return None, None
         min_date = min(df['trade_date'])
         max_date = max(df['trade_date'])
-        return min_date, max_date
+        return text_auto_time(min_date), text_auto_time(max_date)
 
     # ---------------------------------------------------- private -----------------------------------------------------
 
@@ -139,12 +140,15 @@ class TradeCalendar(DataUtility):
     def __save_cached_data(self) -> bool:
         first = True
         result = True
-        for key in self.__cached_data.keys():
-            df = self.__cached_data[key]
+        for exchange in self.__cached_data.keys():
+            df = self.__cached_data[exchange]
             if df is None:
                 continue
             if_exists = 'replace' if first else 'append'
-            if not Database().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
+            first = False
+            if Database().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
+                self._update_time_record(['TradeCalender', exchange], df, 'trade_date')
+            else:
                 result = False
         return result
 
@@ -186,7 +190,10 @@ def __build_instance() -> TradeCalendar:
 
 def test_basic_feature():
     md = __build_instance()
-    md.query_data('SSE')
+    df = md.query_data('SSE')
+    print(df)
+    df = md.query_data('SZSE')
+    print(df)
 
 
 def test_entry():

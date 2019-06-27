@@ -55,10 +55,11 @@ class DataUtility:
     def query_data(self, tags: [str],
                    timeval: (datetime.datetime, datetime.datetime) = None,
                    extra: dict = None) -> pd.DataFrame:
-        need_update, update_since, update_until = self.need_update(tags)
+        _tags = self.__normalize_tags(tags)
+        need_update, update_since, update_until = self.need_update(_tags)
         if need_update == DataUtility.RESULT_TRUE:
-            self.execute_update(tags, (update_since, update_until))
-        return self.data_from_cache(tags, timeval, extra)
+            self.execute_update(_tags, (update_since, update_until))
+        return self.data_from_cache(_tags, timeval, extra)
 
     def need_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
         """
@@ -114,7 +115,7 @@ class DataUtility:
 
     def get_reference_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
         nop(self, tags)
-        return [datetime.datetime(1990, 1, 1), yesterday()]
+        return [None, yesterday()]
 
     def get_reference_last_update(self, tags: [str]) -> datetime.datetime:
         nop(self, tags)
@@ -135,6 +136,16 @@ class DataUtility:
         _since, _until = self._get_data_range(_tags)
         return since >= _since and until <= _until
 
+    def _update_time_record(self, tags: [str], df: pd.DataFrame, time_field: str):
+        _tags = self.__normalize_tags(tags)
+        min_date = min(df[time_field])
+        max_date = max(df[time_field])
+        if min_date is not None:
+            self.get_update_table().update_since(*_tags, min_date)
+        if max_date is not None:
+            self.get_update_table().update_until(*_tags, max_date)
+        self.get_update_table().update_latest_update_time(*_tags)
+
     def _check_update_by_range(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
         ref_since, ref_until = self.get_reference_data_range(tags)
         if ref_since is None and ref_until is None:
@@ -148,14 +159,18 @@ class DataUtility:
             if since is None or since > ref_since:
                 update_since = ref_since
                 need_update = DataUtility.RESULT_TRUE
-            else:
-                update_since = tomorrow_of(until)
         if ref_until is not None:
             if until is None or until < ref_until:
                 update_until = ref_until
                 need_update = DataUtility.RESULT_TRUE
-            else:
-                update_until = yesterday_of(ref_since)
+
+        if update_since is None and until is not None:
+            update_since = tomorrow_of(until)
+        if update_until is None and since is not None:
+            update_until = yesterday_of(since)
+
+        if update_since >= update_until:
+            need_update = False
         return need_update, update_since, update_until
 
     def _check_update_by_last_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
