@@ -67,6 +67,9 @@ class DataUtility:
     def set_update_strategy(self, strategy: int):
         self.__update_strategy = strategy
 
+    def get_update_strategy(self) -> int:
+        return self.__update_strategy
+
     # --------------------------------------------------- public if ---------------------------------------------------
 
     def query_data(self, tags: [str],
@@ -74,7 +77,6 @@ class DataUtility:
                    extra: dict = None) -> pd.DataFrame:
         logger.info('DataUtility.query_data(' + str(tags) + ', ' + str(timeval) + ', ' + str(extra) + ')')
         _tags = self.__normalize_tags(tags)
-        need_save = False
         need_update, update_since, update_until = self.need_update(_tags)
         if need_update == DataUtility.RESULT_TRUE:
             if self.__update_strategy == DataUtility.UPDATE_LAZY:

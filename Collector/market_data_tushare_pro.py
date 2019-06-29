@@ -23,6 +23,24 @@ ts.set_token(config.TS_TOKEN)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def plugin_prob() -> dict:
+    return {
+        'plugin_name': 'market_data_tushare_pro',
+        'plugin_version': '0.0.0.1',
+        'tags': ['tusharepro']
+    }
+
+
+def plugin_capacities() -> list:
+    return [
+        'TradeCalender',
+        'SecuritiesInfo',
+        'IndexComponent',
+    ]
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 def __fetch_trade_calender(**kwargs) -> pd.DataFrame:
     exchange = kwargs.get('exchange')
     since = kwargs.get('since')
@@ -54,6 +72,25 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame:
     return result
 
 
+def __fetch_securities_info(**kwargs) -> pd.DataFrame:
+    exchange = kwargs.get('exchange')
+    if not isinstance(exchange, str):
+        return None
+
+    pro = ts.pro_api()
+    # If we specify the exchange parameter, it raises error.
+    result = pro.stock_basic()
+
+    if result is not None:
+        result.rename(columns={'symbol': 'code',
+                               'ts_code': 'trade_date',
+                               'curr_type': 'currency',
+                               'list_date': 'listing_date',
+                               'delist_date': 'delisting_date',
+                               'stock_connect': 'stock_connect'}, inplace=True)
+    return result
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 def validate(**kwargs) -> bool:
@@ -65,24 +102,8 @@ def fetch_data(**kwargs) -> pd.DataFrame:
     content = kwargs.get('content')
     if content == 'TradeCalender':
         return __fetch_trade_calender(**kwargs)
+    elif content == 'SecuritiesInfo':
+        return __fetch_securities_info(**kwargs)
     else:
         return None
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-def plugin_prob() -> dict:
-    return {
-        'plugin_name': 'market_data_tushare_pro',
-        'plugin_version': '0.0.0.1',
-        'tags': ['tushare', 'pro', 'tusharepro']
-    }
-
-
-def plugin_capacities() -> list:
-    return [
-        'TradeCalender',
-        'SecuritiesInfo',
-        'IndexComponent',
-    ]
 
