@@ -1,5 +1,6 @@
 from datetime import time, datetime
 
+import logging
 import requests
 import traceback
 import numpy as np
@@ -10,24 +11,48 @@ from bs4 import BeautifulSoup
 
 # -----------------------------------------------------------------------------------------------------
 
+
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+    datefmt='%m-%d %H:%M',
+    # filename='/tmp/myapp.log',
+    # filemode='w'
+)
+
+# 定义日志处理器将INFO或者以上级别的日志发送到 sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+
+# 设置控制台日志的格式
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+console.setFormatter(formatter)
+
+logging.getLogger('').addHandler(console)
+
+
+# -----------------------------------------------------------------------------------------------------
+
 def nop(*args):
     pass
 
 
-def slog(text: str):
-    print(text)
+def slog(*args):
+    print(''.join([str(arg) for arg in args]))
 
 
-def log_dbg(text: str):
-    print(text)
+def log_dbg(*args):
+    print(''.join([str(arg) for arg in args]))
 
 
-def log_info(text: str):
-    slog(text)
+def log_info(*args):
+    print(''.join([str(arg) for arg in args]))
 
 
-def log_error(text: str):
-    slog(text)
+def log_error(*args):
+    print(''.join([str(arg) for arg in args]))
 
 
 # -------------------------------------------- Web related --------------------------------------------

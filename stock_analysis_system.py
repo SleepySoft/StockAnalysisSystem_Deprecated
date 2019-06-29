@@ -9,8 +9,6 @@ author:YuQiu
 @modify:
 """
 
-from DataHub.MarketData import MarketData
-
 
 class StockAnalysisSystem:
     def __init__(self):
@@ -21,7 +19,6 @@ class StockAnalysisSystem:
         self.__strategy_plugin = None
 
         self.__finance_data = None
-        self.__market_data = None
         self.__trade_data = None
 
         # self.__db_plug_in = None
@@ -46,7 +43,6 @@ class StockAnalysisSystem:
         self.__strategy_plugin.refresh()
 
         self.__finance_data = None
-        self.__market_data = MarketData(self.__collector_plugin)
         self.__trade_data = None
 
         # self.__db_plug_in = Utiltity.db_access.DBAccess()
@@ -77,9 +73,6 @@ class StockAnalysisSystem:
         self.__initing = False
 
         return result
-
-    def get_market_data(self) -> MarketData:
-        return self.__market_data
 
     # def GetPluginDB(self) -> Utiltity.db_access.DBAccess:
     #     self.__check_init(True)

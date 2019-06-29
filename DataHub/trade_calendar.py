@@ -2,7 +2,6 @@ import traceback
 import pandas as pd
 
 from os import sys, path
-import datetime
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
@@ -28,14 +27,13 @@ except Exception as e:
     from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
 finally:
-    pass
+    logger = logging.getLogger('')
 
 
 NEED_COLLECTOR_CAPACITY = [
     'TradeCalender',
 ]
 TRADE_EXCHANGE = ['SSE', 'SZSE']
-
 TABLE_TRADE_CALENDER = 'TradeCalender'
 FIELD_TRADE_CALENDER = ['exchange', 'trade_date', 'status']
 FIELD_TYPE_TRADE_CALENDER = ['object', 'datetime64[ns]', 'int64']
@@ -49,29 +47,42 @@ class TradeCalendar(DataUtility):
 
     # --------------------------------------------------- Interface ---------------------------------------------------
 
-    def execute_update(self, tags: [str],
-                       timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
+    def execute_single_update(self, tags: [str],
+                              timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
+        logger.info('TradeCalendar.execute_single_update(' + str(tags) + ')')
+        if not self.is_data_support(tags):
+            return DataUtility.RESULT_FAILED
+        exchange = tags[0]
         since, until = timeval
+        if since is None:
+            since = datetime.datetime(1990, 1, 1)
+        if until is None:
+            until = today()
+        df = self.__do_fetch_trade_calender(exchange, since, until)
+        if df is None:
+            return DataUtility.RESULT_FAILED
+        exists_df = self.__cached_data.get(exchange)
+        if exists_df is not None:
+            self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
+        else:
+            self.__cached_data[exchange] = df
+        self.__cached_data[exchange].reindex()
+        return DataUtility.RESULT_SUCCESSFUL
+
+    def execute_batch_update(self) -> DataUtility.RESULT_CODE:
+        logger.info('TradeCalendar.execute_batch_update()')
         for exchange in TRADE_EXCHANGE:
-            if since is None:
-                since = datetime.datetime(1990, 1, 1)
-            if until is None:
-                until = today()
-            df = self.__do_fetch_trade_calender(exchange, since, until)
-            if df is None:
+            need_update, update_since, update_until = self._check_update_by_range([exchange])
+            if not need_update:
                 continue
+            if self.execute_single_update([exchange], (update_since, update_until)) == DataUtility.RESULT_FAILED:
+                return DataUtility.RESULT_FAILED
+        return DataUtility.RESULT_SUCCESSFUL
 
-            log_dbg('----------------------------------------------------')
-            log_dbg(exchange)
-            log_dbg(df)
-            log_dbg('----------------------------------------------------')
-
-            exists_df = self.__cached_data.get(exchange)
-            if exists_df is not None:
-                self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
-            else:
-                self.__cached_data[exchange] = df
-        self.__save_cached_data()
+    def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
+        result = self.__save_cached_data()
+        logger.info('TradeCalendar.trigger_save_data(' + str(tags) + ') - ' + str(result))
+        return DataUtility.RESULT_SUCCESSFUL if result else DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
@@ -135,6 +146,7 @@ class TradeCalendar(DataUtility):
             df = pd.DataFrame(columns=FIELD_TRADE_CALENDER)
         for exchange in TRADE_EXCHANGE:
             self.__cached_data[exchange] = df[df['exchange'] == exchange]
+            self.__cached_data[exchange].reindex()
         return True
 
     def __save_cached_data(self) -> bool:
@@ -142,7 +154,7 @@ class TradeCalendar(DataUtility):
         result = True
         for exchange in self.__cached_data.keys():
             df = self.__cached_data[exchange]
-            if df is None:
+            if df is None or len(df) == 0:
                 continue
             if_exists = 'replace' if first else 'append'
             first = False
