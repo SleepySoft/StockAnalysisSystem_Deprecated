@@ -35,7 +35,6 @@ PYTHON_DATAFRAME_TYPE_MAPPING = {
 }
 
 
-
 class DataUtility:
 
     RESULT_CODE = object
@@ -144,7 +143,7 @@ class DataUtility:
     def data_from_cache(self, tags: [str],
                         timeval: (datetime.datetime, datetime.datetime),
                         extra: dict = None) -> pd.DataFrame:
-        logger.info('DataUtility.data_from_cache(' + str(tags) + ')')
+        logger.info('DataUtility.data_from_cache(' + str(tags) + ') -> RESULT_NOT_IMPLEMENTED')
         return DataUtility.RESULT_NOT_IMPLEMENTED
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -246,12 +245,16 @@ class DataUtility:
         :return: True if all fields are satisfied. False if not.
         """
         nop(self)
+        if df is None or len(df) == 0:
+            return False
         columns = list(df.columns)
         for field in field_info:
             if field not in columns:
                 if must_fields is None or field in must_fields:
                     logger.info('DataFrame field check error: Field is missing - ' + field)
                     return False
+                else:
+                    continue
 
             type_ok = False
             type_df = df[field].dtype
@@ -266,9 +269,12 @@ class DataUtility:
                             str(type_df) + ' is not in ' + str(types))
                 return False
 
-            if len(values) > 0 and not df[field].isin(values):
-                logger.info('DataFrame field check error: Field value not in list - ' + str(values))
-                return False
+            if len(values) > 0:
+                out_of_range_values = df[~df[field].isin(values)]
+                if len(out_of_range_values) > 0:
+                    logger.info('DataFrame field check error: Field value out of range - ' +
+                                str(out_of_range_values) + ' is not in ' + str(values))
+                    return False
         return True
 
     def __normalize_tags(self, tags: list) -> tuple:

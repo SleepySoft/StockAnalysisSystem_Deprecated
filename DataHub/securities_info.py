@@ -75,20 +75,37 @@ class SecuritiesInfo(DataUtility):
         return self.execute_single_update([])
 
     def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
-        nop(self)
-        logger.info('DataUtility.trigger_save_data(' + str(tags) + ') -> RESULT_NOT_IMPLEMENTED')
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+        result = self.__save_cached_data()
+        if result:
+            self.get_update_table().update_latest_update_time('SecuritiesInfo', '', '')
+            return DataUtility.RESULT_SUCCESSFUL
+        return DataUtility.RESULT_FAILED
+
+    # --------------------------------------------------- private if ---------------------------------------------------
+
+    def data_from_cache(self, tags: [str],
+                        timeval: (datetime.datetime, datetime.datetime),
+                        extra: dict = None) -> pd.DataFrame:
+        nop(tags)
+        nop(timeval)
+        nop(extra)
+        return self.__cached_data
+
+    # -------------------------------------------------- probability --------------------------------------------------
+
+    def get_reference_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
+        nop(self, tags)
+        return [None, None]
+
+    # -----------------------------------------------------------------------------------------------------------------
 
     def __do_fetch_securities_info(self, tags: [str]) -> pd.DataFrame:
         plugins = self.get_plugin_manager().find_module_has_capacity('SecuritiesInfo')
         for plugin in plugins:
             df = self.get_plugin_manager().execute_module_function(plugin, 'fetch_data', {
+                'content': 'SecuritiesInfo',
                 'exchange': tags
             })
-
-            print('-------------------------------------------------------------------------------------------')
-            print(df)
-            print('-------------------------------------------------------------------------------------------')
 
             if not self._check_dataframe_field(df, FIELD_INFO, ['code', 'exchange']) or len(df) == 0:
                 logger.info('SecuritiesInfo - Fetch data format Error.')
@@ -97,28 +114,26 @@ class SecuritiesInfo(DataUtility):
         return None
 
     def __load_cached_data(self) -> bool:
-        df = Database().get_utility_db().DataFrameFromDB('TradeCalender', FIELD_TRADE_CALENDER)
-        if df is None:
-            df = pd.DataFrame(columns=FIELD_TRADE_CALENDER)
-        for exchange in TRADE_EXCHANGE:
-            self.__cached_data[exchange] = df[df['exchange'] == exchange]
-            self.__cached_data[exchange].reindex()
+        table = DataTable().get_securities_table()
+        record = table.query()
+        if record is not None and len(record) > 0:
+            self.__cached_data = pd.DataFrame(record)
+            del self.__cached_data['DateTime']
+            del self.__cached_data['_id']
+        else:
+            self.__cached_data = pd.DataFrame(column=list(FIELD_INFO.keys()))
         return True
 
     def __save_cached_data(self) -> bool:
-        first = True
-        result = True
-        for exchange in self.__cached_data.keys():
-            df = self.__cached_data[exchange]
-            if df is None or len(df) == 0:
-                continue
-            if_exists = 'replace' if first else 'append'
-            first = False
-            if Database().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
-                self._update_time_record(['TradeCalender', exchange], df, 'trade_date')
-            else:
-                result = False
-        return result
+        table = DataTable().get_securities_table()
+        for index, row in self.__cached_data.iterrows():
+            code = row['code']
+            exchange = row['exchange']
+            identity = IDENTITY_SECURITIES_INFO.\
+                replace('<stock_code>', code).\
+                replace('<exchange>', exchange)
+            table.upsert(identity, text_auto_time('2000-01-01'), row.to_dict())
+        return True
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
@@ -138,10 +153,9 @@ def __build_instance() -> SecuritiesInfo:
 
 
 def test_basic_feature():
-    md = __build_instance()
-    df = md.query_data('SSE')
-    print(df)
-    df = md.query_data('SZSE')
+    si = __build_instance()
+    df = si.query_data('')
+
     print(df)
 
 
