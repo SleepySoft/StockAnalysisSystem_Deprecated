@@ -58,6 +58,29 @@ class SecuritiesInfo(DataUtility):
         self.__cached_data = None
         self.__load_cached_data()
 
+    # ------------------------------------------------- Extend Feature -------------------------------------------------
+
+    def get_stock_list(self, exchange: list or str = None) -> list:
+        df = self.__cached_data
+        if exchange is not None and len(exchange) > 0:
+            if isinstance(exchange, str):
+                exchange = [exchange]
+            df = df[df['exchange'].isin(exchange)]
+        code_list = df['code'].values.tolist()
+        return code_list
+
+    def get_stock_name(self, stock_code: str) -> [str]:
+        df = self.__cached_data
+        df = df[df['code'].str.contains(stock_code)]
+        return df.name.tolist()
+
+    def get_stock_code(self, stock_name: str):
+        df = self.__cached_data
+        df = df[df['name'].str.contains(stock_name)]
+        return df.code.tolist()
+
+    # ---------------------------------------------------------------------------------x--------------------------------
+
     def execute_single_update(self, tags: [str],
                               timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
         nop(timeval)
@@ -155,12 +178,50 @@ def __build_instance() -> SecuritiesInfo:
 def test_basic_feature():
     si = __build_instance()
     df = si.query_data('')
-
     print(df)
+    print('-------------------------------------------------------------------------------')
+
+
+def test_extra_function():
+    si = __build_instance()
+
+    stocks = si.get_stock_list()
+    assert(3000 < len(stocks) < 4000)
+    print(stocks)
+    print('Stock Count :' + str(len(stocks)))
+    print('-------------------------------------------------------------------------------')
+
+    stock_codes = si.get_stock_code('浦发银行')
+    assert(len(stock_codes) == 1 and stock_codes[0] == '600000')
+
+    stock_codes = si.get_stock_code('银行')
+    print(stock_codes)
+    print('Bank stock Count :' + str(len(stock_codes)))
+    print('-------------------------------------------------------------------------------')
+
+    assert(len(stock_codes) > 4)
+    assert('601398' in stock_codes)
+    assert('601288' in stock_codes)
+    assert('601328' in stock_codes)
+    assert('601939' in stock_codes)
+    assert('000001' in stock_codes)
+    assert('002142' in stock_codes)
+
+    stock_names = si.get_stock_name('601398')
+    assert(len(stock_names) == 1 and stock_names[0] == '工商银行')
+
+    stock_name = si.get_stock_name('600')
+    print(stock_name)
+    print('Stock that includes "600" count :' + str(len(stock_name)))
+    print('-------------------------------------------------------------------------------')
+
+    assert('浦发银行' in stock_name)
+    assert('工商银行' not in stock_name)
 
 
 def test_entry():
     test_basic_feature()
+    test_extra_function()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------
