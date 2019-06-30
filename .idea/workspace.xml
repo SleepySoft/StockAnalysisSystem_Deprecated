@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/DataHub/securities_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/securities_info.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DataHub/finance_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,22 +14,10 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="100">
-              <caret line="90" column="29" selection-start-line="90" selection-start-column="29" selection-end-line="90" selection-end-column="29" />
-              <folding>
-                <element signature="e#0#16#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="223" column="24" lean-forward="true" selection-start-line="223" selection-start-column="24" selection-end-line="223" selection-end-column="24" />
+            <state relative-caret-position="855">
+              <caret line="226" column="86" selection-end-line="266" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -39,10 +28,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="962">
-              <caret line="229" selection-start-line="229" selection-end-line="229" />
+            <state relative-caret-position="88">
+              <caret line="183" lean-forward="true" selection-start-line="183" selection-end-line="183" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="190">
+              <caret line="66" column="38" lean-forward="true" selection-start-line="66" selection-start-column="38" selection-end-line="66" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#16#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -87,8 +88,8 @@
       <find>get_cached_data_range</find>
       <find>content</find>
       <find>extra</find>
-      <find>cache</find>
       <find>get_reference_data_range</find>
+      <find>cache</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
@@ -136,6 +137,7 @@
         <option value="$PROJECT_DIR$/Collector/market_data_tushare_pro.py" />
         <option value="$PROJECT_DIR$/DataHub/DataUtility.py" />
         <option value="$PROJECT_DIR$/DataHub/securities_info.py" />
+        <option value="$PROJECT_DIR$/DataHub/finance_data.py" />
       </list>
     </option>
   </component>
@@ -164,32 +166,12 @@
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="Data" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
-              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="Database" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
-              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
               <item name="DataHub" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="Interface" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
-              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
               <item name="public" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
-              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="Utiltity" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -365,13 +347,13 @@
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21604449" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21604449" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.16512059" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.43784785" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.42671615" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.3116883" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
@@ -752,8 +734,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="962">
-          <caret line="229" selection-start-line="229" selection-end-line="229" />
+        <state relative-caret-position="88">
+          <caret line="183" lean-forward="true" selection-start-line="183" selection-end-line="183" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -762,8 +744,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="223" column="24" lean-forward="true" selection-start-line="223" selection-start-column="24" selection-end-line="223" selection-end-column="24" />
+        <state relative-caret-position="855">
+          <caret line="226" column="86" selection-end-line="266" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="66" column="38" lean-forward="true" selection-start-line="66" selection-start-column="38" selection-end-line="66" selection-end-column="38" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
