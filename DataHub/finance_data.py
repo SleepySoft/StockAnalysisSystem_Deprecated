@@ -36,38 +36,42 @@ NEED_COLLECTOR_CAPACITY = [
 TABLE_FINANCE_DATA = 'FinanceData'
 IDENTITY_FINANCE_DATA = '<stock_code>.<exchange>'
 FIELD_INFO = {'code':           (['str'], []),
-              'name':           (['str'], []),
-              'area':           (['str'], []),
-              'industry':       (['str'], []),
-              'fullname':       (['str'], []),
-              'en_name':        (['str'], []),
-              'market':         (['str'], []),
-              'exchange':       (['str'], ['SSE', 'SZSE']),
-              'currency':       (['str'], []),
-              'list_status':    (['int'], []),
-              'listing_date':   (['datetime'], []),
-              'delisting_date': (['datetime'], []),
-              'stock_connect':  (['int'], [])
+              'year':           ([int], [])
               }
 
 
 class FinanceData(DataUtility):
     def __init__(self, plugin: PluginManager, update: UpdateTable):
         super().__init__(plugin, update)
-        self.__cached_data = None
-        self.__load_cached_data()
+        self.__cached_data = {}
+        self.__save_list = []
+        # self.__load_cached_data()
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
     def execute_single_update(self, tags: [str],
                               timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
-        nop(timeval)
-        logger.info('SecuritiesInfo.execute_single_update()')
-        df = self.__do_fetch_securities_info(tags)
+        logger.info('FinanceData.execute_single_update()')
+        if  isinstance(tags, str):
+            tags = [tags]
+        if not isinstance(tags, list):
+            return DataUtility.RESULT_NOT_SUPPORTED
+
+        df = self.__do_fetch_finance_data(tags)
         if df is None or len(df) == 0:
             return DataUtility.RESULT_FAILED
-        df.reindex()
-        self.__cached_data = df
+
+        df.set_index('year')
+        codes = df['code'].unique()
+        for code in codes:
+            new_df = df[df['code'] == code]
+            if new_df is None or len(new_df) == 0:
+                continue
+            if code in self.__cached_data.keys():
+                concat_dataframe_by_index([self.__cached_data[code], new_df])
+            else:
+                self.__cached_data[code] = [new_df]
+            self.__save_list.append(code)
         return DataUtility.RESULT_SUCCESSFUL
 
     def execute_batch_update(self) -> DataUtility.RESULT_CODE:
@@ -81,6 +85,24 @@ class FinanceData(DataUtility):
             self.get_update_table().update_latest_update_time('SecuritiesInfo', '', '')
             return DataUtility.RESULT_SUCCESSFUL
         return DataUtility.RESULT_FAILED
+
+    # -------------------------------------------------- probability --------------------------------------------------
+
+    def get_root_tags(self) -> [str]:
+        return NEED_COLLECTOR_CAPACITY
+
+    def is_data_support(self, tags: [str]) -> bool:
+        return len(tags) > 1
+
+    def get_cached_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
+        if not self.is_data_support(tags):
+            return None, None
+        df = self.__cached_data.get(tags[0])
+        if df is None or len(df) == 0:
+            return None, None
+        min_date = min(df['trade_date'])
+        max_date = max(df['trade_date'])
+        return text_auto_time(min_date), text_auto_time(max_date)
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
