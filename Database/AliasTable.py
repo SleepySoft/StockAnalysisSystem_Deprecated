@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 import Utiltity.common
-from Database.Database import Database
+from Database.DatabaseEntry import DatabaseEntry
 
 
 class AliasTable:
@@ -98,7 +98,7 @@ class AliasTable:
 
     def LoadFromDB(self) -> bool:
         self.Reset()
-        tmp_list = Database().get_utility_db().ListFromDB(
+        tmp_list = DatabaseEntry().get_utility_db().ListFromDB(
             AliasTable.TABLE, AliasTable.FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
@@ -112,7 +112,7 @@ class AliasTable:
             standard = self.__aliases_standard_table[alias]
             tmp_list.append(alias)
             tmp_list.append(standard)
-        Database().get_utility_db().ListToDB(
+        DatabaseEntry().get_utility_db().ListToDB(
             AliasTable.TABLE, tmp_list, -1, 2,
             AliasTable.FIELD)
         return True

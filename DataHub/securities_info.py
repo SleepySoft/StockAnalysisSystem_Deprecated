@@ -10,7 +10,7 @@ try:
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.DataTable import DataTable
     from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
@@ -22,7 +22,7 @@ except Exception as e:
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.DataTable import DataTable
     from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager

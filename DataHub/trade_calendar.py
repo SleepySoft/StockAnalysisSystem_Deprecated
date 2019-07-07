@@ -10,7 +10,7 @@ try:
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.DataTable import DataTable
     from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
@@ -22,7 +22,7 @@ except Exception as e:
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.DataTable import DataTable
     from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
@@ -141,7 +141,7 @@ class TradeCalendar(DataUtility):
         return None
 
     def __load_cached_data(self) -> bool:
-        df = Database().get_utility_db().DataFrameFromDB('TradeCalender', FIELD_TRADE_CALENDER)
+        df = DatabaseEntry().get_utility_db().DataFrameFromDB('TradeCalender', FIELD_TRADE_CALENDER)
         if df is None:
             df = pd.DataFrame(columns=FIELD_TRADE_CALENDER)
         for exchange in TRADE_EXCHANGE:
@@ -158,7 +158,7 @@ class TradeCalendar(DataUtility):
                 continue
             if_exists = 'replace' if first else 'append'
             first = False
-            if Database().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
+            if DatabaseEntry().get_utility_db().DataFrameToDB('TradeCalender', df, if_exists):
                 self._update_time_record(['TradeCalender', exchange], df, 'trade_date')
             else:
                 result = False

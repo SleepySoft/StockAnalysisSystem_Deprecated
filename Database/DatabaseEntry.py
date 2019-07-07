@@ -5,7 +5,7 @@
 @version:
 author:Sleepy
 @time: 2019/01/08
-@file: Database.py
+@file: DatabaseEntry.py
 @function:
 @modify:
 """
@@ -26,7 +26,7 @@ finally:
     pass
 
 
-class Database:
+class DatabaseEntry:
     _instance = None
 
     def __new__(cls, *args, **kw):

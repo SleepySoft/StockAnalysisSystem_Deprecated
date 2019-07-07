@@ -5,7 +5,7 @@
 @version:
 author:Sleepy
 @time: 2019/01/08
-@file: Database.py
+@file: DatabaseEntry.py
 @function:
 @modify:
 """
@@ -15,13 +15,13 @@ root = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from Database.NoSqlRw import ItkvTable
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.UpdateTable import UpdateTable
 except Exception as e:
     sys.path.append(root)
 
     from Database.NoSqlRw import ItkvTable
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
     from Database.UpdateTable import UpdateTable
 finally:
     pass
@@ -42,7 +42,7 @@ class DataTable:
 
     def __singleton_init(self):
         self.__update_table = UpdateTable()
-        self.__securities_table = ItkvTable(Database().get_mongo_db_client(), 'StockAnalysisSystem', 'SecuritiesData')
+        self.__securities_table = ItkvTable(DatabaseEntry().get_mongo_db_client(), 'StockAnalysisSystem', 'SecuritiesData')
 
     def get_update_table(self) -> UpdateTable:
         return self.__update_table

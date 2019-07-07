@@ -6,12 +6,12 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from Utiltity.time_utility import *
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
 except Exception as e:
     sys.path.append(root_path)
 
     from Utiltity.time_utility import *
-    from Database.Database import Database
+    from Database.DatabaseEntry import DatabaseEntry
 finally:
     pass
 
@@ -67,20 +67,20 @@ class UpdateTable:
 
         record = self.get_update_record(tag1, tag2, tag3)
         if record is None or len(record) == 0:
-            return Database().get_utility_db().QuickExecuteDML(sql_insert, True)
+            return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_insert, True)
         elif record[0][field] is None or compare(text_auto_time(date), text_auto_time(record[0][field])):
-            return Database().get_utility_db().QuickExecuteDML(sql_update, True)
+            return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_update, True)
         else:
             return True
 
     def get_update_record(self, tag1: str, tag2: str, tag3: str) -> []:
-        return Database().get_utility_db().ListFromDB(
+        return DatabaseEntry().get_utility_db().ListFromDB(
             UpdateTable.TABLE, UpdateTable.FIELD, "L1Tag = '%s' AND L2Tag = '%s' AND L3Tag = '%s'" % (tag1, tag2, tag3))
 
     def delete_update_record(self, tag1: str, tag2: str, tag3: str):
         sql_delete = ("DELETE FROM %s WHERE  L1Tag='%s' AND L2Tag='%s' AND L3Tag='%s';" %
                       (UpdateTable.TABLE, tag1, tag2, tag3))
-        return Database().get_utility_db().QuickExecuteDML(sql_delete, True)
+        return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_delete, True)
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------

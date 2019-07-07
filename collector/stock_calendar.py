@@ -5,7 +5,7 @@ import traceback
 import numpy as np
 import pandas as pd
 import tushare as ts
-from Database.Database import Database
+from Database.DatabaseEntry import DatabaseEntry
 
 
 class StockCalendar:
@@ -37,10 +37,10 @@ class StockCalendar:
     def dump_to_db(self, **kw) -> bool:
         if self.__calendar is None:
             return False
-        return Database().get_utility_db().DataFrameToDB('StockCalendar', self.__calendar.reset_index())
+        return DatabaseEntry().get_utility_db().DataFrameToDB('StockCalendar', self.__calendar.reset_index())
 
     def load_from_db(self, **kw) -> bool:
-        self.__calendar = Database().get_utility_db().DataFrameFromDB('StockCalendar', ["Date", "IsOpen"])
+        self.__calendar = DatabaseEntry().get_utility_db().DataFrameFromDB('StockCalendar', ["Date", "IsOpen"])
         if self.__calendar is not None:
             return True
         else:
