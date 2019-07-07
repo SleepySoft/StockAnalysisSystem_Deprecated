@@ -30,14 +30,33 @@ finally:
     logger = logging.getLogger('')
 
 
-NEED_COLLECTOR_CAPACITY = [
-    'FinanceData',
-]
-TABLE_FINANCE_DATA = 'FinanceData'
+"""
+We don't need to specify the filed currently. Just using the alias table.
+If we want to standardize the field. Just rename all the fields.
+"""
+
+
+NEED_COLLECTOR_CAPACITY = ['BalanceSheet', 'CashFlowStatement', 'IncomeStatement']
+ROOT_TAGS = ['BalanceSheet', 'CashFlowStatement', 'IncomeStatement']
+
+TABLE_BALANCE_SHEET = 'BalanceSheet'
+TABLE_CASH_FLOW_STATEMENT = 'CashFlowStatement'
+TABLE_INCOME_STATEMENT = 'IncomeStatement'
+
 IDENTITY_FINANCE_DATA = '<stock_code>.<exchange>'
-FIELD_INFO = {'code':           (['str'], []),
-              'year':           ([int], [])
-              }
+
+QUERY_FIELD = {
+    'content':          ([str], ROOT_TAGS),
+    'stock_identity':   ([str], []),
+    # 'report_type':      ([str], ['ANNUAL', 'SEMIANNUAL', 'QUARTERLY', 'MONTHLY', 'WEEKLY']),
+    'since':            ([datetime.datetime, None], []),
+    'until':            ([datetime.datetime, None], [])}
+
+RESULT_FIELD = {
+    'identity':         ([str], []),
+    # 'exchange':       ([str], ['SSE', 'SZSE']),
+    'period':           ([int], [])}                # The last day of report period
+    # 'report_type':    ([str], ['ANNUAL', 'SEMIANNUAL', 'QUARTERLY', 'MONTHLY', 'WEEKLY'])}
 
 
 class FinanceData(DataUtility):
@@ -52,12 +71,19 @@ class FinanceData(DataUtility):
     def execute_single_update(self, tags: [str],
                               timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
         logger.info('FinanceData.execute_single_update()')
-        if  isinstance(tags, str):
+        if isinstance(tags, str):
             tags = [tags]
-        if not isinstance(tags, list):
+        if not isinstance(tags, (list, tuple)) or len(tags) < 3:
+            logger.info('FinanceData.execute_single_update() - tags should be list or tuple and need 2 items')
+            return DataUtility.RESULT_NOT_SUPPORTED
+        if tags[0] not in ROOT_TAGS:
+            logger.info('FinanceData.execute_single_update() - tags[0] should be one of ' + str(ROOT_TAGS))
             return DataUtility.RESULT_NOT_SUPPORTED
 
-        df = self.__do_fetch_finance_data(tags)
+        data_tag = tags[0]
+        stock_identity = normalize_stock_identity(tags[1])
+        report_type = tags[2]
+        df = self.__do_fetch_finance_data(data_tag, stock_identity, report_type, timeval)
         if df is None or len(df) == 0:
             return DataUtility.RESULT_FAILED
 
@@ -112,7 +138,7 @@ class FinanceData(DataUtility):
         nop(tags)
         nop(timeval)
         nop(extra)
-        return self.__cached_data
+        return None
 
     # -------------------------------------------------- probability --------------------------------------------------
 
@@ -122,20 +148,28 @@ class FinanceData(DataUtility):
 
     # -----------------------------------------------------------------------------------------------------------------
 
-    def __do_fetch_finance_data(self, tags: [str]) -> pd.DataFrame:
-        pass
-        # plugins = self.get_plugin_manager().find_module_has_capacity('SecuritiesInfo')
-        # for plugin in plugins:
-        #     df = self.get_plugin_manager().execute_module_function(plugin, 'fetch_data', {
-        #         'content': 'SecuritiesInfo',
-        #         'exchange': tags
-        #     })
-        #
-        #     if not self._check_dataframe_field(df, FIELD_INFO, ['code', 'exchange']) or len(df) == 0:
-        #         logger.info('SecuritiesInfo - Fetch data format Error.')
-        #         continue
-        #     return df
-        # return None
+    def __do_fetch_finance_data(self, data_tag: str, stock_identity: str, report_type: str,
+                                timeval: (datetime.datetime, datetime.datetime) = None) -> pd.DataFrame:
+        if data_tag not in ROOT_TAGS:
+            return None
+        argv = {
+                'content':          data_tag,
+                'stock_identity':   stock_identity,
+                'report_type':      report_type,
+                'since':            timeval[0],
+                'until':            timeval[1],
+            }
+        if not self._check_dict_param(argv, QUERY_FIELD):
+            return None
+        plugins = self.get_plugin_manager().find_module_has_capacity(data_tag)
+        for plugin in plugins:
+            df = self.get_plugin_manager().execute_module_function(plugin, 'fetch_data', argv)
+
+            if not self._check_dataframe_field(df, RESULT_FIELD, list(RESULT_FIELD.keys())) or len(df) == 0:
+                logger.info('Finance data - Fetch data format Error.')
+                continue
+            return df
+        return None
 
     def __load_cached_data(self) -> bool:
         pass
@@ -179,7 +213,19 @@ def __build_instance() -> FinanceData:
 
 
 def test_basic_feature():
-    pass
+    fd = __build_instance()
+
+    df = fd.query_data(['BalanceSheet', '600000', 'ANNUAL'])
+    print('----------------------------------------------------------------------------------------------')
+    print(df)
+
+    df = fd.query_data(['CashFlowStatement', '600000', 'ANNUAL'])
+    print('----------------------------------------------------------------------------------------------')
+    print(df)
+
+    df = fd.query_data(['IncomeStatement', '600000', 'ANNUAL'])
+    print('----------------------------------------------------------------------------------------------')
+    print(df)
 
 
 def test_entry():

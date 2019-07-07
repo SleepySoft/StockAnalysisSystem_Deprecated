@@ -43,7 +43,7 @@ class PluginManager:
             if not self.check_module_has_function(plugin, 'plugin_prob') or \
                     not self.check_module_has_function(plugin, 'plugin_capacities'):
                 continue
-            plugin_list = [(file_name, plugin)]
+            plugin_list.append((file_name, plugin))
         self.__plugins = plugin_list
 
     def find_module_has_capacity(self, capacity: str) -> [object]:

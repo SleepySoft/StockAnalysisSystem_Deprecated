@@ -231,8 +231,41 @@ class DataUtility:
         if reference_last_update is None:
             return DataUtility.RESULT_NOT_SUPPORTED, None, None
         else:
-            need_update = DataUtility.RESULT_TRUE if reference_last_update != today() else DataUtility.RESULT_FALSE
+            last_update = self._get_data_last_update(tags)
+            if last_update is None or last_update < today():
+                need_update = DataUtility.RESULT_TRUE
+            else:
+                need_update = DataUtility.RESULT_FALSE
             return need_update, None, None
+
+    def _check_dict_param(self, argv: dict, param_info: dict, must_params: list = None) -> bool:
+        nop(self)
+        if argv is None or len(argv) == 0:
+            return False
+        keys = list(argv.keys())
+        for param in param_info.keys():
+            if param not in keys:
+                if must_params is None or param in must_params:
+                    logger.info('Param key check error: Param is missing - ' + param)
+                    return False
+                else:
+                    continue
+
+            value = argv[param]
+            types, values = param_info[param]
+            if value is None and None in types:
+                continue
+            if not isinstance(value, tuple([t for t in types if t is not None])):
+                logger.info('Param key check error: Param type mismatch - ' +
+                            str(type(value)) + ' is not in ' + str(types))
+                return False
+
+            if len(values) > 0:
+                if value not in values:
+                    logger.info('Param key check error: Param value out of range - ' +
+                                str(value) + ' is not in ' + str(values))
+                    return False
+        return True
 
     def _check_dataframe_field(self, df: pd.DataFrame, field_info: dict, must_fields: list = None) -> bool:
         """
@@ -248,7 +281,7 @@ class DataUtility:
         if df is None or len(df) == 0:
             return False
         columns = list(df.columns)
-        for field in field_info:
+        for field in field_info.keys():
             if field not in columns:
                 if must_fields is None or field in must_fields:
                     logger.info('DataFrame field check error: Field is missing - ' + field)

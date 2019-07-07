@@ -2,9 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Collector/finance_data_tushare_pro.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Collector/CollectorUtility.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Collector/finance_data_tushare_pro.py" beforeDir="false" afterPath="$PROJECT_DIR$/Collector/finance_data_tushare_pro.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/sAsUtility.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/sAsUtility.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataHub/DataUtility.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/DataUtility.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DataHub/finance_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/finance_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/UpdateTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/UpdateTable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Doc/Design.vsd" beforeDir="false" afterPath="$PROJECT_DIR$/Doc/Design.vsd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestData/trade_calender.csv" beforeDir="false" afterPath="$PROJECT_DIR$/TestData/trade_calender.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utiltity/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Utiltity/plugin_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/plugin_manager.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,8 +26,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="88">
-              <caret line="183" selection-start-line="183" selection-end-line="183" />
+            <state relative-caret-position="106">
+              <caret line="166" column="32" selection-start-line="166" selection-start-column="8" selection-end-line="166" selection-end-column="32" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -27,22 +36,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="195" column="28" selection-start-line="195" selection-start-column="26" selection-end-line="195" selection-end-column="28" />
-              <folding>
-                <element signature="e#0#16#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="121" lean-forward="true" selection-start-line="121" selection-end-line="121" />
+            <state relative-caret-position="228">
+              <caret line="57" column="11" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="11" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -53,8 +50,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="128">
-              <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+            <state relative-caret-position="28">
+              <caret line="69" lean-forward="true" selection-start-line="69" selection-end-line="69" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -63,12 +60,24 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
+        <entry file="file://$PROJECT_DIR$/Utiltity/df_utility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="551">
-              <caret line="99" column="17" lean-forward="true" selection-end-line="118" />
+            <state relative-caret-position="125">
+              <caret line="94" column="31" lean-forward="true" selection-start-line="94" selection-start-column="31" selection-end-line="94" selection-end-column="73" />
               <folding>
-                <element signature="e#0#19#0" expanded="true" />
+                <element signature="e#0#16#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Collector/CollectorUtility.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="114">
+              <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -85,16 +94,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__do_update_trade_calender</find>
-      <find>__cached_data</find>
-      <find>get_cache_last_update</find>
-      <find>UpdateTable</find>
-      <find>get_update_table</find>
-      <find>datetime</find>
-      <find>__do_fetch_trade_calender</find>
-      <find>exchange</find>
-      <find>trade_data</find>
-      <find>trade_date</find>
       <find>SSE</find>
       <find>MarketData</find>
       <find>__market_data</find>
@@ -112,9 +111,19 @@
       <find>get_cached_data_range</find>
       <find>content</find>
       <find>extra</find>
-      <find>get_reference_data_range</find>
       <find>cache</find>
       <find>SH</find>
+      <find>get_last_update_time</find>
+      <find>__do_fetch_finance_data</find>
+      <find>argv</find>
+      <find>QUERY_FIELD</find>
+      <find>__plugins</find>
+      <find>param_as_date_str</find>
+      <find>Param value out of range</find>
+      <find>stock_identity</find>
+      <find>TestData</find>
+      <find>plugin_capacities</find>
+      <find>get_reference_data_range</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
@@ -123,6 +132,9 @@
       <replace>plugin_tags</replace>
       <replace>text2datetime()</replace>
     </replaceStrings>
+    <dirStrings>
+      <dir>C:\D\Code\git\StockAnalysisSystem</dir>
+    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -142,17 +154,14 @@
         <option value="$PROJECT_DIR$/Database/DataTable/UpdateTable.py" />
         <option value="$PROJECT_DIR$/DataTable/DataTable.py" />
         <option value="$PROJECT_DIR$/DataTable/UpdateTable.py" />
-        <option value="$PROJECT_DIR$/Utiltity/plugin_manager.py" />
         <option value="$PROJECT_DIR$/Collector/market_data_tushare.py" />
         <option value="$PROJECT_DIR$/DataHub/example.py" />
         <option value="$PROJECT_DIR$/DataHub/BasicData.py" />
         <option value="$PROJECT_DIR$/config.py" />
-        <option value="$PROJECT_DIR$/Database/UpdateTable.py" />
         <option value="$PROJECT_DIR$/Utiltity/time_utility.py" />
         <option value="$PROJECT_DIR$/Utiltity/df_utility.py" />
         <option value="$PROJECT_DIR$/Database/SqlRw.py" />
         <option value="$PROJECT_DIR$/Utiltity/logger.py" />
-        <option value="$PROJECT_DIR$/Utiltity/common.py" />
         <option value="$PROJECT_DIR$/DataHub/MarketData.py" />
         <option value="$PROJECT_DIR$/stock_analysis_system.py" />
         <option value="$PROJECT_DIR$/DataHub/trade_calendar.py" />
@@ -160,8 +169,12 @@
         <option value="$PROJECT_DIR$/Database/Database.py" />
         <option value="$PROJECT_DIR$/Database/DataTable.py" />
         <option value="$PROJECT_DIR$/Collector/market_data_tushare_pro.py" />
-        <option value="$PROJECT_DIR$/DataHub/DataUtility.py" />
         <option value="$PROJECT_DIR$/DataHub/securities_info.py" />
+        <option value="$PROJECT_DIR$/Database/UpdateTable.py" />
+        <option value="$PROJECT_DIR$/Utiltity/common.py" />
+        <option value="$PROJECT_DIR$/DataHub/DataUtility.py" />
+        <option value="$PROJECT_DIR$/Utiltity/plugin_manager.py" />
+        <option value="$PROJECT_DIR$/Collector/CollectorUtility.py" />
         <option value="$PROJECT_DIR$/DataHub/finance_data.py" />
         <option value="$PROJECT_DIR$/Collector/finance_data_tushare_pro.py" />
       </list>
@@ -200,6 +213,16 @@
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
               <item name="public" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
+              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
+              <item name="TestData" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
+              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
+              <item name="Utiltity" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -231,7 +254,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.securities_info">
+  <component name="RunManager" selected="Python.finance_data">
     <configuration name="DataUtility" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -274,7 +297,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="UpdateTable (2)" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="finance_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -282,11 +305,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Database" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DataHub" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Database/UpdateTable.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DataHub/finance_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -339,11 +362,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.finance_data" />
+        <item itemvalue="Python.trade_calendar" />
         <item itemvalue="Python.securities_info" />
         <item itemvalue="Python.NoSqlRw" />
-        <item itemvalue="Python.trade_calendar" />
         <item itemvalue="Python.DataUtility" />
-        <item itemvalue="Python.UpdateTable (2)" />
       </list>
     </recent_temporary>
   </component>
@@ -371,6 +394,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21604449" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -378,7 +402,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.16512059" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.43784785" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3116883" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.2393321" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
@@ -390,6 +414,25 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21604449" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.16512059" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.43784785" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.2820037" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.3283859" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3283859" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout-to-restore>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -429,6 +472,26 @@
           <line>209</line>
           <option name="timeStamp" value="98" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py</url>
+          <line>80</line>
+          <option name="timeStamp" value="106" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="121" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py</url>
+          <line>51</line>
+          <option name="timeStamp" value="122" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py</url>
+          <line>68</line>
+          <option name="timeStamp" value="123" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
@@ -442,20 +505,12 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py" />
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/helpers.py" />
     <entry file="file://$PROJECT_DIR$/Database/DatabaseTable_.py" />
     <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
           <caret line="3" column="9" lean-forward="true" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
@@ -534,25 +589,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.3/system/python_stubs/-776130529/builtins.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="169" column="4" selection-start-line="169" selection-start-column="4" selection-end-line="169" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/tushare/pro/data_pro.py" />
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/requests/adapters.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
           <caret line="487" selection-start-line="487" selection-end-line="487" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="58" column="26" lean-forward="true" selection-start-line="58" selection-start-column="26" selection-end-line="58" selection-end-column="26" />
         </state>
       </provider>
     </entry>
@@ -615,26 +656,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/plugin_manager.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="129">
-          <caret line="98" selection-start-line="98" selection-end-line="98" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="32" selection-start-line="32" selection-end-line="32" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/TradeData.py" />
     <entry file="file://$PROJECT_DIR$/stock_analysis_system.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -683,27 +704,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/generic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="83">
-          <caret line="5066" selection-start-line="5066" selection-end-line="5066" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/indexes/base.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="91">
           <caret line="4374" selection-start-line="4374" selection-end-line="4374" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/UpdateTable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -734,20 +738,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.3/system/python_stubs/-776130529/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="183" selection-start-line="183" selection-end-line="183" />
+        <state relative-caret-position="85">
+          <caret line="247" column="4" selection-start-line="247" selection-start-column="4" selection-end-line="247" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/UpdateTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="47">
+          <caret line="41" column="68" selection-start-line="41" selection-start-column="68" selection-end-line="41" selection-end-column="68" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/df_utility.py">
+    <entry file="file://$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
+        <state relative-caret-position="190">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
@@ -756,28 +774,82 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="551">
-          <caret line="99" column="17" lean-forward="true" selection-end-line="118" />
+        <state relative-caret-position="98">
+          <caret line="33" column="21" selection-start-line="33" selection-start-column="4" selection-end-line="33" selection-end-column="21" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
+    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="195" column="28" selection-start-line="195" selection-start-column="26" selection-end-line="195" selection-end-column="28" />
+        <state relative-caret-position="-24">
+          <caret line="58" column="26" lean-forward="true" selection-start-line="58" selection-start-column="26" selection-end-line="58" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/plugin_manager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="115" selection-start-line="115" selection-end-line="115" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="33">
+          <caret line="276" column="17" lean-forward="true" selection-start-line="276" selection-start-column="17" selection-end-line="276" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Collector/CollectorUtility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="34" lean-forward="true" selection-start-line="34" selection-end-line="34" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/df_utility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="94" column="31" lean-forward="true" selection-start-line="94" selection-start-column="31" selection-end-line="94" selection-end-column="73" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="106">
+          <caret line="166" column="32" selection-start-line="166" selection-start-column="8" selection-end-line="166" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/generic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="2881" column="8" selection-start-line="2881" selection-start-column="8" selection-end-line="2881" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="121" lean-forward="true" selection-start-line="121" selection-end-line="121" />
+        <state relative-caret-position="228">
+          <caret line="57" column="11" selection-start-line="57" selection-start-column="5" selection-end-line="57" selection-end-column="11" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
@@ -786,8 +858,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+        <state relative-caret-position="28">
+          <caret line="69" lean-forward="true" selection-start-line="69" selection-end-line="69" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>

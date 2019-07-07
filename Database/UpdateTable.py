@@ -41,7 +41,7 @@ class UpdateTable:
 
     def get_last_update_time(self, tag1: str, tag2: str, tag3: str):
         record = self.get_update_record(tag1, tag2, tag3)
-        return None if len(record) == 0 else text_auto_time(record[0][UpdateTable.INDEX_LAST_UPDATE])
+        return None if record is None or len(record) == 0 else text_auto_time(record[0][UpdateTable.INDEX_LAST_UPDATE])
 
     def get_all_time(self, tag1: str, tag2: str, tag3: str):
         record = self.get_update_record(tag1, tag2, tag3)

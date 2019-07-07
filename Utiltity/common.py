@@ -267,13 +267,28 @@ def set_missing(set_test, set_base) -> list:
 
 # -------------------------------------------- Stock related --------------------------------------------
 
-# ss: Shanghai
-# sz: Shenzhen
-def GetStockMarket(stock_code: str) -> str:
+def get_stock_exchange(stock_code: str) -> str:
+    """
+    Get the stock market according to the code rule.
+    :param stock_code: The stock code that need to check/
+    :return: Exchange. SSE - Shanghai, SZSE - Shenzhen. Empty string if not recognized.
+    """
     if len(stock_code) != 6:
         return ''
     if stock_code[0:2] == '00' or stock_code[0:3] == '200' or stock_code[0:3] == '300':
-        return 'sz'
+        return 'SZSE'
     if stock_code[0:2] == '60' or stock_code[0:3] == '900':
-        return 'ss'
+        return 'SSE'
     return ''
+
+
+def stock_code_to_stock_identity(stock_code: str) -> str:
+    exchange = get_stock_exchange(stock_code)
+    return stock_code + '.' + exchange if exchange != '' else ''
+
+
+def normalize_stock_identity(stock_code: str) -> str:
+    if stock_code.endswith('SSE') or stock_code.endswith('SZSE'):
+        return stock_code
+    return stock_code_to_stock_identity(stock_code)
+
