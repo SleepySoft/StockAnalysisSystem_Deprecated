@@ -10,9 +10,8 @@ try:
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
+    from Database import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database import UpdateTable
-    from Database.DataTable import DataTable
     from Utiltity.plugin_manager import PluginManager
 except Exception as e:
     sys.path.append(root_path)
@@ -20,9 +19,8 @@ except Exception as e:
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
+    from Database import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database import UpdateTable
-    from Database.DataTable import DataTable
     from Utiltity.plugin_manager import PluginManager
 finally:
     logger = logging.getLogger('')
@@ -52,12 +50,12 @@ class DataUtility:
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def __init__(self, plugin: PluginManager, update: UpdateTable):
+    def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         self.__plugin = plugin
         self.__update = update
         self.__update_strategy = DataUtility.UPDATE_LAZY
 
-    def get_update_table(self) -> UpdateTable:
+    def get_update_table(self) -> UpdateTableEx:
         return self.__update
 
     def get_plugin_manager(self) -> PluginManager:
@@ -76,7 +74,7 @@ class DataUtility:
                    extra: dict = None) -> pd.DataFrame:
         logger.info('DataUtility.query_data(' + str(tags) + ', ' + str(timeval) + ', ' + str(extra) + ')')
         _tags = self.__normalize_tags(tags)
-        need_update, update_since, update_until = self.need_update(_tags)
+        need_update, update_since, update_until = self.check_update(_tags)
         if need_update == DataUtility.RESULT_TRUE:
             if self.__update_strategy == DataUtility.UPDATE_LAZY:
                 result = self.execute_single_update(_tags, (update_since, update_until))
@@ -91,37 +89,64 @@ class DataUtility:
             logger.info('Not need update for : ' + str(tags))
         return self.data_from_cache(_tags, timeval, extra)
 
-    def need_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+    def check_update(self, tags: [str]) -> [(str, datetime, datetime)]:
         """
         Check whether the tag specified data need update.
-        It will check data range first. If reference data range is not specified.
-            The 'update_since' and 'update_until' are always None
-            It will check the last update instead.
-        If reference last update is also not specified.
-            The 'need_update' will be RESULT_NOT_SUPPORTED
-            The 'update_since' and 'update_until' are always None if the last update checking is applied.
+        Update strategy:
+            0.ref_since is reserved
+            1.latest update is None => Never been updated
+                ->  Update all (patch_since = None, patch_until = None).
+            2.ref_until is not None => Apply data range check
+                -> If prev_until is None => Should be an error, update all (patch_since = None, patch_until = None).
+                -> If prev_until less than ref_until => Update (since = tomorrow of previous until, until = ref_until)
+                -> Else => Not need to update
+            3.ref_until is None => Apply latest update check
+                -> ref_latest_update is None => Should be an error, update all (patch_since = None, patch_until = None).
+                -> latest_update < ref_until => Update (since = tomorrow of latest update, until = today)
+                -> Else => Not need to update
         :param tags: The tags to identify the data
-        :return: Tuple: (
-            need_update :   RESULT_TRUE if need update,
-                            RESULT_FALSE if don't need update,
-                            RESULT_NOT_SUPPORTED if not not support update check,
-            update_since : The data we need update since.
-            update_until : The data we need update until.
-            )
+        :return: List of Tuple: [(
+            patch_tag :   The data patch should apply to.
+            patch_since : The data we need update since.
+            patch_until : The data we need update until.
+            )]
         """
-        logger.info('DataUtility.need_update(' + str(tags) + ')')
+        logger.info('DataUtility.check_update(' + str(tags) + ')')
 
         if self.__update_strategy == DataUtility.UPDATE_MANUAL:
-            logger.info('  | LAZY - Return False')
+            logger.info('  | MANUAL - Return False')
             return DataUtility.RESULT_FALSE
         if self.__update_strategy == DataUtility.UPDATE_OFFLINE:
             logger.info('  | OFFLINE - Return False')
             return DataUtility.RESULT_FALSE
 
-        need_update, update_since, update_until = self._check_update_by_range(tags)
-        if need_update == DataUtility.RESULT_NOT_SUPPORTED:
-            need_update, update_since, update_until = self._check_update_by_last_update(tags)
-        return need_update, update_since, update_until
+        latest_update = self._get_data_last_update(tags)
+        if latest_update is None:
+            return [(tags, None, None)]
+
+        ref_since, ref_until = self.get_reference_data_range(tags)
+        if ref_until is not None:
+            since, until = self.get_cached_data_range(tags)
+            if until is None:
+                logger.error('DataUtility.check_update: until is None. Update all.')
+                return [(tags, None, None)]
+            elif until < ref_until:
+                return [(tags, tomorrow_of(until), ref_until)]
+            else:
+                logger.info('DataUtility.check_update: Check data range - Not need update.')
+                return []
+        else:
+            ref_latest_update = self.get_reference_last_update()
+            if ref_latest_update is None:
+                logger.error('DataUtility.check_update: ref_latest_update is None. Update all.')
+                return [(tags, None, None)]
+            elif latest_update < ref_latest_update:
+                return [(tags, tomorrow_of(latest_update), ref_latest_update)]
+            else:
+                logger.info('DataUtility.check_update: Check latest update - Not need update.')
+                return []
+        logger.error('DataUtility.check_update: Never reach here.')
+        return []
 
     def execute_single_update(self, tags: [str], timeval: (datetime.datetime, datetime.datetime) = None) -> RESULT_CODE:
         nop(self)
@@ -199,44 +224,44 @@ class DataUtility:
             self.get_update_table().update_until(*_tags, max_date)
         self.get_update_table().update_latest_update_time(*_tags)
 
-    def _check_update_by_range(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
-        ref_since, ref_until = self.get_reference_data_range(tags)
-        if ref_since is None and ref_until is None:
-            return DataUtility.RESULT_NOT_SUPPORTED, None, None
-
-        need_update = DataUtility.RESULT_FALSE
-        update_since, update_until = None, None
-        since, until = self.get_cached_data_range(tags)
-
-        if ref_since is not None:
-            if since is None or since > ref_since:
-                update_since = ref_since
-                need_update = DataUtility.RESULT_TRUE
-        if ref_until is not None:
-            if until is None or until < ref_until:
-                update_until = ref_until
-                need_update = DataUtility.RESULT_TRUE
-
-        if update_since is None and until is not None:
-            update_since = tomorrow_of(until)
-        if update_until is None and since is not None:
-            update_until = yesterday_of(since)
-
-        if update_since is not None and update_until is not None and update_since >= update_until:
-            need_update = DataUtility.RESULT_FALSE
-        return need_update, update_since, update_until
-
-    def _check_update_by_last_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
-        reference_last_update = self.get_reference_last_update(tags)
-        if reference_last_update is None:
-            return DataUtility.RESULT_NOT_SUPPORTED, None, None
-        else:
-            last_update = self._get_data_last_update(tags)
-            if last_update is None or last_update < today():
-                need_update = DataUtility.RESULT_TRUE
-            else:
-                need_update = DataUtility.RESULT_FALSE
-            return need_update, None, None
+    # def _check_update_by_range(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+    #     ref_since, ref_until = self.get_reference_data_range(tags)
+    #     if ref_since is None and ref_until is None:
+    #         return DataUtility.RESULT_NOT_SUPPORTED, None, None
+    #
+    #     need_update = DataUtility.RESULT_FALSE
+    #     update_since, update_until = None, None
+    #     since, until = self.get_cached_data_range(tags)
+    #
+    #     if ref_since is not None:
+    #         if since is None or since > ref_since:
+    #             update_since = ref_since
+    #             need_update = DataUtility.RESULT_TRUE
+    #     if ref_until is not None:
+    #         if until is None or until < ref_until:
+    #             update_until = ref_until
+    #             need_update = DataUtility.RESULT_TRUE
+    #
+    #     if update_since is None and until is not None:
+    #         update_since = tomorrow_of(until)
+    #     if update_until is None and since is not None:
+    #         update_until = yesterday_of(since)
+    #
+    #     if update_since is not None and update_until is not None and update_since >= update_until:
+    #         need_update = DataUtility.RESULT_FALSE
+    #     return need_update, update_since, update_until
+    #
+    # def _check_update_by_last_update(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
+    #     reference_last_update = self.get_reference_last_update(tags)
+    #     if reference_last_update is None:
+    #         return DataUtility.RESULT_NOT_SUPPORTED, None, None
+    #     else:
+    #         last_update = self._get_data_last_update(tags)
+    #         if last_update is None or last_update < today():
+    #             need_update = DataUtility.RESULT_TRUE
+    #         else:
+    #             need_update = DataUtility.RESULT_FALSE
+    #         return need_update, None, None
 
     def _check_dict_param(self, argv: dict, param_info: dict, must_params: list = None) -> bool:
         nop(self)
