@@ -47,8 +47,11 @@ class Selector:
         return self.__str__()
 
     def __str__(self):
-        return 'Selector(' + str(self.tags) + ', ' + str(self.since) + ', ' + \
-               str(self.until) + ', ' + str(self.extra) + ')'
+        return 'Selector(' + \
+               str(self.tags) if self.tags is not None else 'None' + ', ' + \
+               str(self.since) if self.since is not None else 'None' + ', ' + \
+               str(self.until) if self.until is not None else 'None' + ', ' + \
+               str(self.extra) if self.extra is not None else 'None' + ')'
 
 
 Patch = Selector
@@ -87,7 +90,12 @@ class DataUtility:
 
     # --------------------------------------------------- public if ---------------------------------------------------
 
-    def query_data(self, selectors: Selector or [Selector]) -> pd.DataFrame or None:
+    def query_data(self, tags: [str] or Selector,
+                   since: datetime.datetime = None,
+                   until: datetime.datetime = None,
+                   extra: dict = None) -> pd.DataFrame or None:
+
+        selectors = tags if isinstance(tags, Selector) else Selector(tags, since, until, extra)
         logger.info('DataUtility.query_data(' + str(selectors) + ')')
 
         updated_patches = []

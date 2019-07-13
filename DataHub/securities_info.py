@@ -136,7 +136,7 @@ class SecuritiesInfo(DataUtility.DataUtility):
         return True
 
     def __save_cached_data(self) -> bool:
-        table = DataTable().get_securities_table()
+        table = DatabaseEntry().get_securities_table()
         for index, row in self.__cached_data.iterrows():
             code = row['code']
             exchange = row['exchange']

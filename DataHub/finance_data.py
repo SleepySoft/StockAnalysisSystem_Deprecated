@@ -5,26 +5,24 @@ from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
+    from Database.UpdateTableEx import UpdateTableEx
     from Utiltity.plugin_manager import PluginManager
 except Exception as e:
     sys.path.append(root_path)
 
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Utiltity.plugin_manager import PluginManager
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
+    from Database.UpdateTableEx import UpdateTableEx
     from Utiltity.plugin_manager import PluginManager
 finally:
     logger = logging.getLogger('')
@@ -54,13 +52,11 @@ QUERY_FIELD = {
 
 RESULT_FIELD = {
     'identity':         ([str], []),
-    # 'exchange':       ([str], ['SSE', 'SZSE']),
     'period':           ([int], [])}                # The last day of report period
-    # 'report_type':    ([str], ['ANNUAL', 'SEMIANNUAL', 'QUARTERLY', 'MONTHLY', 'WEEKLY'])}
 
 
-class FinanceData(DataUtility):
-    def __init__(self, plugin: PluginManager, update: UpdateTable):
+class FinanceData(DataUtility.DataUtility):
+    def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         super().__init__(plugin, update)
         self.__cached_data = {}
         self.__save_list = []
@@ -68,36 +64,31 @@ class FinanceData(DataUtility):
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
-    def execute_single_update(self, tags: [str],
-                              timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
-        logger.info('FinanceData.execute_single_update()')
-        if isinstance(tags, str):
-            tags = [tags]
-        if not isinstance(tags, (list, tuple)) or len(tags) < 3:
-            logger.info('FinanceData.execute_single_update() - tags should be list or tuple and need 2 items')
-            return DataUtility.RESULT_NOT_SUPPORTED
-        if tags[0] not in ROOT_TAGS:
-            logger.info('FinanceData.execute_single_update() - tags[0] should be one of ' + str(ROOT_TAGS))
-            return DataUtility.RESULT_NOT_SUPPORTED
+    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
+        logger.info('FinanceData.execute_update_patch(' + str(patches) + ')')
 
-        data_tag = tags[0]
-        stock_identity = normalize_stock_identity(tags[1])
-        report_type = tags[2]
-        df = self.__do_fetch_finance_data(data_tag, stock_identity, report_type, timeval)
-        if df is None or len(df) == 0:
-            return DataUtility.RESULT_FAILED
+        for patch in patches:
+            if not self.is_data_support(patch.tags):
+                logger.info('FinanceData.execute_update_patch() - Data is not support.')
+                return DataUtility.RESULT_NOT_SUPPORTED
 
-        df.set_index('year')
-        codes = df['code'].unique()
-        for code in codes:
-            new_df = df[df['code'] == code]
-            if new_df is None or len(new_df) == 0:
-                continue
-            if code in self.__cached_data.keys():
-                concat_dataframe_by_index([self.__cached_data[code], new_df])
-            else:
-                self.__cached_data[code] = [new_df]
-            self.__save_list.append(code)
+            report_type = patch.tags[0]
+            stock_identity = normalize_stock_identity(patch.tags[1])
+            df = self.__do_fetch_finance_data(report_type, stock_identity, patch.since, patch.until)
+            if df is None or len(df) == 0:
+                return DataUtility.RESULT_FAILED
+
+            df.set_index('year')
+            codes = df['code'].unique()
+            for code in codes:
+                new_df = df[df['code'] == code]
+                if new_df is None or len(new_df) == 0:
+                    continue
+                if code in self.__cached_data.keys():
+                    concat_dataframe_by_index([self.__cached_data[code], new_df])
+                else:
+                    self.__cached_data[code] = [new_df]
+                self.__save_list.append(code)
         return DataUtility.RESULT_SUCCESSFUL
 
     def execute_batch_update(self) -> DataUtility.RESULT_CODE:
@@ -115,10 +106,12 @@ class FinanceData(DataUtility):
     # -------------------------------------------------- probability --------------------------------------------------
 
     def get_root_tags(self) -> [str]:
+        nop(self)
         return NEED_COLLECTOR_CAPACITY
 
     def is_data_support(self, tags: [str]) -> bool:
-        return len(tags) > 1
+        nop(self)
+        return (tags is not None) and (isinstance(tags, list)) and (len(tags) > 2) and (tags[0] in ROOT_TAGS)
 
     def get_cached_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
         if not self.is_data_support(tags):
@@ -132,12 +125,8 @@ class FinanceData(DataUtility):
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
-    def data_from_cache(self, tags: [str],
-                        timeval: (datetime.datetime, datetime.datetime),
-                        extra: dict = None) -> pd.DataFrame:
-        nop(tags)
-        nop(timeval)
-        nop(extra)
+    def data_from_cache(self, selectors: DataUtility.Selector or [DataUtility.Selector]) -> pd.DataFrame or None:
+        nop(selectors)
         return None
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -148,24 +137,24 @@ class FinanceData(DataUtility):
 
     # -----------------------------------------------------------------------------------------------------------------
 
-    def __do_fetch_finance_data(self, data_tag: str, stock_identity: str, report_type: str,
-                                timeval: (datetime.datetime, datetime.datetime) = None) -> pd.DataFrame:
-        if data_tag not in ROOT_TAGS:
+    def __do_fetch_finance_data(self, report_type: str, stock_identity: str,
+                                report_since: datetime.datetime, report_until: datetime.datetime) -> pd.DataFrame:
+        if report_type not in ROOT_TAGS:
             return None
         argv = {
-                'content':          data_tag,
+                'content':          report_type,
                 'stock_identity':   stock_identity,
-                'report_type':      report_type,
-                'since':            timeval[0],
-                'until':            timeval[1],
+                'since':            report_since,
+                'until':            report_until,
             }
         if not self._check_dict_param(argv, QUERY_FIELD):
             return None
-        plugins = self.get_plugin_manager().find_module_has_capacity(data_tag)
+        plugins = self.get_plugin_manager().find_module_has_capacity(report_type)
         for plugin in plugins:
             df = self.get_plugin_manager().execute_module_function(plugin, 'fetch_data', argv)
 
-            if not self._check_dataframe_field(df, RESULT_FIELD, list(RESULT_FIELD.keys())) or len(df) == 0:
+            if df is None or not isinstance(df, pd.DataFrame) or len(df) == 0 or \
+                    not self._check_dataframe_field(df, RESULT_FIELD, list(RESULT_FIELD.keys())):
                 logger.info('Finance data - Fetch data format Error.')
                 continue
             return df
@@ -200,14 +189,12 @@ class FinanceData(DataUtility):
 
 
 def __build_instance() -> FinanceData:
-    from os import path
-    root_path = path.dirname(path.dirname(path.abspath(__file__)))
     plugin_path = root_path + '/Collector/'
 
     collector_plugin = PluginManager(plugin_path)
     collector_plugin.refresh()
 
-    update_table = UpdateTable()
+    update_table = UpdateTableEx()
 
     return FinanceData(collector_plugin, update_table)
 
