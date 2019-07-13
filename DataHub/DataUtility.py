@@ -1,7 +1,7 @@
 import sys
+import datetime
 import traceback
 import pandas as pd
-import datetime
 
 from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
@@ -33,27 +33,45 @@ PYTHON_DATAFRAME_TYPE_MAPPING = {
 }
 
 
+class Selector:
+    def __init__(self, tags: [str],
+                 since: datetime.datetime = None,
+                 until: datetime.datetime = None,
+                 extra: dict = None):
+        self.tags = tags if isinstance(tags, list) else [tags]
+        self.since = since
+        self.until = until
+        self.extra = extra
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return 'Selector(' + str(self.tags) + ', ' + str(self.since) + ', ' + \
+               str(self.until) + ', ' + str(self.extra) + ')'
+
+
+Patch = Selector
+
+RESULT_CODE = object
+RESULT_FALSE = False
+RESULT_TRUE = True
+RESULT_SUCCESSFUL = 2
+RESULT_FAILED = 4
+RESULT_NOT_SUPPORTED = 8
+RESULT_NOT_IMPLEMENTED = None
+
+UPDATE_LAZY = 1
+UPDATE_BATCH = 2
+UPDATE_MANUAL = 3
+UPDATE_OFFLINE = 4
+
+
 class DataUtility:
-
-    RESULT_CODE = object
-    RESULT_FALSE = False
-    RESULT_TRUE = True
-    RESULT_SUCCESSFUL = 2
-    RESULT_FAILED = 4
-    RESULT_NOT_SUPPORTED = 8
-    RESULT_NOT_IMPLEMENTED = None
-
-    UPDATE_LAZY = 1
-    UPDATE_BATCH = 2
-    UPDATE_MANUAL = 3
-    UPDATE_OFFLINE = 4
-
-    # ------------------------------------------------------------------------------------------------------------------
-
     def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         self.__plugin = plugin
         self.__update = update
-        self.__update_strategy = DataUtility.UPDATE_LAZY
+        self.__update_strategy = UPDATE_LAZY
 
     def get_update_table(self) -> UpdateTableEx:
         return self.__update
@@ -69,27 +87,20 @@ class DataUtility:
 
     # --------------------------------------------------- public if ---------------------------------------------------
 
-    def query_data(self, tags: [str],
-                   timeval: (datetime.datetime, datetime.datetime) = None,
-                   extra: dict = None) -> pd.DataFrame:
-        logger.info('DataUtility.query_data(' + str(tags) + ', ' + str(timeval) + ', ' + str(extra) + ')')
-        _tags = self.__normalize_tags(tags)
-        need_update, update_since, update_until = self.check_update(_tags)
-        if need_update == DataUtility.RESULT_TRUE:
-            if self.__update_strategy == DataUtility.UPDATE_LAZY:
-                result = self.execute_single_update(_tags, (update_since, update_until))
-            elif self.__update_strategy == DataUtility.UPDATE_BATCH:
-                result = self.execute_batch_update()
-            else:
-                result = DataUtility.RESULT_NOT_IMPLEMENTED
-                logger.info('Unsupported update strategy: ' + str(self.__update_strategy))
-            if result == DataUtility.RESULT_SUCCESSFUL:
-                self.trigger_save_data(tags)
-        else:
-            logger.info('Not need update for : ' + str(tags))
-        return self.data_from_cache(_tags, timeval, extra)
+    def query_data(self, selectors: Selector or [Selector]) -> pd.DataFrame or None:
+        logger.info('DataUtility.query_data(' + str(selectors) + ')')
 
-    def check_update(self, tags: [str]) -> [(str, datetime, datetime)]:
+        updated_patches = []
+        patches = self.check_update_patch(selectors)
+        for patch in patches:
+            result = self.execute_update_patch([patch])
+            if result:
+                updated_patches.append(patch)
+        if len(updated_patches) > 0:
+            self.trigger_save_data(updated_patches)
+        return self.data_from_cache(selectors)
+
+    def check_update_patch(self, selectors: Selector or [Selector]) -> [Patch]:
         """
         Check whether the tag specified data need update.
         Update strategy:
@@ -104,72 +115,52 @@ class DataUtility:
                 -> ref_latest_update is None => Should be an error, update all (patch_since = None, patch_until = None).
                 -> latest_update < ref_until => Update (since = tomorrow of latest update, until = today)
                 -> Else => Not need to update
-        :param tags: The tags to identify the data
-        :return: List of Tuple: [(
-            patch_tag :   The data patch should apply to.
-            patch_since : The data we need update since.
-            patch_until : The data we need update until.
-            )]
+        :param selectors: The selectors to identify the data
+        :return: List of Patch.
         """
-        logger.info('DataUtility.check_update(' + str(tags) + ')')
+        logger.info('DataUtility.check_update(' + str(selectors) + ')')
 
-        if self.__update_strategy == DataUtility.UPDATE_MANUAL:
+        if self.__update_strategy == UPDATE_MANUAL:
             logger.info('  | MANUAL - Return False')
-            return DataUtility.RESULT_FALSE
-        if self.__update_strategy == DataUtility.UPDATE_OFFLINE:
+            return RESULT_FALSE
+        if self.__update_strategy == UPDATE_OFFLINE:
             logger.info('  | OFFLINE - Return False')
-            return DataUtility.RESULT_FALSE
+            return RESULT_FALSE
 
-        latest_update = self._get_data_last_update(tags)
-        if latest_update is None:
-            return [(tags, None, None)]
+        update_patches = []
+        sub_selectors = self.check_split_query(selectors)
+        for selector in sub_selectors:
+            patch = self._check_single_selector_patch(selector)
+            if patch is not None:
+                update_patches.append(patch)
+        return update_patches
 
-        ref_since, ref_until = self.get_reference_data_range(tags)
-        if ref_until is not None:
-            since, until = self.get_cached_data_range(tags)
-            if until is None:
-                logger.error('DataUtility.check_update: until is None. Update all.')
-                return [(tags, None, None)]
-            elif until < ref_until:
-                return [(tags, tomorrow_of(until), ref_until)]
-            else:
-                logger.info('DataUtility.check_update: Check data range - Not need update.')
-                return []
-        else:
-            ref_latest_update = self.get_reference_last_update()
-            if ref_latest_update is None:
-                logger.error('DataUtility.check_update: ref_latest_update is None. Update all.')
-                return [(tags, None, None)]
-            elif latest_update < ref_latest_update:
-                return [(tags, tomorrow_of(latest_update), ref_latest_update)]
-            else:
-                logger.info('DataUtility.check_update: Check latest update - Not need update.')
-                return []
-        logger.error('DataUtility.check_update: Never reach here.')
-        return []
-
-    def execute_single_update(self, tags: [str], timeval: (datetime.datetime, datetime.datetime) = None) -> RESULT_CODE:
+    def check_split_query(self, selectors: Selector or [Selector]) -> [Selector]:
         nop(self)
-        logger.info('DataUtility.execute_single_update(' + str(tags) + ') -> RESULT_NOT_IMPLEMENTED')
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+        return [selectors] if isinstance(selectors, Selector) else selectors
 
-    def execute_batch_update(self) -> RESULT_CODE:
+    def execute_update_patch(self, patches: [Patch]) -> RESULT_CODE:
         nop(self)
-        logger.info('DataUtility.execute_batch_update() -> RESULT_NOT_IMPLEMENTED')
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+        logger.info('DataUtility.execute_update_patch(' + str(patches) + ') -> RESULT_NOT_IMPLEMENTED')
+        return RESULT_NOT_IMPLEMENTED
 
-    def trigger_save_data(self, tags: [str]) -> RESULT_CODE:
+    def trigger_save_data(self, patches: [Patch]) -> RESULT_CODE:
         nop(self)
-        logger.info('DataUtility.trigger_save_data(' + str(tags) + ') -> RESULT_NOT_IMPLEMENTED')
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+        logger.info('DataUtility.trigger_save_data(' + str(patches) + ') -> RESULT_NOT_IMPLEMENTED')
+        return RESULT_NOT_IMPLEMENTED
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
-    def data_from_cache(self, tags: [str],
-                        timeval: (datetime.datetime, datetime.datetime),
-                        extra: dict = None) -> pd.DataFrame:
-        logger.info('DataUtility.data_from_cache(' + str(tags) + ') -> RESULT_NOT_IMPLEMENTED')
-        return DataUtility.RESULT_NOT_IMPLEMENTED
+    # def split_sub_query(self, tags: [str],
+    #                     timeval: (datetime.datetime, datetime.datetime) = None,
+    #                     extra: dict = None) -> [(str, datetime, datetime)]:
+    #     nop(self)
+    #     nop(extra)
+    #     return [(tags, timeval[0], timeval[1])]
+
+    def data_from_cache(self, selectors: Selector or [Selector]) -> pd.DataFrame or None:
+        logger.info('DataUtility.data_from_cache(' + str(selectors) + ') -> RESULT_NOT_IMPLEMENTED')
+        return RESULT_NOT_IMPLEMENTED
 
     # -------------------------------------------------- probability --------------------------------------------------
 
@@ -197,20 +188,47 @@ class DataUtility:
         nop(self, tags)
         return today()
 
+    # ---------------------------------------------------- private -----------------------------------------------------
+
+    def _check_single_selector_patch(self, selector: Selector) -> Patch or None:
+        latest_update = self._get_data_last_update(selector.tags)
+        if latest_update is None:
+            return Patch(selector.tags, None, None, selector.extra)
+
+        ref_since, ref_until = self.get_reference_data_range(selector.tags)
+        if ref_until is not None:
+            since, until = self.get_cached_data_range(selector.tags)
+            if until is None:
+                logger.error('DataUtility.check_update: until is None. Update all.')
+                return Patch(selector.tags, None, None, selector.extra)
+            elif until < ref_until:
+                return Patch(selector.tags, tomorrow_of(until), ref_until, selector.extra)
+            else:
+                logger.info('DataUtility.check_update: Check data range - Not need update.')
+                return None
+        else:
+            ref_latest_update = self.get_reference_last_update(selector.tags)
+            if ref_latest_update is None:
+                logger.error('DataUtility.check_update: ref_latest_update is None. Update all.')
+                return Patch(selector.tags, None, None, selector.extra)
+            elif latest_update < ref_latest_update:
+                return Patch(selector.tags, tomorrow_of(latest_update), ref_latest_update, selector.extra)
+            else:
+                logger.info('DataUtility.check_update: Check latest update - Not need update.')
+                return []
+
     # --------------------------------------------------- assistance ---------------------------------------------------
 
     def _get_data_range(self, tags: list) -> (datetime.datetime, datetime.datetime):
-        _tags = self.__normalize_tags(tags)
-        return self.__update.get_since(*_tags), self.__update.get_until(*tags)
+        return self.__update.get_since_until(tags)
 
     def _get_data_last_update(self, tags: list) -> datetime.datetime:
-        _tags = self.__normalize_tags(tags)
-        return self.__update.get_last_update_time(*_tags)
+        return self.__update.get_last_update_time(tags)
 
-    def _cache_data_satisfied(self, tags: list, since: datetime.datetime, until: datetime.datetime) -> bool:
-        _tags = self.__normalize_tags(tags)
-        _since, _until = self._get_data_range(_tags)
-        return since >= _since and until <= _until
+    # def _cache_data_satisfied(self, tags: list, since: datetime.datetime, until: datetime.datetime) -> bool:
+    #     _tags = self.__normalize_tags(tags)
+    #     _since, _until = self._get_data_range(_tags)
+    #     return since >= _since and until <= _until
 
     def _update_time_record(self, tags: [str], df: pd.DataFrame, time_field: str):
         if len(df) == 0:
@@ -219,10 +237,10 @@ class DataUtility:
         min_date = min(df[time_field])
         max_date = max(df[time_field])
         if min_date is not None:
-            self.get_update_table().update_since(*_tags, min_date)
+            self.get_update_table().update_since(_tags, min_date)
         if max_date is not None:
-            self.get_update_table().update_until(*_tags, max_date)
-        self.get_update_table().update_latest_update_time(*_tags)
+            self.get_update_table().update_until(_tags, max_date)
+        self.get_update_table().update_latest_update_time(_tags)
 
     # def _check_update_by_range(self, tags: [str]) -> (RESULT_CODE, datetime, datetime):
     #     ref_since, ref_until = self.get_reference_data_range(tags)
@@ -335,24 +353,6 @@ class DataUtility:
                     return False
         return True
 
-    def __normalize_tags(self, tags: list) -> tuple:
-        _tags = tags if isinstance(tags, list) else [tags]
-        while len(_tags) < 3:
-            _tags.append('')
-        return tuple(_tags)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __normalize_tags(self, tags: list) -> list:
+        nop(self)
+        return tags if isinstance(tags, list) else [tags]

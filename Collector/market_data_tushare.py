@@ -56,18 +56,18 @@ def fetch_data(**kwargs) -> pd.DataFrame:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plugin_prob() -> dict:
-    return {
-        'plugin_name': 'market_data_tushare',
-        'plugin_version': '0.0.0.1',
-        'tags': ['tushare']
-    }
-
-
-def plugin_capacities() -> list:
-    return [
-        'TradeCalender',
-        'SecuritiesInfo',
-        'IndexComponent',
-    ]
+# def plugin_prob() -> dict:
+#     return {
+#         'plugin_name': 'market_data_tushare',
+#         'plugin_version': '0.0.0.1',
+#         'tags': ['tushare']
+#     }
+#
+#
+# def plugin_capacities() -> list:
+#     return [
+#         'TradeCalender',
+#         'SecuritiesInfo',
+#         'IndexComponent',
+#     ]
 

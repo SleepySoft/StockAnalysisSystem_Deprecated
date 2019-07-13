@@ -5,26 +5,22 @@ from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
+    from Database.UpdateTableEx import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
 except Exception as e:
     sys.path.append(root_path)
 
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
+    from Database.UpdateTableEx import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
 finally:
     logger = logging.getLogger('')
@@ -39,44 +35,36 @@ FIELD_TRADE_CALENDER = ['exchange', 'trade_date', 'status']
 FIELD_TYPE_TRADE_CALENDER = ['object', 'datetime64[ns]', 'int64']
 
 
-class TradeCalendar(DataUtility):
-    def __init__(self, plugin: PluginManager, update: UpdateTable):
+class TradeCalendar(DataUtility.DataUtility):
+    def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         super().__init__(plugin, update)
         self.__cached_data = {}
         self.__load_cached_data()
 
     # --------------------------------------------------- Interface ---------------------------------------------------
 
-    def execute_single_update(self, tags: [str],
-                              timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
-        logger.info('TradeCalendar.execute_single_update(' + str(tags) + ')')
-        if not self.is_data_support(tags):
-            return DataUtility.RESULT_FAILED
-        exchange = tags[0]
-        since, until = timeval
-        if since is None:
-            since = datetime.datetime(1990, 1, 1)
-        if until is None:
-            until = today()
-        df = self.__do_fetch_trade_calender(exchange, since, until)
-        if df is None:
-            return DataUtility.RESULT_FAILED
-        exists_df = self.__cached_data.get(exchange)
-        if exists_df is not None:
-            self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
-        else:
-            self.__cached_data[exchange] = df
-        self.__cached_data[exchange].reindex()
-        return DataUtility.RESULT_SUCCESSFUL
+    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
+        logger.info('TradeCalendar.execute_update_patch(' + str(patches) + ')')
 
-    def execute_batch_update(self) -> DataUtility.RESULT_CODE:
-        logger.info('TradeCalendar.execute_batch_update()')
-        for exchange in TRADE_EXCHANGE:
-            need_update, update_since, update_until = self._check_update_by_range([exchange])
-            if not need_update:
+        for patch in patches:
+            if not self.is_data_support(patch.tags):
+                logger.info("TradeCalendar.execute_update_patch() - Not support tags: " + str(patch.tags))
                 continue
-            if self.execute_single_update([exchange], (update_since, update_until)) == DataUtility.RESULT_FAILED:
+            exchange = patch.tags[0]
+            since, until = patch.since, patch.until
+            if since is None:
+                since = datetime.datetime(1990, 1, 1)
+            if until is None:
+                until = today()
+            df = self.__do_fetch_trade_calender(exchange, since, until)
+            if df is None:
                 return DataUtility.RESULT_FAILED
+            exists_df = self.__cached_data.get(exchange)
+            if exists_df is not None:
+                self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
+            else:
+                self.__cached_data[exchange] = df
+            self.__cached_data[exchange].reindex()
         return DataUtility.RESULT_SUCCESSFUL
 
     def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
@@ -86,28 +74,33 @@ class TradeCalendar(DataUtility):
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
-    def data_from_cache(self, tags: [str],
-                        timeval: (datetime.datetime, datetime.datetime),
-                        extra: dict = None) -> pd.DataFrame:
-        if not self.is_data_support(tags):
-            return None
-        df = self.__cached_data.get(tags[0])
-        if df is None:
-            return None
-        if timeval is not None:
-            if len(timeval) > 0 and timeval[0] is not None:
-                df = df[df['trade_date'] >= timeval[0]]
-            if len(timeval) > 1 and timeval[1] is not None:
-                df = df[df['trade_date'] <= timeval[1]]
-        return df
+    def data_from_cache(self, selectors: DataUtility.Selector or [DataUtility.Selector]) -> pd.DataFrame or None:
+        if not isinstance(selectors, list):
+            selectors = [selectors]
+        result = None
+        for selector in selectors:
+            if not self.is_data_support(selector.tags):
+                return None
+            df = self.__cached_data.get(selector.tags[0])
+            if df is None:
+                return None
+            if selector.since is not None:
+                df = df[df['trade_date'] >= selector.since]
+            if selector.until is not None:
+                df = df[df['trade_date'] <= selector.until]
+            if result is None:
+                result = df
+            else:
+                result = concat_dataframe_by_index([result, df])
+        return result
 
     # -------------------------------------------------- probability --------------------------------------------------
 
     def get_root_tags(self) -> [str]:
         return TRADE_EXCHANGE
 
-    def is_data_support(self, tags: [str]) -> bool:
-        return len(tags) > 1 and tags[0] in TRADE_EXCHANGE
+    def is_data_support(self, tags: str) -> bool:
+        return len(tags) > 0 and tags[0] in TRADE_EXCHANGE
 
     def get_cached_data_range(self, tags: [str]) -> (datetime.datetime, datetime.datetime):
         if not self.is_data_support(tags):
@@ -130,8 +123,14 @@ class TradeCalendar(DataUtility):
                 'since': since,
                 'until': until,
             })
-            if not self.__verify_fetching_data_format(df) or len(df) == 0:
-                print('Format Error.')
+            if df is not None and not isinstance(df, pd.DataFrame):
+                logger.error('Fetched data is not a DataFrame.')
+                continue
+            if df is None or len(df) == 0:
+                logger.error('Fetched data is empty.')
+                continue
+            if not self.__verify_fetching_data_format(df):
+                logger.error('Format Error.')
                 continue
             if since is not None:
                 df = df.loc[df['trade_date'] >= since]
@@ -165,6 +164,7 @@ class TradeCalendar(DataUtility):
         return result
 
     def __verify_fetching_data_format(self, df: pd.DataFrame):
+        nop(self)
         if df is None:
             slog('Fetching data format error: Data is None')
             return False
@@ -195,16 +195,16 @@ def __build_instance() -> TradeCalendar:
     collector_plugin = PluginManager(plugin_path)
     collector_plugin.refresh()
 
-    update_table = UpdateTable()
+    update_table = UpdateTableEx()
 
     return TradeCalendar(collector_plugin, update_table)
 
 
 def test_basic_feature():
     md = __build_instance()
-    df = md.query_data('SSE')
+    df = md.query_data(DataUtility.Selector('SSE'))
     print(df)
-    df = md.query_data('SZSE')
+    df = md.query_data(DataUtility.Selector('SZSE'))
     print(df)
 
 

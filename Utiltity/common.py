@@ -16,21 +16,21 @@ import logging
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+    format='[%(asctime)s.%(msecs)03d] [ %(levelname)6s ] --- %(message)-200s | (%(filename)s:%(lineno)s)',
     datefmt='%m-%d %H:%M',
     # filename='/tmp/myapp.log',
     # filemode='w'
 )
 
-# 定义日志处理器将INFO或者以上级别的日志发送到 sys.stderr
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-
-# 设置控制台日志的格式
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-console.setFormatter(formatter)
-
-logging.getLogger('').addHandler(console)
+# # 定义日志处理器将INFO或者以上级别的日志发送到 sys.stderr
+# console = logging.StreamHandler()
+# console.setLevel(logging.INFO)
+#
+# # 设置控制台日志的格式
+# formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+# console.setFormatter(formatter)
+#
+# logging.getLogger('').addHandler(console)
 
 
 # -----------------------------------------------------------------------------------------------------
