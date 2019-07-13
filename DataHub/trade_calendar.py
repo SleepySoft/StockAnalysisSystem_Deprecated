@@ -1,3 +1,4 @@
+import logging
 import traceback
 import pandas as pd
 
@@ -67,9 +68,9 @@ class TradeCalendar(DataUtility.DataUtility):
             self.__cached_data[exchange].reindex()
         return DataUtility.RESULT_SUCCESSFUL
 
-    def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
+    def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
         result = self.__save_cached_data()
-        logger.info('TradeCalendar.trigger_save_data(' + str(tags) + ') - ' + str(result))
+        logger.info('TradeCalendar.trigger_save_data(' + str(patches) + ') - ' + str(result))
         return DataUtility.RESULT_SUCCESSFUL if result else DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------

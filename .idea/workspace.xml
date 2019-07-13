@@ -2,15 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Collector/market_data_tushare.py" beforeDir="false" afterPath="$PROJECT_DIR$/Collector/market_data_tushare.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data/DataCenter.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/DataCenter.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Data/sAsUtility.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/sAsUtility.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataHub/DataUtility.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/DataUtility.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataHub/securities_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/securities_info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DataHub/trade_calendar.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/trade_calendar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/UpdateTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/UpdateTable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utiltity/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utiltity/common.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utiltity/logger.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/DatabaseEntry.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/DatabaseEntry.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,8 +18,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
+            <state relative-caret-position="407">
+              <caret line="160" column="8" selection-start-line="160" selection-start-column="8" selection-end-line="160" selection-end-column="8" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -33,45 +28,33 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="152">
+              <caret line="8" column="45" lean-forward="true" selection-start-line="8" selection-start-column="45" selection-end-line="8" selection-end-column="45" />
+              <folding>
+                <element signature="e#1#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="24" column="8" lean-forward="true" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
-              <folding>
-                <element signature="e#0#16#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="110" selection-start-line="110" selection-end-line="110" />
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="38">
-              <caret line="55" lean-forward="true" selection-start-line="55" selection-end-line="55" />
+            <state relative-caret-position="19">
+              <caret line="1" selection-start-line="1" selection-end-line="1" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Utiltity/common.py">
+        <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="17" column="24" lean-forward="true" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
+            <state relative-caret-position="109">
+              <caret line="20" column="42" lean-forward="true" selection-start-line="20" selection-start-column="42" selection-end-line="20" selection-end-column="42" />
               <folding>
-                <element signature="e#0#35#0" expanded="true" />
+                <element signature="e#141#165#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -88,7 +71,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__do_fetch_finance_data</find>
       <find>argv</find>
       <find>QUERY_FIELD</find>
       <find>__plugins</find>
@@ -106,18 +88,19 @@
       <find>_cache_data_satisfied</find>
       <find>execute_single_update</find>
       <find>patch</find>
-      <find>trigger_save_data</find>
       <find>datafra</find>
       <find>pd</find>
       <find>pd.</find>
-      <find>data_from_cache</find>
       <find>UpdateTableEx</find>
-      <find>UpdateTable</find>
       <find>execute_update_patch</find>
       <find>is_data_support</find>
       <find>logging.</find>
       <find>__normalize_tags</find>
       <find>loggin</find>
+      <find>UpdateTable</find>
+      <find>trigger_save_data</find>
+      <find>selectors</find>
+      <find>data_from_cache</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
@@ -125,8 +108,8 @@
       <replace>plugin_capacities</replace>
       <replace>plugin_tags</replace>
       <replace>text2datetime()</replace>
-      <replace>UpdateTableEx</replace>
       <replace>, tags: [str]</replace>
+      <replace>UpdateTableEx</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\D\Code\git\StockAnalysisSystem</dir>
@@ -161,7 +144,6 @@
         <option value="$PROJECT_DIR$/Database/NoSqlRw.py" />
         <option value="$PROJECT_DIR$/Database/DataTable.py" />
         <option value="$PROJECT_DIR$/Collector/market_data_tushare_pro.py" />
-        <option value="$PROJECT_DIR$/DataHub/securities_info.py" />
         <option value="$PROJECT_DIR$/Database/UpdateTable.py" />
         <option value="$PROJECT_DIR$/Utiltity/plugin_manager.py" />
         <option value="$PROJECT_DIR$/Collector/CollectorUtility.py" />
@@ -169,13 +151,14 @@
         <option value="$PROJECT_DIR$/Collector/finance_data_tushare_pro.py" />
         <option value="$PROJECT_DIR$/Database/__init__.py" />
         <option value="$PROJECT_DIR$/Database/Database.py" />
-        <option value="$PROJECT_DIR$/Database/DatabaseEntry.py" />
         <option value="$PROJECT_DIR$/Database/UpdateTableEx.py" />
         <option value="$PROJECT_DIR$/DataHub/DataUtility.py" />
         <option value="$PROJECT_DIR$/Collector/market_data_tushare.py" />
-        <option value="$PROJECT_DIR$/DataHub/trade_calendar.py" />
         <option value="$PROJECT_DIR$/Utiltity/logger.py" />
         <option value="$PROJECT_DIR$/Utiltity/common.py" />
+        <option value="$PROJECT_DIR$/DataHub/securities_info.py" />
+        <option value="$PROJECT_DIR$/DataHub/trade_calendar.py" />
+        <option value="$PROJECT_DIR$/Database/DatabaseEntry.py" />
       </list>
     </option>
   </component>
@@ -215,6 +198,11 @@
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
+              <item name="Recycled" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
+              <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
               <item name="Utiltity" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -250,7 +238,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.trade_calendar">
+  <component name="RunManager" selected="Python.securities_info">
     <configuration name="UpdateTable" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -358,11 +346,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.securities_info" />
         <item itemvalue="Python.trade_calendar" />
         <item itemvalue="Python.UpdateTableEx" />
         <item itemvalue="Python.UpdateTable" />
         <item itemvalue="Python.finance_data" />
-        <item itemvalue="Python.securities_info" />
       </list>
     </recent_temporary>
   </component>
@@ -397,7 +385,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.60482377" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.46938777" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.21150278" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.45083487" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -459,11 +447,6 @@
           <option name="timeStamp" value="79" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/DataHub/securities_info.py</url>
-          <line>209</line>
-          <option name="timeStamp" value="98" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Collector/finance_data_tushare_pro.py</url>
           <line>80</line>
           <option name="timeStamp" value="106" />
@@ -485,7 +468,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Database/DatabaseEntry.py</url>
-          <line>23</line>
+          <line>26</line>
           <option name="timeStamp" value="127" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -495,7 +478,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/DataHub/trade_calendar.py</url>
-          <line>166</line>
+          <line>167</line>
           <option name="timeStamp" value="130" />
         </line-breakpoint>
       </breakpoints>
@@ -517,14 +500,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Database/ColumnTable.py" />
-    <entry file="file://$PROJECT_DIR$/Collector/stock_fina_szse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="19" column="32" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
@@ -667,30 +642,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="70" column="8" selection-start-line="70" selection-start-column="8" selection-end-line="70" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="124">
           <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="219" lean-forward="true" selection-start-line="219" selection-end-line="219" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -761,29 +716,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="27" selection-start-line="27" selection-end-line="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Database/SqlRw.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2299">
           <caret line="124" selection-start-line="124" selection-end-line="124" />
           <folding>
             <element signature="e#133#147#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/UpdateTableEx.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="51" column="8" selection-start-line="51" selection-start-column="8" selection-end-line="51" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -804,26 +742,6 @@
           <caret line="30" lean-forward="true" selection-start-line="30" selection-end-line="30" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="110" selection-start-line="110" selection-end-line="110" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -852,22 +770,86 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
+    <entry file="file://$PROJECT_DIR$/Collector/market_data_tushare_pro.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="24" column="8" lean-forward="true" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+        <state relative-caret-position="90">
+          <caret line="110" selection-start-line="110" selection-end-line="110" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/DataUtility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="407">
+          <caret line="160" column="8" selection-start-line="160" selection-start-column="8" selection-end-line="160" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Recycled/DataTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="428">
+          <caret line="50" column="38" lean-forward="true" selection-start-line="47" selection-start-column="34" selection-end-line="50" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/logging/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Utiltity/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="14" lean-forward="true" selection-start-line="1" selection-end-line="2" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/UpdateTableEx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="24" column="23" lean-forward="true" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Utiltity/common.py">
+    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="17" column="24" lean-forward="true" selection-start-line="17" selection-start-column="24" selection-end-line="17" selection-end-column="24" />
+        <state relative-caret-position="133">
+          <caret line="7" column="31" lean-forward="true" selection-start-line="6" selection-start-column="14" selection-end-line="7" selection-end-column="31" />
           <folding>
-            <element signature="e#0#35#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="8" column="45" lean-forward="true" selection-start-line="8" selection-start-column="45" selection-end-line="8" selection-end-column="45" />
+          <folding>
+            <element signature="e#1#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="20" column="42" lean-forward="true" selection-start-line="20" selection-start-column="42" selection-end-line="20" selection-end-column="42" />
+          <folding>
+            <element signature="e#141#165#0" expanded="true" />
           </folding>
         </state>
       </provider>

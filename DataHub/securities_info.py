@@ -1,3 +1,4 @@
+import logging
 import traceback
 import pandas as pd
 
@@ -5,26 +6,22 @@ from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
+    from Database.UpdateTableEx import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
 except Exception as e:
     sys.path.append(root_path)
 
-    from DataHub.DataUtility import DataUtility
+    import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
+    from Database.UpdateTableEx import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
-    from Database.DataTable import DataTable
-    from Database.UpdateTable import UpdateTable
     from Utiltity.plugin_manager import PluginManager
 finally:
     logger = logging.getLogger('')
@@ -52,8 +49,8 @@ FIELD_INFO = {'code':           (['str'], []),
               }
 
 
-class SecuritiesInfo(DataUtility):
-    def __init__(self, plugin: PluginManager, update: UpdateTable):
+class SecuritiesInfo(DataUtility.DataUtility):
+    def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         super().__init__(plugin, update)
         self.__cached_data = None
         self.__load_cached_data()
@@ -81,37 +78,28 @@ class SecuritiesInfo(DataUtility):
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
-    def execute_single_update(self, tags: [str],
-                              timeval: (datetime.datetime, datetime.datetime) = None) -> DataUtility.RESULT_CODE:
-        nop(timeval)
-        logger.info('SecuritiesInfo.execute_single_update()')
-        df = self.__do_fetch_securities_info(tags)
-        if df is None or len(df) == 0:
-            return DataUtility.RESULT_FAILED
-        df.reindex()
-        self.__cached_data = df
-        return DataUtility.RESULT_SUCCESSFUL
+    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
+        logger.info('SecuritiesInfo.execute_update_patch(' + str(patches) + ')')
 
-    def execute_batch_update(self) -> DataUtility.RESULT_CODE:
-        nop(self)
-        logger.info('SecuritiesInfo.execute_batch_update()')
-        return self.execute_single_update([])
+        for patch in patches:
+            df = self.__do_fetch_securities_info(patch.tags)
+            if df is None or len(df) == 0:
+                return DataUtility.RESULT_FAILED
+            df.reindex()
+            self.__cached_data = df
+            return DataUtility.RESULT_SUCCESSFUL
 
-    def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
-        result = self.__save_cached_data()
-        if result:
+    def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
+        nop(patches)
+        if self.__save_cached_data():
             self.get_update_table().update_latest_update_time('SecuritiesInfo', '', '')
             return DataUtility.RESULT_SUCCESSFUL
         return DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
-    def data_from_cache(self, tags: [str],
-                        timeval: (datetime.datetime, datetime.datetime),
-                        extra: dict = None) -> pd.DataFrame:
-        nop(tags)
-        nop(timeval)
-        nop(extra)
+    def data_from_cache(self, selectors: DataUtility.Selector or [DataUtility.Selector]) -> pd.DataFrame or None:
+        nop(selectors)
         return self.__cached_data
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -137,7 +125,7 @@ class SecuritiesInfo(DataUtility):
         return None
 
     def __load_cached_data(self) -> bool:
-        table = DataTable().get_securities_table()
+        table = DatabaseEntry().get_securities_table()
         record = table.query()
         if record is not None and len(record) > 0:
             self.__cached_data = pd.DataFrame(record)
@@ -170,7 +158,7 @@ def __build_instance() -> SecuritiesInfo:
     collector_plugin = PluginManager(plugin_path)
     collector_plugin.refresh()
 
-    update_table = UpdateTable()
+    update_table = UpdateTableEx()
 
     return SecuritiesInfo(collector_plugin, update_table)
 
