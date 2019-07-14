@@ -2,6 +2,7 @@ import traceback
 
 import numpy as np
 import pandas as pd
+import datetime as datetime
 
 from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
@@ -51,6 +52,24 @@ def clip_dataframe(df: pd.DataFrame, indexes: [int], columns: [str]):
             serial = df[c]
         df_sub.insert(len(df_sub.columns), c, serial)
     return df_sub.loc[indexes]
+
+
+def slice_dataframe_by_datetime(df: pd.DataFrame, since: datetime = None,
+                                until: datetime = None, column: str = None) -> pd.DataFrame or None:
+    if column is not None:
+        if column == '' or column not in df.columns:
+            return None
+        if since is not None:
+            df = df[df[column] >= since]
+        if until is not None:
+            df = df[df[column] <= until]
+        return df
+    else:
+        if since is not None:
+            df = df[df.index >= since]
+        if until is not None:
+            df = df[df.index <= until]
+        return df
 
 
 # ----------------------------------------------------------------
@@ -119,9 +138,66 @@ def test_concat_dataframe_by_index():
     print(df)
 
 
+def test_clip_dataframe():
+    df = pd.DataFrame(data={
+        'a': ['1A', '2A', '3A', '4A'],
+        'b': ['1B', '2B', '3B', '4A'],
+        'c': ['1C', '2C', '3C', '4A'],
+        'd': ['1D', '2D', '3D', '4D'],
+        'e': ['1E', '2D', '3E', '4E'],
+    })
+    df.reindex()
+    df = clip_dataframe(df, [1, 3], ['a', 'c', 'e'])
+    print(df)
+
+
+def test_slice_dataframe_by_datetime():
+    df1 = pd.DataFrame(data={
+        'a': ['1A', '2A', '3A', '4A'],
+        'b': ['1B', '2B', '3B', '4A'],
+        'c': ['1C', '2C', '3C', '4A'],
+        'd': ['1D', '2D', '3D', '4D'],
+        'e': ['1E', '2D', '3E', '4E'],
+    }, index=['2001-01-01', '2001-01-03', '2001-02-04', '2001-05-05'])
+
+    df = slice_dataframe_by_datetime(df1, '2001-01-02', '2001-02-04')
+    print(df)
+    print('---------------------------------------------------------------')
+
+    df = slice_dataframe_by_datetime(df1, '2001-01-02', None)
+    print(df)
+    print('---------------------------------------------------------------')
+
+    df = slice_dataframe_by_datetime(df1, None, '2001-02-04')
+    print(df)
+    print('---------------------------------------------------------------')
+
+    df2 = pd.DataFrame(data={
+        'a': ['1A', '2A', '3A', '4A'],
+        'b': ['1B', '2B', '3B', '4A'],
+        'c': ['1C', '2C', '3C', '4A'],
+        'date': ['2001-01-01', '2001-01-03', '2001-02-04', '2001-05-05'],
+        'e': ['1E', '2D', '3E', '4E'],
+    })
+
+    df = slice_dataframe_by_datetime(df2, '2001-01-02', '2001-02-04', 'date')
+    print(df)
+    print('---------------------------------------------------------------')
+
+    df = slice_dataframe_by_datetime(df2, '2001-01-02', None, 'date')
+    print(df)
+    print('---------------------------------------------------------------')
+
+    df = slice_dataframe_by_datetime(df2, None, '2001-02-04', 'date')
+    print(df)
+    print('---------------------------------------------------------------')
+
+
 def test_entry():
     test_check_date_continuity()
-    test_dataframe_extend()
+    test_concat_dataframe_by_index()
+    test_clip_dataframe()
+    test_slice_dataframe_by_datetime()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

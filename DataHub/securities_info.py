@@ -91,9 +91,9 @@ class SecuritiesInfo(DataUtility.DataUtility):
 
     def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
         nop(patches)
-        if self.__save_cached_data():
-            self.get_update_table().update_latest_update_time(['SecuritiesInfo'])
-            return DataUtility.RESULT_SUCCESSFUL
+        for patch in patches:
+            if self.__save_cached_data():
+                self.get_update_table().update_latest_update_time(['SecuritiesInfo'])
         return DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------

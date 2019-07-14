@@ -5,6 +5,7 @@ from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
+    import Database.NoSqlRw as NoSqlRw
     import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
@@ -16,6 +17,7 @@ try:
 except Exception as e:
     sys.path.append(root_path)
 
+    import Database.NoSqlRw as NoSqlRw
     import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
@@ -138,7 +140,30 @@ class FinanceData(DataUtility.DataUtility):
     # --------------------------------------------------- private if ---------------------------------------------------
 
     def data_from_cache(self, selectors: DataUtility.Selector or [DataUtility.Selector]) -> pd.DataFrame or None:
-        nop(selectors)
+        result = None
+        if isinstance(selectors, DataUtility.Selector):
+            selectors = [selectors]
+        for selector in selectors:
+            if not self.is_data_support(selector.tags):
+                logger.error('FinanceData.data_from_cache() - Error selector tags : ' + str(selector.tags))
+                continue
+            report_type = selector.tags[0]
+            report_dict = self.__cached_data.get(report_type)
+            if report_dict is None:
+                logger.error('FinanceData.data_from_cache() - Do not support this kind of data : ' + report_type)
+                continue
+            stock_identity = selector.tags[1]
+            stock_data = report_dict.get(stock_identity)
+            if stock_data is None:
+                self.__load_cached_data(selector.tags)
+                stock_data = report_dict.get(stock_identity)
+            if stock_data is None:
+                return None
+            df = slice_dataframe_by_datetime(stock_data, selector.since, selector.until)
+            if result is None:
+                result = df
+            else:
+                result = pd.concat([result, df])
         return None
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -172,34 +197,33 @@ class FinanceData(DataUtility.DataUtility):
             return df
         return None
 
-    def __load_cached_data(self) -> bool:
-        pass
-        # table = DataTable().get_securities_table()
-        # record = table.query()
-        # if record is not None and len(record) > 0:
-        #     self.__cached_data = pd.DataFrame(record)
-        #     del self.__cached_data['DateTime']
-        #     del self.__cached_data['_id']
-        # else:
-        #     self.__cached_data = pd.DataFrame(column=list(FIELD_INFO.keys()))
-        # return True
+    def __load_cached_data(self, tags: [str]) -> bool:
+        report_type = tags[0]
+        stock_identity = tags[1]
+        data_table = DatabaseEntry().get_finance_table(report_type)
+        record = data_table.query(stock_identity)
+        if record is not None and len(record) > 0:
+            df = pd.DataFrame(record)
+            del df['DateTime']
+            del df['_id']
+            self.__cached_data[report_type][stock_identity] = df
+            return True
+        else:
+            logger.info('FinanceData.load_cached_data() - Not record for + ' + str(tags))
+            return False
 
     def __save_cached_data(self) -> bool:
         for report_type in self.__save_table.keys():
             save_list = self.__save_table.get(report_type)
             data_table = DatabaseEntry().get_finance_table(report_type)
             for stock_identify in save_list:
-                pass
-        pass
-        # table = DataTable().get_securities_table()
-        # for index, row in self.__cached_data.iterrows():
-        #     code = row['code']
-        #     exchange = row['exchange']
-        #     identity = IDENTITY_SECURITIES_INFO.\
-        #         replace('<stock_code>', code).\
-        #         replace('<exchange>', exchange)
-        #     table.upsert(identity, text_auto_time('2000-01-01'), row.to_dict())
-        # return True
+                df = self.__cached_data.get(report_type).get(stock_identify)
+                self.__save_single_data(stock_identify, df, data_table)
+
+    def __save_single_data(self, stock_identify: str, df: pd.DataFrame, data_table: NoSqlRw.ItkvTable):
+        nop(self)
+        for index, row in df.iterrows():
+            data_table.upsert(stock_identify, index, row.to_dict())
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
