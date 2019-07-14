@@ -51,16 +51,24 @@ QUERY_FIELD = {
     'until':            ([datetime.datetime, None], [])}
 
 RESULT_FIELD = {
-    'identity':         ([str], []),
-    'period':           ([int], [])}                # The last day of report period
+    'identity':         (['str'], []),
+    'period':           (['datetime'], [])}                # The last day of report period
 
 
 class FinanceData(DataUtility.DataUtility):
     def __init__(self, plugin: PluginManager, update: UpdateTableEx):
         super().__init__(plugin, update)
-        self.__cached_data = {}
-        self.__save_list = []
-        # self.__load_cached_data()
+        self.__cached_data = {
+            'BalanceSheet': {},
+            'IncomeStatement': {},
+            'CashFlowStatement': {},
+        }
+        # key: report_type; value: stock_identify
+        self.__save_table = {
+            'BalanceSheet': [],
+            'IncomeStatement': [],
+            'CashFlowStatement': [],
+        }
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
@@ -73,30 +81,34 @@ class FinanceData(DataUtility.DataUtility):
                 return DataUtility.RESULT_NOT_SUPPORTED
 
             report_type = patch.tags[0]
+            save_list = self.__save_table.get(report_type)
+            report_dict = self.__cached_data.get(report_type)
+
+            if report_dict is None or save_list is None:
+                # Should not reach here
+                logger.error('Cannot not get report dict for ' + report_type)
+                continue
+
             stock_identity = normalize_stock_identity(patch.tags[1])
             df = self.__do_fetch_finance_data(report_type, stock_identity, patch.since, patch.until)
             if df is None or len(df) == 0:
                 return DataUtility.RESULT_FAILED
 
-            df.set_index('year')
-            codes = df['code'].unique()
+            df.set_index('period')
+            codes = df['identity'].unique()
             for code in codes:
-                new_df = df[df['code'] == code]
+                new_df = df[df['identity'] == code]
                 if new_df is None or len(new_df) == 0:
                     continue
-                if code in self.__cached_data.keys():
-                    concat_dataframe_by_index([self.__cached_data[code], new_df])
+                if code in report_dict.keys():
+                    concat_dataframe_by_index([report_dict[code], new_df])
                 else:
-                    self.__cached_data[code] = [new_df]
-                self.__save_list.append(code)
+                    report_dict[code] = new_df
+                if code not in save_list:
+                    save_list.append(code)
         return DataUtility.RESULT_SUCCESSFUL
 
-    def execute_batch_update(self) -> DataUtility.RESULT_CODE:
-        nop(self)
-        logger.info('SecuritiesInfo.execute_batch_update()')
-        return self.execute_single_update([])
-
-    def trigger_save_data(self, tags: [str]) -> DataUtility.RESULT_CODE:
+    def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
         result = self.__save_cached_data()
         if result:
             self.get_update_table().update_latest_update_time('SecuritiesInfo', '', '')
@@ -173,6 +185,11 @@ class FinanceData(DataUtility.DataUtility):
         # return True
 
     def __save_cached_data(self) -> bool:
+        for report_type in self.__save_table.keys():
+            save_list = self.__save_table.get(report_type)
+            data_table = DatabaseEntry().get_finance_table(report_type)
+            for stock_identify in save_list:
+                pass
         pass
         # table = DataTable().get_securities_table()
         # for index, row in self.__cached_data.iterrows():

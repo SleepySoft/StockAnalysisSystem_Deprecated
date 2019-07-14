@@ -64,13 +64,13 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         print('Unknown content: ' + content)
         result = None
 
-    if result is not None:
-        result.to_csv(root_path + '/TestData/finance_data_' + content + '_' + ts_code + '.csv')
+    # if result is not None:
+    #     result.to_csv(root_path + '/TestData/finance_data_' + content + '_' + ts_code + '.csv')
 
     if result is not None:
         result.rename(columns={'ts_code': 'identity', 'end_date': 'period'}, inplace=True)
-        result['identity'].str.replace('.SH', '.SSE')
-        result['identity'].str.replace('.SZ', '.SZSE')
+        result['identity'] = result['identity'].str.replace('.SH', '.SSE')
+        result['identity'] = result['identity'].str.replace('.SZ', '.SZSE')
         result['period'] = pd.to_datetime(result['period'])
 
     return result

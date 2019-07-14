@@ -28,7 +28,7 @@ finally:
 
 PYTHON_DATAFRAME_TYPE_MAPPING = {
     'str': 'object',
-    'int64': 'object',
+    'int64': 'int',
     'datetime': 'datetime64[ns]',
 }
 
@@ -350,7 +350,7 @@ class DataUtility:
                     break
             if not type_ok:
                 logger.info('DataFrame field check error: Field type mismatch - ' +
-                            str(type_df) + ' is not in ' + str(types))
+                            str(df_type) + ' is not in ' + str(df_type))
                 return False
 
             if len(values) > 0:

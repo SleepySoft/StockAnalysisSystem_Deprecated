@@ -54,6 +54,14 @@ class DatabaseEntry:
         self.__update_table = UpdateTableEx.UpdateTableEx()
         self.__securities_table = ItkvTable(DatabaseEntry().get_mongo_db_client(),
                                             'StockAnalysisSystem', 'SecuritiesData')
+        self.__finance_table = {
+            'BalanceSheet': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+                                      'StockAnalysisSystem', 'BalanceSheet'),
+            'IncomeStatement': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+                                         'StockAnalysisSystem', 'IncomeStatement'),
+            'CashFlowStatement': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+                                           'StockAnalysisSystem', 'CashFlowStatement'),
+        }
 
     # ------------------------------------------------- Database Entry -------------------------------------------------
 
@@ -76,4 +84,7 @@ class DatabaseEntry:
 
     def get_securities_table(self) -> ItkvTable:
         return self.__securities_table
+
+    def get_finance_table(self, table_name: str) -> ItkvTable:
+        return self.__finance_table.get(table_name)
 
