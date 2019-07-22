@@ -62,7 +62,7 @@ class TradeCalendar(DataUtility.DataUtility):
                 return DataUtility.RESULT_FAILED
             exists_df = self.__cached_data.get(exchange)
             if exists_df is not None:
-                self.__cached_data[exchange] = concat_dataframe_by_index([exists_df, df])
+                self.__cached_data[exchange] = concat_dataframe_row_by_index([exists_df, df])
             else:
                 self.__cached_data[exchange] = df
             self.__cached_data[exchange].reindex()
@@ -92,7 +92,7 @@ class TradeCalendar(DataUtility.DataUtility):
             if result is None:
                 result = df
             else:
-                result = concat_dataframe_by_index([result, df])
+                result = concat_dataframe_row_by_index([result, df])
         return result
 
     # -------------------------------------------------- probability --------------------------------------------------

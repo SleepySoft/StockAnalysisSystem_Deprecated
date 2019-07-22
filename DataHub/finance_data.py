@@ -103,7 +103,7 @@ class FinanceData(DataUtility.DataUtility):
                 if new_df is None or len(new_df) == 0:
                     continue
                 if code in report_dict.keys():
-                    concat_dataframe_by_index([report_dict[code], new_df])
+                    concat_dataframe_row_by_index([report_dict[code], new_df])
                 else:
                     report_dict[code] = new_df
                 if code not in save_list:

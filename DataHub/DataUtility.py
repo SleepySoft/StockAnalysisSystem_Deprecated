@@ -146,25 +146,18 @@ class DataUtility:
     def check_split_query(self, selectors: Selector or [Selector]) -> [Selector]:
         nop(self)
         return [selectors] if isinstance(selectors, Selector) else selectors
+        return RESULT_NOT_IMPLEMENTED
 
-    def execute_update_patch(self, patches: [Patch]) -> RESULT_CODE:
+    # --------------------------------------------------- private if ---------------------------------------------------
+
+    def execute_update_patch(self, patch: Patch) -> RESULT_CODE:
         nop(self)
-        logger.info('DataUtility.execute_update_patch(' + str(patches) + ') -> RESULT_NOT_IMPLEMENTED')
+        logger.info('DataUtility.execute_update_patch(' + str(patch) + ') -> RESULT_NOT_IMPLEMENTED')
         return RESULT_NOT_IMPLEMENTED
 
     def trigger_save_data(self, patches: [Patch]) -> RESULT_CODE:
         nop(self)
         logger.info('DataUtility.trigger_save_data(' + str(patches) + ') -> RESULT_NOT_IMPLEMENTED')
-        return RESULT_NOT_IMPLEMENTED
-
-    # --------------------------------------------------- private if ---------------------------------------------------
-
-    # def split_sub_query(self, tags: [str],
-    #                     timeval: (datetime.datetime, datetime.datetime) = None,
-    #                     extra: dict = None) -> [(str, datetime, datetime)]:
-    #     nop(self)
-    #     nop(extra)
-    #     return [(tags, timeval[0], timeval[1])]
 
     def data_from_cache(self, selectors: Selector or [Selector]) -> pd.DataFrame or None:
         logger.info('DataUtility.data_from_cache(' + str(selectors) + ') -> RESULT_NOT_IMPLEMENTED')

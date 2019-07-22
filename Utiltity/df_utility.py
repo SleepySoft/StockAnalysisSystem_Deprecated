@@ -24,7 +24,7 @@ def check_date_continuity(df: pd.DataFrame, field: str) -> tuple:
     return continuity, min_date, max_date
 
 
-def concat_dataframe_by_index(dfs: [pd.DataFrame]) -> pd.DataFrame:
+def concat_dataframe_row_by_index(dfs: [pd.DataFrame]) -> pd.DataFrame:
     """
     Concat DataFrame by row. Remove the rows in the result which has duplicated index.
     :param dfs: The list of DataFrame you want to concat.
@@ -32,6 +32,11 @@ def concat_dataframe_by_index(dfs: [pd.DataFrame]) -> pd.DataFrame:
     """
     df = pd.concat(dfs)
     df = df.loc[~df.index.duplicated(keep='first')]
+    return df
+
+
+def concat_dataframe_by_row(dfs: [pd.DataFrame]) -> pd.DataFrame:
+    df = pd.concat(dfs, axis=1)
     return df
 
 
@@ -118,6 +123,27 @@ def test_check_date_continuity():
     print('max_date = ' + str(max_date))
 
 
+def generate_test_dataframe(rows: [str], cols: [str]) -> pd.DataFrame:
+    """
+    Generate a test DataFrame
+    :param rows: The rows you want to generate.
+    :param cols: The columns you want to generate
+    :return: The generated DataFrame, which's items are contracted by row and column.
+
+    :example: generate_test_dataframe(range(1, 5), ['a', 'b', 'c', 'd'])
+        a   b   c   d
+    0  1A  1B  1C  1D
+    1  2A  2B  2C  2D
+    2  3A  3B  3C  3D
+    3  4A  4B  4C  4D
+    """
+    df = pd.DataFrame()
+    for col in cols:
+        df[col] = pd.Series([str(row).upper() + str(col).upper() for row in rows])
+    return df
+
+
+
 def test_concat_dataframe_by_index():
     df1 = pd.DataFrame(data={
         'a': ['1A', '2A', '3A'],
@@ -134,7 +160,7 @@ def test_concat_dataframe_by_index():
     print(df2)
     print('---------------------------------------------------------------')
 
-    df = concat_dataframe_by_index([df1, df2])
+    df = concat_dataframe_row_by_index([df1, df2])
     print(df)
 
 
@@ -193,11 +219,19 @@ def test_slice_dataframe_by_datetime():
     print('---------------------------------------------------------------')
 
 
+def test_concat_dataframe_by_row():
+    df1 = generate_test_dataframe(range(1, 5), ['a', 'b', 'c', 'd'])
+    df2 = generate_test_dataframe(range(3, 6), ['d', 'e', 'f', 'g'])
+    df = concat_dataframe_by_row([df1, df2])
+    print(df)
+
+
 def test_entry():
     test_check_date_continuity()
     test_concat_dataframe_by_index()
     test_clip_dataframe()
     test_slice_dataframe_by_datetime()
+    test_concat_dataframe_by_row()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------
