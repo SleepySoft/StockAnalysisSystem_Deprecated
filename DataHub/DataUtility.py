@@ -90,25 +90,41 @@ class DataUtility:
 
     # --------------------------------------------------- public if ---------------------------------------------------
 
-    def query_data(self, tags: [str] or Selector,
+    def query_data(self, tags: [str] or Selector or [Selector],
                    since: datetime.datetime = None,
                    until: datetime.datetime = None,
                    extra: dict = None) -> pd.DataFrame or None:
 
-        selectors = tags if isinstance(tags, Selector) else Selector(tags, since, until, extra)
+        if isinstance(tags, (list, tuple)):
+            selectors = tags
+        elif isinstance(tags, Selector):
+            selectors = [tags]
+        else:
+            selectors = [Selector(tags, since, until, extra)]
         logger.info('DataUtility.query_data(' + str(selectors) + ')')
 
+        sub_selectors = self.check_split_query(selectors)
+
         updated_patches = []
-        patches = self.check_update_patch(selectors)
+        patches = self.check_update_patch(sub_selectors)
         for patch in patches:
-            result = self.execute_update_patch([patch])
+            result = self.execute_update_patch(patch)
             if result:
                 updated_patches.append(patch)
+
         if len(updated_patches) > 0:
             self.trigger_save_data(updated_patches)
-        return self.data_from_cache(selectors)
 
-    def check_update_patch(self, selectors: Selector or [Selector]) -> [Patch]:
+        result = None
+        for selector in sub_selectors:
+            df = self.data_from_cache(selector)
+            if result is None:
+                result = df
+            else:
+                result = concat_dataframe_by_row([result, df])
+        return result
+
+    def check_update_patch(self, selectors: [Selector]) -> [Patch]:
         """
         Check whether the tag specified data need update.
         Update strategy:
@@ -136,8 +152,7 @@ class DataUtility:
             return RESULT_FALSE
 
         update_patches = []
-        sub_selectors = self.check_split_query(selectors)
-        for selector in sub_selectors:
+        for selector in selectors:
             patch = self._check_single_selector_patch(selector)
             if patch is not None:
                 update_patches.append(patch)
@@ -146,7 +161,6 @@ class DataUtility:
     def check_split_query(self, selectors: Selector or [Selector]) -> [Selector]:
         nop(self)
         return [selectors] if isinstance(selectors, Selector) else selectors
-        return RESULT_NOT_IMPLEMENTED
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
@@ -159,8 +173,8 @@ class DataUtility:
         nop(self)
         logger.info('DataUtility.trigger_save_data(' + str(patches) + ') -> RESULT_NOT_IMPLEMENTED')
 
-    def data_from_cache(self, selectors: Selector or [Selector]) -> pd.DataFrame or None:
-        logger.info('DataUtility.data_from_cache(' + str(selectors) + ') -> RESULT_NOT_IMPLEMENTED')
+    def data_from_cache(self, selector: Selector) -> pd.DataFrame or None:
+        logger.info('DataUtility.data_from_cache(' + str(selector) + ') -> RESULT_NOT_IMPLEMENTED')
         return RESULT_NOT_IMPLEMENTED
 
     # -------------------------------------------------- probability --------------------------------------------------

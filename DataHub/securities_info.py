@@ -78,22 +78,20 @@ class SecuritiesInfo(DataUtility.DataUtility):
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
-    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
-        logger.info('SecuritiesInfo.execute_update_patch(' + str(patches) + ')')
+    def execute_update_patch(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
+        logger.info('SecuritiesInfo.execute_update_patch(' + str(patch) + ')')
 
-        for patch in patches:
-            df = self.__do_fetch_securities_info(patch.tags)
-            if df is None or len(df) == 0:
-                return DataUtility.RESULT_FAILED
-            df.reindex()
-            self.__cached_data = df
-            return DataUtility.RESULT_SUCCESSFUL
+        df = self.__do_fetch_securities_info(patch.tags)
+        if df is None or len(df) == 0:
+            return DataUtility.RESULT_FAILED
+        df.reindex()
+        self.__cached_data = df
+        return DataUtility.RESULT_SUCCESSFUL
 
-    def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
-        nop(patches)
-        for patch in patches:
-            if self.__save_cached_data():
-                self.get_update_table().update_latest_update_time(['SecuritiesInfo'])
+    def trigger_save_data(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
+        nop(patch)
+        if self.__save_cached_data():
+            return self.get_update_table().update_latest_update_time(['SecuritiesInfo'])
         return DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------

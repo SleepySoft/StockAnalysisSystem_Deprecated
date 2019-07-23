@@ -44,33 +44,32 @@ class TradeCalendar(DataUtility.DataUtility):
 
     # --------------------------------------------------- Interface ---------------------------------------------------
 
-    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
-        logger.info('TradeCalendar.execute_update_patch(' + str(patches) + ')')
+    def execute_update_patch(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
+        logger.info('TradeCalendar.execute_update_patch(' + str(patch) + ')')
 
-        for patch in patches:
-            if not self.is_data_support(patch.tags):
-                logger.info("TradeCalendar.execute_update_patch() - Not support tags: " + str(patch.tags))
-                continue
-            exchange = patch.tags[0]
-            since, until = patch.since, patch.until
-            if since is None:
-                since = datetime.datetime(1990, 1, 1)
-            if until is None:
-                until = today()
-            df = self.__do_fetch_trade_calender(exchange, since, until)
-            if df is None:
-                return DataUtility.RESULT_FAILED
-            exists_df = self.__cached_data.get(exchange)
-            if exists_df is not None:
-                self.__cached_data[exchange] = concat_dataframe_row_by_index([exists_df, df])
-            else:
-                self.__cached_data[exchange] = df
-            self.__cached_data[exchange].reindex()
+        if not self.is_data_support(patch.tags):
+            logger.info("TradeCalendar.execute_update_patch() - Not support tags: " + str(patch.tags))
+            return None
+        exchange = patch.tags[0]
+        since, until = patch.since, patch.until
+        if since is None:
+            since = datetime.datetime(1990, 1, 1)
+        if until is None:
+            until = today()
+        df = self.__do_fetch_trade_calender(exchange, since, until)
+        if df is None:
+            return DataUtility.RESULT_FAILED
+        exists_df = self.__cached_data.get(exchange)
+        if exists_df is not None:
+            self.__cached_data[exchange] = concat_dataframe_row_by_index([exists_df, df])
+        else:
+            self.__cached_data[exchange] = df
+        self.__cached_data[exchange].reindex()
         return DataUtility.RESULT_SUCCESSFUL
 
-    def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
+    def trigger_save_data(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
         result = self.__save_cached_data()
-        logger.info('TradeCalendar.trigger_save_data(' + str(patches) + ') - ' + str(result))
+        logger.info('TradeCalendar.trigger_save_data(' + str(patch) + ') - ' + str(result))
         return DataUtility.RESULT_SUCCESSFUL if result else DataUtility.RESULT_FAILED
 
     # --------------------------------------------------- private if ---------------------------------------------------
