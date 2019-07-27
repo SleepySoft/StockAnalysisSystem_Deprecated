@@ -74,47 +74,48 @@ class FinanceData(DataUtility.DataUtility):
 
     # ---------------------------------------------------------------------------------x--------------------------------
 
-    def execute_update_patch(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
-        logger.info('FinanceData.execute_update_patch(' + str(patches) + ')')
+    def execute_update_patch(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
+        logger.info('FinanceData.execute_update_patch(' + str(patch) + ')')
 
-        for patch in patches:
-            if not self.is_data_support(patch.tags):
-                logger.info('FinanceData.execute_update_patch() - Data is not support.')
-                return DataUtility.RESULT_NOT_SUPPORTED
+        if not self.is_data_support(patch.tags):
+            logger.info('FinanceData.execute_update_patch() - Data is not support.')
+            return DataUtility.RESULT_NOT_SUPPORTED
 
-            report_type = patch.tags[0]
-            save_list = self.__save_table.get(report_type)
-            report_dict = self.__cached_data.get(report_type)
+        report_type = patch.tags[0]
+        save_list = self.__save_table.get(report_type)
+        report_dict = self.__cached_data.get(report_type)
 
-            if report_dict is None or save_list is None:
-                # Should not reach here
-                logger.error('Cannot not get report dict for ' + report_type)
+        if report_dict is None or save_list is None:
+            # Should not reach here
+            logger.error('Cannot not get report dict for ' + report_type)
+            return DataUtility.RESULT_FAILED
+
+        stock_identity = normalize_stock_identity(patch.tags[1])
+        df = self.__do_fetch_finance_data(report_type, stock_identity, patch.since, patch.until)
+        if df is None or len(df) == 0:
+            return DataUtility.RESULT_FAILED
+
+        df.set_index('period')
+        codes = df['identity'].unique()
+        for code in codes:
+            new_df = df[df['identity'] == code]
+            if new_df is None or len(new_df) == 0:
                 continue
-
-            stock_identity = normalize_stock_identity(patch.tags[1])
-            df = self.__do_fetch_finance_data(report_type, stock_identity, patch.since, patch.until)
-            if df is None or len(df) == 0:
-                return DataUtility.RESULT_FAILED
-
-            df.set_index('period')
-            codes = df['identity'].unique()
-            for code in codes:
-                new_df = df[df['identity'] == code]
-                if new_df is None or len(new_df) == 0:
-                    continue
-                if code in report_dict.keys():
-                    concat_dataframe_row_by_index([report_dict[code], new_df])
-                else:
-                    report_dict[code] = new_df
-                if code not in save_list:
-                    save_list.append(code)
+            if code in report_dict.keys():
+                concat_dataframe_row_by_index([report_dict[code], new_df])
+            else:
+                report_dict[code] = new_df
+            if code not in save_list:
+                save_list.append(code)
         return DataUtility.RESULT_SUCCESSFUL
 
     def trigger_save_data(self, patches: [DataUtility.Patch]) -> DataUtility.RESULT_CODE:
         result = self.__save_cached_data()
         if result:
-            self.get_update_table().update_latest_update_time('SecuritiesInfo', '', '')
-            return DataUtility.RESULT_SUCCESSFUL
+            if self.get_update_table().update_latest_update_time('SecuritiesInfo', '', ''):
+                return DataUtility.RESULT_SUCCESSFUL
+            else:
+                return DataUtility.RESULT_FAILED
         return DataUtility.RESULT_FAILED
 
     # -------------------------------------------------- probability --------------------------------------------------
@@ -222,8 +223,14 @@ class FinanceData(DataUtility.DataUtility):
 
     def __save_single_data(self, stock_identify: str, df: pd.DataFrame, data_table: NoSqlRw.ItkvTable):
         nop(self)
+        if 'period' not in df.columns:
+            return False
         for index, row in df.iterrows():
-            data_table.upsert(stock_identify, index, row.to_dict())
+            period = row['period']
+            if isinstance(period, str):
+                period = text_auto_time(period)
+            data_table.upsert(stock_identify, period, row.to_dict())
+        return True
 
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------

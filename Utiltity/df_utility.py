@@ -35,8 +35,32 @@ def concat_dataframe_row_by_index(dfs: [pd.DataFrame]) -> pd.DataFrame:
     return df
 
 
-def concat_dataframe_by_row(dfs: [pd.DataFrame]) -> pd.DataFrame:
-    df = pd.concat(dfs, axis=1)
+def concat_dataframe_by_row(dfs: [pd.DataFrame], unique_column: str = None) -> pd.DataFrame:
+    df = pd.concat(dfs, axis=0, ignore_index=True, sort=False)
+    df.reindex()
+
+    # Delete duplicate column
+    # _, i = np.unique(df.columns, return_index=True)
+    # df = df.iloc[:, i]
+
+    # Delete row with duplicate value in specified column
+    picked_lines = []
+    if unique_column is not None and len(unique_column) > 0 and unique_column in df.columns:
+        grouped = df.groupby(unique_column)
+        for _, g in df.groupby(unique_column):
+            picked_line = None
+            for row_index, row in g.iterrows():
+                if picked_line is None:
+                    picked_line = row
+                else:
+                    for i in range(0, len(row)):
+                        if pd.isna(picked_line[i]):
+                            picked_line[i] = row[i]
+            if picked_line is not None:
+                picked_lines.append(picked_line)
+        df = pd.concat(picked_lines)
+
+        # df = pd.concat(g for _, g in df.groupby(unique_column) if len(g) > 1)
     return df
 
 
@@ -223,15 +247,40 @@ def test_concat_dataframe_by_row():
     df1 = generate_test_dataframe(range(1, 5), ['a', 'b', 'c', 'd'])
     df2 = generate_test_dataframe(range(3, 6), ['d', 'e', 'f', 'g'])
     df = concat_dataframe_by_row([df1, df2])
+    print('-----------------------------------------------------------')
+    print(df1)
+    print('-----------------------------------------------------------')
+    print(df2)
+    print('-----------------------------------------------------------')
+    print('concat_dataframe_by_row([df1, df2])')
+    print('-----------------------------------------------------------')
+    print(df)
+
+
+def test_concat_dataframe_by_row_with_duplicate_column():
+    df1 = generate_test_dataframe(range(1, 5), ['a', 'b', 'c', 'd'])
+    df2 = generate_test_dataframe(range(3, 6), ['c', 'd', 'e', 'f'])
+    df2.columns = ['x', 'd', 'e', 'f']
+
+    print('-----------------------------------------------------------')
+    print(df1)
+    print('-----------------------------------------------------------')
+    print(df2)
+    print('-----------------------------------------------------------')
+
+    df = concat_dataframe_by_row([df1, df2], 'd')
+    print('concat_dataframe_by_row([df1, df2])', 'd')
+    print('-----------------------------------------------------------')
     print(df)
 
 
 def test_entry():
-    test_check_date_continuity()
-    test_concat_dataframe_by_index()
-    test_clip_dataframe()
-    test_slice_dataframe_by_datetime()
-    test_concat_dataframe_by_row()
+    # test_check_date_continuity()
+    # test_concat_dataframe_by_index()
+    # test_clip_dataframe()
+    # test_slice_dataframe_by_datetime()
+    # test_concat_dataframe_by_row()
+    test_concat_dataframe_by_row_with_duplicate_column()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

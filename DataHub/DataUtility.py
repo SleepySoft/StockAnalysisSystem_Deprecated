@@ -96,7 +96,10 @@ class DataUtility:
                    extra: dict = None) -> pd.DataFrame or None:
 
         if isinstance(tags, (list, tuple)):
-            selectors = tags
+            if len(tags) > 0 and isinstance(tags[0], Selector):
+                selectors = tags
+            else:
+                selectors = [Selector(tags, since, until, extra)]
         elif isinstance(tags, Selector):
             selectors = [tags]
         else:
