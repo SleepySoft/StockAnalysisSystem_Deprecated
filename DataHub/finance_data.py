@@ -140,32 +140,26 @@ class FinanceData(DataUtility.DataUtility):
 
     # --------------------------------------------------- private if ---------------------------------------------------
 
-    def data_from_cache(self, selectors: DataUtility.Selector or [DataUtility.Selector]) -> pd.DataFrame or None:
+    def data_from_cache(self, selector: DataUtility.Selector) -> pd.DataFrame or None:
         result = None
-        if isinstance(selectors, DataUtility.Selector):
-            selectors = [selectors]
-        for selector in selectors:
-            if not self.is_data_support(selector.tags):
-                logger.error('FinanceData.data_from_cache() - Error selector tags : ' + str(selector.tags))
-                continue
-            report_type = selector.tags[0]
-            report_dict = self.__cached_data.get(report_type)
-            if report_dict is None:
-                logger.error('FinanceData.data_from_cache() - Do not support this kind of data : ' + report_type)
-                continue
-            stock_identity = selector.tags[1]
+        if not self.is_data_support(selector.tags):
+            logger.error('FinanceData.data_from_cache() - Error selector tags : ' + str(selector.tags))
+            return None
+        report_type = selector.tags[0]
+        report_dict = self.__cached_data.get(report_type)
+        if report_dict is None:
+            logger.error('FinanceData.data_from_cache() - Do not support this kind of data : ' + report_type)
+            return None
+        stock_identity = selector.tags[1]
+        stock_identity = normalize_stock_identity(stock_identity)
+        stock_data = report_dict.get(stock_identity)
+        if stock_data is None:
+            self.__load_cached_data(selector.tags)
             stock_data = report_dict.get(stock_identity)
-            if stock_data is None:
-                self.__load_cached_data(selector.tags)
-                stock_data = report_dict.get(stock_identity)
-            if stock_data is None:
-                return None
-            df = slice_dataframe_by_datetime(stock_data, selector.since, selector.until)
-            if result is None:
-                result = df
-            else:
-                result = pd.concat([result, df])
-        return None
+        if stock_data is None:
+            return None
+        df = slice_dataframe_by_datetime(stock_data, selector.since, selector.until)
+        return df
 
     # -------------------------------------------------- probability --------------------------------------------------
 
@@ -205,7 +199,7 @@ class FinanceData(DataUtility.DataUtility):
         record = data_table.query(stock_identity)
         if record is not None and len(record) > 0:
             df = pd.DataFrame(record)
-            del df['DateTime']
+            # del df['DateTime']
             del df['_id']
             self.__cached_data[report_type][stock_identity] = df
             return True

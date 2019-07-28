@@ -130,7 +130,7 @@ class ItkvTable:
             identity        : str or list of str, None if you don't want to specify
             since, until    : datetime or time format str, None if you don't want to specify
             extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
-            keys            : The keys you want to remove, None to move the whole entry
+            keys            : The keys you want to query, None to query all entries
         Return value:
             Result as dict list
         Raises:
@@ -139,7 +139,7 @@ class ItkvTable:
 
         collection = self.__get_collection()
         if collection is None:
-            return False
+            return []
         spec = self.__gen_find_spec(identity, since, until, extra_spec)
 
         key_select = None
@@ -147,8 +147,8 @@ class ItkvTable:
             key_select = {}
             for key in keys:
                 key_select[key] = 1
-
-        return list(collection.find(spec, key_select))
+        result = collection.find(spec, key_select)
+        return list(result)
 
     # ------------------------------------------------------------------------------------------------------------------
 
