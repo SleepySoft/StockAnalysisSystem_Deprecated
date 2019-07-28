@@ -90,9 +90,9 @@ class DataWeb:
             index_format.append(i)
         annual_report.index = index_format
 
-        # Standardize columns
+        # standardize columns
         columns = annual_report.columns.tolist()
-        columns = sAs.instance.GetAliasesTable().Standardize(columns)
+        columns = sAs.instance.GetAliasesTable().standardize(columns)
         annual_report.columns = columns
 
         # Remove empty row
@@ -225,7 +225,7 @@ class DataDB:
     def __annual_df_2_json_df(stock_code: str, report_type, df: pd.DataFrame) -> pd.DataFrame:
         lines = []
         columns = df.columns.tolist()
-        columns = sAs.instance.GetAliasesTable().Standardize(columns)
+        columns = sAs.instance.GetAliasesTable().standardize(columns)
         for index, row in df.iterrows():
             line = []
             year = index.split('-')[0]
@@ -368,7 +368,7 @@ class DataCenter:
     def GetStockAnnualReportData(self,
                                  stock_code: str, accounting: [str], year_from: int, year_to: int) -> pd.DataFrame:
         year_start, year_end = Utiltity.common.correct_start_end(year_from, year_to, 2000, Utiltity.common.Date()[0])
-        account_s = sAs.instance.GetAliasesTable().Standardize(accounting)
+        account_s = sAs.instance.GetAliasesTable().standardize(accounting)
         if len(account_s) > 0:
             df_stock = pd.DataFrame(columns=account_s)
         else:

@@ -4,7 +4,6 @@
 from PyQt5 import Qt
 
 from Database.AliasTableUi import *
-from Database.ColumnTableUi import *
 
 
 # =========================================== InfoDialog ===========================================
@@ -37,10 +36,10 @@ class MainWindow(CommonMainWindow):
 
     def __init__(self):
 
-        # --------- Init Parent ---------
+        # --------- init Parent ---------
         super(MainWindow, self).__init__()
 
-        # --------- Init Member ---------
+        # --------- init Member ---------
         self.__translate = QtCore.QCoreApplication.translate
 
         # ---------- Modules and Sub Window ----------
@@ -48,11 +47,7 @@ class MainWindow(CommonMainWindow):
         self.__alias_table_module = AliasTable()
         self.__alias_table_module_ui = AliasTableUi(self.__alias_table_module)
 
-        self.__column_tables = []
-        self.__column_tables.append(ColumnTable('FinanceColumn'))
-        self.__column_table_ui = ColumnTableUi(self.__column_tables)
-
-        # ---------- Deep Init ----------
+        # ---------- Deep init ----------
         self.init_ui()
         self.init_menu()
         self.init_sub_window()
@@ -86,27 +81,12 @@ class MainWindow(CommonMainWindow):
             'ActionPresent': True,
             'ActionTips': self.__translate('main', 'Alias Table'),
         })
-        self.add_sub_window(self.__column_table_ui, {
-            'DockName': self.__translate('main', 'Column Table'),
-            'DockArea': Qt.LeftDockWidgetArea,
-            'DockShow': True,
-            'DockFloat': True,
-            'MenuName': self.__translate('main', 'Column Table'),
-            'MenuPresent': True,
-            'ActionName': self.__translate('main', 'Alias Table'),
-            'ActionShortcut': self.__translate('main', ''),
-            'ActionPresent': True,
-            'ActionTips': self.__translate('main', 'Column Table'),
-        })
 
     def modules_init(self):
-        self.__alias_table_module.Init(True)
-        for column_table in self.__column_tables:
-            column_table.Init(True)
+        self.__alias_table_module.init(True)
 
     def modules_ui_init(self):
         self.__alias_table_module_ui.Init()
-        self.__column_table_ui.Init()
 
     # ----------------------------- UI Events -----------------------------
 

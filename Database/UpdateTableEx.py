@@ -5,12 +5,12 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from Utiltity.time_utility import *
-    from Database.DatabaseEntry import DatabaseEntry
+    import Database.DatabaseEntry as De
 except Exception as e:
     sys.path.append(root_path)
 
     from Utiltity.time_utility import *
-    from Database.DatabaseEntry import DatabaseEntry
+    import Database.DatabaseEntry as De
 finally:
     pass
 
@@ -67,21 +67,21 @@ class UpdateTableEx:
 
         record = self.get_update_record(tags)
         if record is None or len(record) == 0:
-            return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_insert, True)
+            return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_insert, True)
         elif record[0][field] is None or compare(text_auto_time(date), text_auto_time(record[0][field])):
-            return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_update, True)
+            return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_update, True)
         else:
             return True
 
     def get_update_record(self, tags: [str]) -> []:
         joined_tags = self.join_tags(tags)
-        return DatabaseEntry().get_utility_db().ListFromDB(
+        return De.DatabaseEntry().get_utility_db().ListFromDB(
             UpdateTableEx.TABLE, UpdateTableEx.FIELD, "tags = '%s'" % joined_tags)
 
     def delete_update_record(self, tags: [str]):
         joined_tags = self.join_tags(tags)
         sql_delete = ("DELETE FROM %s WHERE tags = '%s';" % (UpdateTableEx.TABLE, joined_tags))
-        return DatabaseEntry().get_utility_db().QuickExecuteDML(sql_delete, True)
+        return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_delete, True)
 
     def join_tags(self, tags: [str]) -> str:
         return '.'.join(tags)

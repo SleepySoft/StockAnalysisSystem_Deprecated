@@ -61,13 +61,13 @@ class StockAnalysisSystem:
 
         result = True
 
-        # result = self.__db_plug_in.Init('Data/Plug-in.db') and result
-        # result = self.__db_name_table.Init('Data/NameTable.db') and result
-        # result = self.__db_data_center.Init('Data/DataCenter.db') and result
-        # result = self.__aliases_table.Init() and result                         # Depends on __db_name_table
-        # result = self.__component_data_center.Init() and result                 # Depends on __db_data_center
-        # result = self.__component_data_collector.Init() and result
-        # result = self.__component_strategy_manager.Init() and result
+        # result = self.__db_plug_in.init('Data/Plug-in.db') and result
+        # result = self.__db_name_table.init('Data/NameTable.db') and result
+        # result = self.__db_data_center.init('Data/DataCenter.db') and result
+        # result = self.__aliases_table.init() and result                         # Depends on __db_name_table
+        # result = self.__component_data_center.init() and result                 # Depends on __db_data_center
+        # result = self.__component_data_collector.init() and result
+        # result = self.__component_strategy_manager.init() and result
 
         self.__inited = True
         self.__initing = False

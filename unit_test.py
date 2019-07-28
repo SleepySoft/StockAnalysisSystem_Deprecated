@@ -71,7 +71,7 @@ def test_fetch_annual_pdf_from_szse():
 
 
 def main():
-    sAs.instance.Init()
+    sAs.instance.init()
     # test__DataCenter_GetStockTable()  # <- Passed on 20171012
     # test__AliasesTable_ExportTable()  # <- Passed on 20171012
 

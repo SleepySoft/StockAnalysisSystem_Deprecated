@@ -92,8 +92,8 @@ class AliasTableUi(QWidget):
     def on_button_click_add(self):
         alias = self.__line_alias.text()
         standard = self.__line_standard.text()
-        self.__alias_table.AddAlias(alias, standard)
-        self.__alias_table.DumpToDB()
+        self.__alias_table.add_alias(alias, standard)
+        self.__alias_table.dump_to_db()
         self.__update_alias_table()
         self.__update_standard_table()
 
@@ -104,15 +104,15 @@ class AliasTableUi(QWidget):
         row_index = select_model.currentIndex().row()
         alias = self.__table_alias.model().index(row_index, 0).data()
         # standard = self.__table_alias.model().index(row_index, 1).data()
-        self.__alias_table.DelAlias(alias)
-        self.__alias_table.DumpToDB()
+        self.__alias_table.del_alias(alias)
+        self.__alias_table.dump_to_db()
         self.__update_alias_table()
         self.__update_standard_table()
 
     def on_button_click_load_csv(self):
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
-            self.__alias_table.LoadFromCsv(file_path, True)
+            self.__alias_table.load_from_csv(file_path, True)
 
     def on_button_click_del_standard(self):
         select_model = self.__table_standard_name.selectionModel()
@@ -120,8 +120,8 @@ class AliasTableUi(QWidget):
             return
         row_index = select_model.currentIndex().row()
         standard = self.__table_standard_name.model().index(row_index, 0).data()
-        self.__alias_table.DelStandardName(standard)
-        self.__alias_table.DumpToDB()
+        self.__alias_table.del_standard_name(standard)
+        self.__alias_table.dump_to_db()
         self.__update_alias_table()
         self.__update_standard_table()
 
@@ -134,13 +134,13 @@ class AliasTableUi(QWidget):
             return
         row_index = select_model.currentIndex().row()
         standard = self.__table_standard_name.model().index(row_index, 0).data()
-        self.__alias_table.UpdateStandardName(standard, standard_new)
-        self.__alias_table.DumpToDB()
+        self.__alias_table.update_standard_name(standard, standard_new)
+        self.__alias_table.dump_to_db()
         self.__update_alias_table()
         self.__update_standard_table()
 
     def __update_alias_table(self):
-        aliases_standard_table = self.__alias_table.GetAliasStandardTable()
+        aliases_standard_table = self.__alias_table.get_alias_standard_table()
         self.__table_alias.setRowCount(0)
         for alias in sorted(aliases_standard_table.keys()):
             standard_name = aliases_standard_table[alias]
@@ -150,8 +150,8 @@ class AliasTableUi(QWidget):
             self.__table_alias.setItem(row_count, 1, QTableWidgetItem(standard_name))
 
     def __update_standard_table(self):
-        standard_name_list = self.__alias_table.GetStandardNameList()
-        aliases_standard_table = self.__alias_table.GetAliasStandardTable()
+        standard_name_list = self.__alias_table.get_standard_name_list()
+        aliases_standard_table = self.__alias_table.get_alias_standard_table()
 
         self.__table_standard_name.setRowCount(0)
         for standard_name in standard_name_list:
