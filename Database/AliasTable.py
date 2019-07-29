@@ -15,10 +15,17 @@ import numpy as np
 import pandas as pd
 
 import Utiltity.common
-from Database.DatabaseEntry import DatabaseEntry
+import Database.DatabaseEntry as DatabaseEntry
 
 
 class AliasTable:
+    """
+    A standard name can have multiple alias name.
+    A standard name can not be an alias name.
+    If a alias has its standard name. It cannot convert to a standard name.
+    If we move a standard name to alias name. All its alias name should be moved to the new standard name.
+    """
+
     TABLE = 'AliasTable'
     FIELD = ['aliases_name', 'standard_name', 'comments']
 
@@ -113,7 +120,7 @@ class AliasTable:
 
     def load_from_db(self) -> bool:
         self.reset()
-        tmp_list = DatabaseEntry().get_utility_db().ListFromDB(
+        tmp_list = DatabaseEntry.DatabaseEntry().get_utility_db().ListFromDB(
             AliasTable.TABLE, AliasTable.FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
@@ -128,8 +135,8 @@ class AliasTable:
             tmp_list.append(alias)
             tmp_list.append(standard)
             tmp_list.append('')
-        DatabaseEntry().get_utility_db().ListToDB(
-            AliasTable.TABLE, tmp_list, -1, 2,
+        DatabaseEntry.DatabaseEntry().get_utility_db().ListToDB(
+            AliasTable.TABLE, tmp_list, -1, 3,
             AliasTable.FIELD)
         return True
 

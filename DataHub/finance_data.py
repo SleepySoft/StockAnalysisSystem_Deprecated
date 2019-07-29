@@ -1,3 +1,4 @@
+import logging
 import traceback
 import pandas as pd
 
@@ -95,14 +96,19 @@ class FinanceData(DataUtility.DataUtility):
         if df is None or len(df) == 0:
             return DataUtility.RESULT_FAILED
 
-        df.set_index('period')
+        DatabaseEntry().get_alias_table().tell_names(list(df.columns))
+        DatabaseEntry().get_alias_table().check_save()
+
+        # df.set_index('period')
         codes = df['identity'].unique()
         for code in codes:
             new_df = df[df['identity'] == code]
             if new_df is None or len(new_df) == 0:
                 continue
-            if code in report_dict.keys():
-                concat_dataframe_row_by_index([report_dict[code], new_df])
+            if code in report_dict.keys() and report_dict[code] is not None:
+                old_df = report_dict[code]
+                concated_df = concat_dataframe_row_by_index([old_df, new_df])
+                report_dict[code] = concated_df
             else:
                 report_dict[code] = new_df
             if code not in save_list:

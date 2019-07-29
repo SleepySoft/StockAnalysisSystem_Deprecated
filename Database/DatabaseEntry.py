@@ -16,14 +16,12 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import config
-    import Database.UpdateTableEx as UpdateTableEx
     from Database.SqlRw import SqlAccess
     from Database.NoSqlRw import ItkvTable
 except Exception as e:
     sys.path.append(root_path)
 
     import config
-    import Database.UpdateTableEx as UpdateTableEx
     from Database.SqlRw import SqlAccess
     from Database.NoSqlRw import ItkvTable
 finally:
@@ -51,6 +49,10 @@ class DatabaseEntry:
         self.__sAsFinanceData = SqlAccess(data_path + 'sAsFinanceData.db')
         self.__mongo_db_client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
 
+        import Database.AliasTable as AliasTable
+        import Database.UpdateTableEx as UpdateTableEx
+
+        self.__alias_table = AliasTable.AliasTable()
         self.__update_table = UpdateTableEx.UpdateTableEx()
         self.__securities_table = ItkvTable(DatabaseEntry().get_mongo_db_client(),
                                             'StockAnalysisSystem', 'SecuritiesData')
@@ -79,7 +81,10 @@ class DatabaseEntry:
 
     # -------------------------------------------------- Table Entry ---------------------------------------------------
 
-    def get_update_table(self) -> UpdateTableEx:
+    def get_alias_table(self):
+        return self.__alias_table
+
+    def get_update_table(self):
         return self.__update_table
 
     def get_securities_table(self) -> ItkvTable:

@@ -1,10 +1,8 @@
 import sys
-import json
 import traceback
 from datetime import datetime
 
 import config
-import pymongo
 from pymongo import MongoClient
 
 
