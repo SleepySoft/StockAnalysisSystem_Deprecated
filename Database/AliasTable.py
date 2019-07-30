@@ -20,20 +20,43 @@ import Database.DatabaseEntry as DatabaseEntry
 
 class AliasTable:
     """
-    A standard name can have multiple alias name.
-    A standard name can not be an alias name.
-    If a alias has its standard name. It cannot convert to a standard name.
-    If we move a standard name to alias name. All its alias name should be moved to the new standard name.
+    Table field : alias name | standard name | comments
+
+    An alias name can only map to one standard name.
+    An alias name can NOT also be a standard name.
+    A standard name can be mapped to multiple alias name.
+
+    When we meet a new name. It's standard name is empty. It's in ISOLATED mode.
+    When we assign a standard name to an ISOLATED alias name. We need to update all the field that includes this name.
+    When we rename a standard name. We need to update all the field that includes this name.
     """
 
+    class Listener:
+        def listener_name(self) -> str: pass
+
+        def check_name_reference(self, name: str) -> bool: pass
+
+        def on_name_updating(self, old_name: str, new_name: str) -> (bool, str):
+            """
+            This function will be invoked before name updating.
+            :param old_name: The old name
+            :param new_name: The new name
+            :return: (True if it's OK ; False if it's NOK,
+                      The reason that why this name can not be changed)
+            """
+            pass
+
+        def on_name_updated(self, old_name: str, new_name: str): pass
+
     TABLE = 'AliasTable'
-    FIELD = ['aliases_name', 'standard_name', 'comments']
+    FIELD = ['alias_name', 'standard_name', 'comments']
 
     def __init__(self):
         self.__has_update = False
+        self.__listeners = []
         self.__standard_name_list = []
         # Key: standard_name; Value: [alias_name]
-        self.__aliases_standard_table = {}
+        self.__alias_standard_table = {}
 
     def init(self, auto: bool) -> bool:
         if auto:
@@ -42,50 +65,75 @@ class AliasTable:
                 return False
         return True
 
-    def reset(self):
-        self.__standard_name_list = []
-        self.__aliases_standard_table = {}
+    def add_listener(self, listener: Listener):
+        self.__listeners.append(listener)
 
     def tell_names(self, names: [str]):
         for name in names:
-            if name not in self.__aliases_standard_table.keys():
-                self.add_alias(name, '')
+            self.add_alias(name, '')
 
-    def add_alias(self, aliases_name: str, standard_name: str):
-        if standard_name == '' and aliases_name == '':
-            return
-        if aliases_name in self.__standard_name_list:
-            return
-        if aliases_name != '':
-            self.__aliases_standard_table[aliases_name] = standard_name
-        else:
-            self.__aliases_standard_table[standard_name] = standard_name
-        if standard_name != '' and standard_name not in self.__standard_name_list:
-            self.__standard_name_list.append(standard_name)
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def reset(self):
         self.__has_update = True
+        self.__standard_name_list = []
+        self.__alias_standard_table = {}
+
+    def reload(self):
+        self.load_from_db()
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def add_alias(self, alias_name: str, standard_name: str) -> bool:
+        if alias_name == '':
+            return False
+        if alias_name in self.__standard_name_list:
+            return False
+        if alias_name not in self.__alias_standard_table.keys():
+            self.__alias_standard_table[alias_name] = standard_name
+            return True
+
+        exists_std_name = self.__alias_standard_table[alias_name]
+        if exists_std_name == standard_name:
+            return True
+        if standard_name == '':
+            updated = True
+        elif exists_std_name == '':
+            updated = self.__handle_name_change(alias_name, standard_name)
+        else:
+            updated = self.__handle_name_change(exists_std_name, standard_name)
+
+        if updated:
+            self.__alias_standard_table[alias_name] = standard_name
+            if standard_name != '' and standard_name not in self.__standard_name_list:
+                self.__standard_name_list.append(standard_name)
+            self.__has_update = True
+        return True
 
     def del_alias(self, alias_name: str):
-        if alias_name == '' or alias_name not in self.__aliases_standard_table.keys():
+        if alias_name == '' or alias_name not in self.__alias_standard_table.keys():
             return
-        del self.__aliases_standard_table[alias_name]
+        del self.__alias_standard_table[alias_name]
         self.__has_update = True
 
     def del_standard_name(self, standard_name: str):
-        for alias in self.__aliases_standard_table.keys():
-            if self.__aliases_standard_table[alias] == standard_name:
-                self.__aliases_standard_table[alias] = ''
+        for alias in self.__alias_standard_table.keys():
+            if self.__alias_standard_table[alias] == standard_name:
+                self.__alias_standard_table[alias] = ''
                 self.__has_update = True
         if standard_name in self.__standard_name_list:
             self.__standard_name_list.remove(standard_name)
 
     def update_standard_name(self, standard_name: str, standard_name_new: str):
-        for alias in self.__aliases_standard_table.keys():
-            if self.__aliases_standard_table[alias] == standard_name:
-                self.__aliases_standard_table[alias] = standard_name_new
+        for alias in self.__alias_standard_table.keys():
+            if self.__alias_standard_table[alias] == standard_name:
+                self.__alias_standard_table[alias] = standard_name_new
                 self.__has_update = True
         if standard_name in self.__standard_name_list:
             self.__standard_name_list.remove(standard_name)
             self.__standard_name_list.append(standard_name_new)
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     def standardize(self, name: list or str) -> list or str:
         if isinstance(name, str):
@@ -97,18 +145,18 @@ class AliasTable:
     def get_standard_name(self, name: str) -> str:
         if name in self.__standard_name_list:
             return name
-        return self.__aliases_standard_table.get(name, '')
+        return self.__alias_standard_table.get(name, '')
 
     def get_alias_standard_table(self) -> dict:
-        return self.__aliases_standard_table
+        return self.__alias_standard_table
 
     def get_standard_name_list(self) -> list:
         return self.__standard_name_list
 
     def get_uncategorized_name_list(self) -> list:
         tmp_list = []
-        for key in self.__aliases_standard_table.keys():
-            if self.__aliases_standard_table[key] == '':
+        for key in self.__alias_standard_table.keys():
+            if self.__alias_standard_table[key] == '':
                 tmp_list.append(key)
         return tmp_list
 
@@ -126,12 +174,13 @@ class AliasTable:
             return False
         for alias, standard, comments in tmp_list:
             self.add_alias(alias, standard)
+        self.__has_update = False
         return True
 
     def dump_to_db(self) -> bool:
         tmp_list = []
-        for alias in self.__aliases_standard_table.keys():
-            standard = self.__aliases_standard_table[alias]
+        for alias in self.__alias_standard_table.keys():
+            standard = self.__alias_standard_table[alias]
             tmp_list.append(alias)
             tmp_list.append(standard)
             tmp_list.append('')
@@ -142,23 +191,23 @@ class AliasTable:
 
     def load_from_csv(self, file_name: str, replace: bool=True):
         df = pd.read_csv(file_name, header=0)
-        column_aliases_name = df['Alias Name']
+        column_alias_name = df['Alias Name']
         column_standard_name = df['Standard Name']
-        for alias, standard in zip(column_aliases_name, column_standard_name):
+        for alias, standard in zip(column_alias_name, column_standard_name):
             self.add_alias(self.__trim_name(alias), standard)
         return True
 
     def dump_to_csv(self, file_name: str) -> str:
         tmp_list = []
-        for k in self.__aliases_standard_table.keys():
+        for k in self.__alias_standard_table.keys():
             tmp_list.append(k)
-            aliases = self.__aliases_standard_table.get(k, [])
-            tmp_list.append('|'.join(aliases))
+            alias = self.__alias_standard_table.get(k, [])
+            tmp_list.append('|'.join(alias))
         for n in self.__uncategorized_name_list:
             tmp_list.append('-')
             tmp_list.append(n)
         df = pd.DataFrame(np.array(tmp_list).reshape(-1, 2))
-        df.columns = ['standard_name', 'aliases_name']
+        df.columns = ['standard_name', 'alias_name']
         try:
             df.to_csv(file_name, encoding='utf_8_sig')
             return True
@@ -169,6 +218,9 @@ class AliasTable:
             pass
 
     # -----------------------------------------------------------------------------------------
+
+    def __handle_name_change(self, old_name: str, new_name: str) -> bool:
+        pass
 
     def __do_standardize(self, name: str):
         alias_name = self.__trim_name(name)
@@ -223,8 +275,8 @@ class AliasTable:
     # --------------------------------------------------- Build ---------------------------------------------------
 
     # def RebuildTable(self):
-    #     self.__aliases_standard_table.clear()
-    #     self.__aliases_standard_table.clear()
+    #     self.__alias_standard_table.clear()
+    #     self.__alias_standard_table.clear()
     #     self.__update_from_internet()
     #     # self.__update_from_local()
     #     return self.SaveTable()
@@ -234,18 +286,18 @@ class AliasTable:
         if '英文表达法' not in df.columns and '会计科目名称' not in df.columns:
             print('Cannot find the column in web.')
             return False
-        column_aliases_name = df['英文表达法']
+        column_alias_name = df['英文表达法']
         column_standard_name = df['会计科目名称']
-        for s, a in zip(column_standard_name, column_aliases_name):
-            self.__add_aliases(self.__trim_name(s), a)
+        for s, a in zip(column_standard_name, column_alias_name):
+            self.__add_alias(self.__trim_name(s), a)
         return True
 
     def __update_from_local(self) -> bool:
         df = pd.read_csv('Utiltity/NameTable.csv', header=0)
-        column_aliases_name = df['英文']
+        column_alias_name = df['英文']
         column_standard_name = df['中文']
-        for s, a in zip(column_standard_name, column_aliases_name):
-            self.__add_aliases(self.__trim_name(s), a)
+        for s, a in zip(column_standard_name, column_alias_name):
+            self.__add_alias(self.__trim_name(s), a)
         return True
 
     @staticmethod
