@@ -1,5 +1,6 @@
 import sys
 import traceback
+from bson import Code
 from datetime import datetime
 
 import config
@@ -90,7 +91,7 @@ class ItkvTable:
             'DateTime': datetime2text(time),
             **data
         }
-        return collection.update(spec, {'$set': document}, True)
+        return collection.update_many(spec, {'$set': document}, True)
 
     def delete(self, identity: str or list = None, since: datetime = None, until: datetime = None,
                extra_spec: dict = None, keys: list = None):
@@ -147,6 +148,32 @@ class ItkvTable:
                 key_select[key] = 1
         result = collection.find(spec, key_select)
         return list(result)
+
+    def get_all_keys(self):
+        """
+        Get all the keys from the collection.
+        Keys is unique. Exclude '_id'.
+        :return: The list of keys
+        """
+        collection = self.__get_collection()
+        if collection is None:
+            return []
+        _map = Code('function() { for (var key in this) { emit(key, null); } }')
+        _reduce = Code('function(key, stuff) { return null; }')
+        result = collection.map_reduce(_map, _reduce, 'results')
+        keys = result.distinct('_id')
+        keys.remove('_id')
+        return keys
+
+    def remove_key(self, key: str) -> bool:
+        collection = self.__get_collection()
+        if collection is None:
+            return False
+        return collection.update_many(
+            {key: {'$exists': True}},   # criteria
+            {'$unset': {key: 1}},       # modifier
+            False                       # no need to upsert
+        )
 
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -379,11 +406,51 @@ def test_update_key_value():
     })
 
 
+def test_get_all_keys():
+    table = __prepare_default_test_data()
+    table.upsert('identity3', '2020-04-01', {
+        'A1': 111,
+        'B1': 222,
+        'C1': 333,
+        "D1": 444,
+        'Author2': 'Sleepy',
+    })
+    result = table.get_all_keys()
+    print(result)
+    assert(result == ['A1', 'Author', 'Author2', 'B1', 'C1', 'D1', 'DateTime', 'Identity', 'PI',
+                      'Password', "Schindler's List", 'Speed of Light'])
+
+
+def test_remove_key():
+    table = __prepare_default_test_data()
+    table.upsert('identity3', '2020-04-01', {
+        'A1': 111,
+        'B1': 222,
+        'C1': 333,
+        "D1": 444,
+        'Author2': 'Sleepy',
+    })
+    result = table.get_all_keys()
+    print(result)
+    assert(result == ['A1', 'Author', 'Author2', 'B1', 'C1', 'D1', 'DateTime', 'Identity', 'PI',
+                      'Password', "Schindler's List", 'Speed of Light'])
+
+    table.remove_key('A1')
+    table.remove_key('B1')
+    table.remove_key('Author')
+    result = table.get_all_keys()
+    print(result)
+    assert(result == ['Author2', 'C1', 'D1', 'DateTime', 'Identity', 'PI',
+                      'Password', "Schindler's List", 'Speed of Light'])
+
+
 def test_entry():
     test_basic_update_query_drop()
     test_query()
     test_delete_document()
     test_delete_key_value()
+    test_get_all_keys()
+    test_remove_key()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

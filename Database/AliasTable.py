@@ -84,7 +84,18 @@ class AliasTable:
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def add_alias(self, alias_name: str, standard_name: str) -> bool:
+    def add_alias(self, alias_name: str, standard_name: str, reason: str) -> bool:
+        """
+        Add or re-assign a alias name to a standard name.
+          > alias_name is empty: Illegal parameter, return False
+          > alias_name is also a standard name: Illegal case, return False
+          > standard_name is empty: Reset the alias-standard linkage
+          > alias_name exists but haven't linked to a standard name: New assignment, check update all related fields.
+        :param alias_name: Must not be an empty string.
+        :param standard_name: Empty string to reset the alias-standard linkage.
+        :param reason: The reason that add this mapping.
+        :return: True if updated else False
+        """
         if alias_name == '':
             return False
         if alias_name in self.__standard_name_list:
@@ -96,19 +107,14 @@ class AliasTable:
         exists_std_name = self.__alias_standard_table[alias_name]
         if exists_std_name == standard_name:
             return True
-        if standard_name == '':
-            updated = True
-        elif exists_std_name == '':
-            updated = self.__handle_name_change(alias_name, standard_name)
+        if exists_std_name == '':
+            updated = self.__handle_name_change(alias_name, standard_name, alias_name)
         else:
-            updated = self.__handle_name_change(exists_std_name, standard_name)
-
-        if updated:
             self.__alias_standard_table[alias_name] = standard_name
-            if standard_name != '' and standard_name not in self.__standard_name_list:
-                self.__standard_name_list.append(standard_name)
+            updated = True
+        if updated:
             self.__has_update = True
-        return True
+        return updated
 
     def del_alias(self, alias_name: str):
         if alias_name == '' or alias_name not in self.__alias_standard_table.keys():
@@ -217,10 +223,24 @@ class AliasTable:
         finally:
             pass
 
-    # -----------------------------------------------------------------------------------------
+    # ---------------------------------------------------- private -----------------------------------------------------
 
-    def __handle_name_change(self, old_name: str, new_name: str) -> bool:
-        pass
+    def __handle_name_change(self, alias_name: str, standard_name, old_std_name: str) -> (bool, str):
+        for listener in self.__listeners:
+            update, reason = listener.on_name_updating(old_std_name, standard_name)
+            if not update:
+                return False, reason
+
+        self.__alias_standard_table[alias_name] = standard_name
+        if standard_name not in self.__standard_name_list:
+            self.__standard_name_list.append(standard_name)
+
+        for listener in self.__listeners:
+            listener.on_name_updated(old_std_name, standard_name)
+        return True, ''
+
+
+
 
     def __do_standardize(self, name: str):
         alias_name = self.__trim_name(name)
