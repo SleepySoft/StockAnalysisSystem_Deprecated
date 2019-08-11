@@ -17,7 +17,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1539">
+            <state relative-caret-position="223">
               <caret line="82" selection-start-line="82" selection-end-line="82" />
               <folding>
                 <element signature="e#141#165#0" expanded="true" />
@@ -26,23 +26,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="95" column="38" selection-start-line="95" selection-start-column="38" selection-end-line="95" selection-end-column="38" />
+            <state relative-caret-position="89">
+              <caret line="158" column="78" selection-start-line="158" selection-start-column="78" selection-end-line="158" selection-end-column="78" />
               <folding>
-                <element signature="e#135#146#0" expanded="true" />
+                <element signature="e#133#143#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="67">
-              <caret line="120" column="36" lean-forward="true" selection-start-line="120" selection-start-column="36" selection-end-line="120" selection-end-column="36" />
+            <state relative-caret-position="33">
+              <caret line="712" column="16" lean-forward="true" selection-start-line="712" selection-start-column="16" selection-end-line="712" selection-end-column="16" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -53,7 +53,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
+            <state relative-caret-position="18411">
               <caret line="1004" column="8" selection-start-line="1004" selection-start-column="8" selection-end-line="1004" selection-end-column="8" />
             </state>
           </provider>
@@ -115,11 +115,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__save_single_data</find>
-      <find>__save_cached_data</find>
-      <find>_check_single_selector_patch</find>
-      <find>QUERY_FIELD</find>
-      <find>load_cached_data</find>
       <find>data_from_cache</find>
       <find>ColumnTableUi</find>
       <find>__column_tables</find>
@@ -128,23 +123,28 @@
       <find>__do_standardize</find>
       <find>dump_to_db</find>
       <find>__standard_name_list.append</find>
-      <find>__standard_name_list</find>
       <find>__aliases_standard_table</find>
       <find>AliasTable</find>
       <find>__do_fetch_finance_data</find>
       <find>logging</find>
-      <find>DatabaseEntry</find>
       <find>__update_table</find>
       <find>UpdateTableEx</find>
       <find>pymongo</find>
       <find>config</find>
       <find>aliases</find>
-      <find>on_name_updating</find>
       <find>__handle_name_change</find>
       <find>get_all_keys</find>
       <find>return</find>
       <find>ollection.update</find>
       <find>collection.update</find>
+      <find>__parse_range_spec</find>
+      <find>__gen_find_spec</find>
+      <find>__using_name_list</find>
+      <find>self.__standard_name_list</find>
+      <find>__standard_name_list</find>
+      <find>on_name_updating</find>
+      <find>DatabaseEntry</find>
+      <find>on_std_name_updating</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
@@ -158,6 +158,8 @@
       <replace>De.DatabaseEntry</replace>
       <replace>DatabaseEntry.DatabaseEntry</replace>
       <replace>alias</replace>
+      <replace>__standard_alias_table.keys()</replace>
+      <replace>on_std_name_updating</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\D\Code\git\StockAnalysisSystem</dir>
@@ -213,9 +215,9 @@
         <option value="$PROJECT_DIR$/main_ui.py" />
         <option value="$PROJECT_DIR$/Database/DatabaseEntry.py" />
         <option value="$PROJECT_DIR$/DataHub/finance_data.py" />
-        <option value="$PROJECT_DIR$/Database/AliasTable.py" />
         <option value="$USER_HOME$/Desktop/a.py" />
         <option value="$PROJECT_DIR$/Database/NoSqlRw.py" />
+        <option value="$PROJECT_DIR$/Database/AliasTable.py" />
       </list>
     </option>
   </component>
@@ -229,7 +231,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -251,6 +252,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -280,7 +282,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.NoSqlRw">
+  <component name="RunManager" selected="Python.AliasTable">
+    <configuration name="AliasTable" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="StockAnalysisSystem" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Database" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Database/AliasTable.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="NoSqlRw" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="StockAnalysisSystem" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -365,34 +388,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main_ui" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="StockAnalysisSystem" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_ui.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.AliasTable" />
         <item itemvalue="Python.NoSqlRw" />
         <item itemvalue="Python.a" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.finance_data" />
-        <item itemvalue="Python.main_ui" />
       </list>
     </recent_temporary>
   </component>
@@ -427,7 +429,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.25974026" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.47495362" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.35064936" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.42671615" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -545,8 +547,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Database/NoSqlRw.py</url>
-          <line>418</line>
+          <line>659</line>
           <option name="timeStamp" value="152" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Database/AliasTable.py</url>
+          <line>146</line>
+          <option name="timeStamp" value="155" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -846,13 +853,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1539">
-          <caret line="82" selection-start-line="82" selection-end-line="82" />
-          <folding>
-            <element signature="e#141#165#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="212">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18411">
+          <caret line="1004" column="8" selection-start-line="1004" selection-start-column="8" selection-end-line="1004" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -893,36 +904,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
+    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="95" column="38" selection-start-line="95" selection-start-column="38" selection-end-line="95" selection-end-column="38" />
+        <state relative-caret-position="33">
+          <caret line="712" column="16" lean-forward="true" selection-start-line="712" selection-start-column="16" selection-end-line="712" selection-end-column="16" />
           <folding>
-            <element signature="e#135#146#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pymongo/collection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="1004" column="8" selection-start-line="1004" selection-start-column="8" selection-end-line="1004" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/NoSqlRw.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="67">
-          <caret line="120" column="36" lean-forward="true" selection-start-line="120" selection-start-column="36" selection-end-line="120" selection-end-column="36" />
+        <state relative-caret-position="223">
+          <caret line="82" selection-start-line="82" selection-end-line="82" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#141#165#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="89">
+          <caret line="158" column="78" selection-start-line="158" selection-start-column="78" selection-end-line="158" selection-end-column="78" />
+          <folding>
+            <element signature="e#133#143#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -42,6 +42,247 @@ def datetime2text(time: datetime) -> str:
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                     UniversalTable
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+# class UniversalTable:
+#     def __init__(self, client: MongoClient, database: str, table: str):
+#         self.__client = client
+#         self.__database = database
+#         self.__table = table
+#
+#     def drop(self):
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return True
+#         collection.drop()
+#
+#     def count(self) -> int:
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return 0
+#         return collection.count()
+#
+#     def upsert(self, in_spec: dict, range_spec: dict, data: dict, extra_spec: dict = None) -> dict:
+#         """ Update a record, insert if not exists.
+#         Args:
+#             identity    : str or list of str, None if you don't want to specify
+#             time        : datetime or time format str, None if you don't want to specify
+#             extra_spec  : dict, to specify the extra conditions, None if you don't want to specify
+#             identity and time are also the conditions to find the entries
+#         Return value:
+#             The result of API returns, as dict
+#         Raises:
+#             None
+#         """
+#
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return False
+#         spec = self.__gen_find_spec(identity, time, time, extra_spec)
+#         if isinstance(time, str):
+#             time = text_auto_time(time)
+#         document = {
+#             'Identity': identity,
+#             'DateTime': datetime2text(time),
+#             **data
+#         }
+#         return collection.update_many(spec, {'$set': document}, True)
+#
+#     def delete(self, identity: str or list = None, since: datetime = None, until: datetime = None,
+#                extra_spec: dict = None, keys: list = None):
+#         """ Delete document or delete key-value in document.
+#         Args:
+#             identity        : str or list of str, None if you don't want to specify
+#             since, until    : datetime or time format str, None if you don't want to specify
+#             extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+#             keys            : The keys you want to remove, None to move the whole document
+#         Return value:
+#             The result of API returns, as dict
+#         Raises:
+#             None
+#         """
+#
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return False
+#         spec = self.__gen_find_spec(identity, since, until, extra_spec)
+#
+#         if keys is None:
+#             return collection.delete_many(spec)
+#         else:
+#             del_keys = {}
+#             for key in keys:
+#                 del_keys[key] = 1
+#             return collection.update(spec, {'$unset': del_keys}, False, True, True)
+#
+#     # Query records
+#     # keys - The keys you want to list in your query, None to list all
+#     def query(self, identity: str or list = None, since: datetime = None, until: datetime = None,
+#               extra_spec: dict = None, keys: list = None) -> list:
+#         """ Query records
+#         Args:
+#             identity        : str or list of str, None if you don't want to specify
+#             since, until    : datetime or time format str, None if you don't want to specify
+#             extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+#             keys            : The keys you want to query, None to query all entries
+#         Return value:
+#             Result as dict list
+#         Raises:
+#             None
+#         """
+#
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return []
+#         spec = self.__gen_find_spec(identity, since, until, extra_spec)
+#
+#         key_select = None
+#         if keys is not None:
+#             key_select = {}
+#             for key in keys:
+#                 key_select[key] = 1
+#         result = collection.find(spec, key_select)
+#         return list(result)
+#
+#     def get_all_keys(self):
+#         """
+#         Get all the keys from the collection.
+#         Keys is unique. Exclude '_id'.
+#         :return: The list of keys
+#         """
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return []
+#         _map = Code('function() { for (var key in this) { emit(key, null); } }')
+#         _reduce = Code('function(key, stuff) { return null; }')
+#         result = collection.map_reduce(_map, _reduce, 'results')
+#         keys = result.distinct('_id')
+#         keys.remove('_id')
+#         return keys
+#
+#     def remove_key(self, key: str) -> bool:
+#         collection = self.__get_collection()
+#         if collection is None:
+#             return False
+#         return collection.update_many(
+#             {key: {'$exists': True}},   # criteria
+#             {'$unset': {key: 1}},       # modifier
+#             False                       # no need to upsert
+#         )
+#
+#   # ------------------------------------------------------------------------------------------------------------------
+#
+#     def __get_collection(self):
+#         if self.__client is None:
+#             return None
+#         db = self.__client[self.__database]
+#         if db is None:
+#             return None
+#         collection = db[self.__table]
+#         return collection
+#
+#     def __gen_find_spec(self, in_spec: dict, range_spec: dict, extra_spec: dict = None) -> dict:
+#         """ Generate find spec for NoSQL query.
+#         Args:
+#             identity        : str or list of str, None if you don't want to specify
+#             since, until    : datetime or time format str, None if you don't want to specify
+#             extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
+#         Return value:
+#             The spec dict
+#         Raises:
+#             None
+#         """
+#
+#         spec = {}
+#         if isinstance(in_spec, dict):
+#             for key in in_spec.keys():
+#                 value = in_spec[key]
+#         elif isinstance(identity, str):
+#             spec = {'Identity': identity}
+#         elif isinstance(identity, list):
+#             spec = {'Identity': {'$in': identity}}
+#         else:
+#             raise Exception('<identity> should be str or a list of str, or just None')
+#
+#         if isinstance(since, str):
+#             since = text_auto_time(since)
+#         elif isinstance(since, datetime) or since is None:
+#             pass
+#         else:
+#             raise Exception('<since> should be time format str or datetime, or just None')
+#
+#         if isinstance(until, str):
+#             until = text_auto_time(until)
+#         elif isinstance(until, datetime) or until is None:
+#             pass
+#         else:
+#             raise Exception('<until> should be time format str or datetime, or just None')
+#
+#         time_limit = {}
+#         if since is not None:
+#             time_limit['$gte'] = datetime2text(since)
+#         if until is not None:
+#             time_limit['$lte'] = datetime2text(until)
+#         if len(time_limit) > 0:
+#             spec['DateTime'] = time_limit
+#
+#         if extra_spec is not None and len(extra_spec) > 0:
+#             spec.update(extra_spec)
+#
+#         return spec
+#
+#     def __parse_in_spec(self, in_spec: dict) -> dict:
+#         """
+#         Example: {
+#             key1: key1 value as str,
+#             key2: key2 values as list or tuple,
+#         }
+#         :param in_spec: The "in spec"
+#         :return: Parsed spec in dict
+#         """
+#         spec = {}
+#         for key in in_spec.keys():
+#             value = in_spec[key]
+#             if isinstance(key, str):
+#                 spec[key] = value
+#             elif isinstance(key, (list, tuple)):
+#                 spec[key] = {'$in': list(value)}
+#             else:
+#                 print('Incorrect type of value in "in spec" : ' + 'key' + '(' + str(type(value)) + ')')
+#         return spec
+#
+#     def __parse_range_spec(self, range_spec: str) -> dict:
+#         """
+#         Example: {
+#             key1: ('gt', key1_greater_than_value),
+#             key2: ('ge', key2_greater_eq_value),
+#             key1: ('lt', key1_less_than_value),
+#             key2: ('le', key2_less_eq_value),
+#         }
+#         :param range_spec:
+#         :return:
+#         """
+#         spec = {}
+#         for key in range_spec.keys():
+#             value = in_spec[key]
+#             if isinstance(key, str):
+#                 spec[key] = value
+#             elif isinstance(key, list):
+#                 spec[key] = {'$in': value}
+#             else:
+#                 print('Incorrect type of value in "in spec" : ' + 'key' + '(' + str(type(value)) + ')')
+#         return spec
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                     ItkvTable
+# Identity & Time, Key-Value Table
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
 class ItkvTable:
     """ A table which can easily extend its column, with identity and time as its main key.
     Itkv = Identity, DateTime, Key, Value
