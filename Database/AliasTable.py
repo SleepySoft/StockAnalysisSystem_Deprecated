@@ -85,7 +85,7 @@ class AliasTable:
         for participant in self.__participants:
             name = participant.get_using_names()
             names.extend(name)
-        self.__using_name_list = names
+        self.__using_name_list = list(set(names))
 
     def check_naming_error(self):
         pass
@@ -194,7 +194,10 @@ class AliasTable:
         return self.__alias_standard_table
 
     def get_standard_name_list(self) -> list:
-        return list(self.__standard_alias_table.keys())
+        all_names = []
+        all_names.extend(self.__using_name_list)
+        all_names.extend(list(self.__standard_alias_table.keys()))
+        return list(set(all_names))
 
     def get_uncategorized_name_list(self) -> list:
         tmp_list = []
@@ -503,11 +506,11 @@ def test_del_standard_name():
 
 
 def test_entry():
-    # test_alias_multiple_mapping()
-    # test_add_remove_alias()
-    # test_operation_denied()
+    test_alias_multiple_mapping()
+    test_add_remove_alias()
+    test_operation_denied()
     test_update_standard_name_allowed()
-    # test_del_standard_name()
+    test_del_standard_name()
     pass
 
 

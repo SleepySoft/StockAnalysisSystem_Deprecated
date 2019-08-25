@@ -1,3 +1,4 @@
+import threading
 from datetime import time, datetime
 
 import logging
@@ -53,6 +54,28 @@ def log_info(*args):
 
 def log_error(*args):
     print(''.join([str(arg) for arg in args]))
+
+
+# ------------------------------------------------------ Singleton -----------------------------------------------------
+
+# Based on tornado.ioloop.IOLoop.instance() approach.
+# See https://github.com/facebook/tornado
+# Whole idea for this metaclass is taken from: https://stackoverflow.com/a/6798042/2402281
+class ThreadSafeSingleton(type):
+    _instances = {}
+    _singleton_lock = threading.Lock()
+
+    def __call__(cls, *args, **kwargs):
+        # double-checked locking pattern (https://en.wikipedia.org/wiki/Double-checked_locking)
+        if cls not in cls._instances:
+            with cls._singleton_lock:
+                if cls not in cls._instances:
+                    cls._instances[cls] = super(ThreadSafeSingleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+# class YourImplementation(metaclass=ThreadSafeSingleton):
+#     def __init__(self, *args, **kwargs):
+#         pass  # your implementation goes here
 
 
 # -------------------------------------------- Web related --------------------------------------------

@@ -16,33 +16,24 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import config
+    import Utiltity.common as common
     from Database.SqlRw import SqlAccess
     from Database.NoSqlRw import ItkvTable
 except Exception as e:
     sys.path.append(root_path)
 
     import config
+    import Utiltity.common as common
     from Database.SqlRw import SqlAccess
     from Database.NoSqlRw import ItkvTable
 finally:
     pass
 
 
-class DatabaseEntry:
-    _instance = None
-
-    def __new__(cls, *args, **kw):
-        if cls._instance is None:
-            cls._instance = object.__new__(cls, *args, **kw)
-            cls._instance.__singleton_init()
-        return cls._instance
-
-    def __init__(self):
-        # This function may be called multiple times.
-        pass
-
-    def __singleton_init(self):
-        data_path = root_path + '/Data/'
+class DatabaseEntry(metaclass=common.ThreadSafeSingleton):
+    def __init__(self, data_path: str = None):
+        if data_path is None or not isinstance(data_path, str):
+            data_path = root_path + '/Data/'
 
         self.__sAsUtility = SqlAccess(data_path + 'sAsUtility.db')
         self.__sAsDailyData = SqlAccess(data_path + 'sAsDailyData.db')

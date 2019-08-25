@@ -7,11 +7,11 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import Database.NoSqlRw as NoSqlRw
+    import Database.AliasTable as AliasTable
     import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
     from Database.DatabaseEntry import DatabaseEntry
     from Database.UpdateTableEx import UpdateTableEx
     from Utiltity.plugin_manager import PluginManager
@@ -19,11 +19,11 @@ except Exception as e:
     sys.path.append(root_path)
 
     import Database.NoSqlRw as NoSqlRw
+    import Database.AliasTable as AliasTable
     import DataHub.DataUtility as DataUtility
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
-    from Utiltity.plugin_manager import PluginManager
     from Database.DatabaseEntry import DatabaseEntry
     from Database.UpdateTableEx import UpdateTableEx
     from Utiltity.plugin_manager import PluginManager
@@ -43,6 +43,7 @@ ROOT_TAGS = ['BalanceSheet', 'CashFlowStatement', 'IncomeStatement']
 TABLE_BALANCE_SHEET = 'BalanceSheet'
 TABLE_CASH_FLOW_STATEMENT = 'CashFlowStatement'
 TABLE_INCOME_STATEMENT = 'IncomeStatement'
+TABLE_LIST = [TABLE_BALANCE_SHEET, TABLE_CASH_FLOW_STATEMENT, TABLE_INCOME_STATEMENT]
 
 IDENTITY_FINANCE_DATA = '<stock_code>.<exchange>'
 
@@ -73,7 +74,7 @@ class FinanceData(DataUtility.DataUtility):
             'CashFlowStatement': [],
         }
 
-    # ---------------------------------------------------------------------------------x--------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
     def execute_update_patch(self, patch: DataUtility.Patch) -> DataUtility.RESULT_CODE:
         logger.info('FinanceData.execute_update_patch(' + str(patch) + ')')
@@ -96,8 +97,8 @@ class FinanceData(DataUtility.DataUtility):
         if df is None or len(df) == 0:
             return DataUtility.RESULT_FAILED
 
-        DatabaseEntry().get_alias_table().tell_names(list(df.columns))
-        DatabaseEntry().get_alias_table().check_save()
+        # self.__alias_table.tell_names(list(df.columns))
+        # self.__alias_table.check_save()
 
         # df.set_index('period')
         codes = df['identity'].unique()
@@ -232,6 +233,34 @@ class FinanceData(DataUtility.DataUtility):
             data_table.upsert(stock_identify, period, row.to_dict())
         return True
 
+    # --------------------------------------- interface of AliasTable.Participant --------------------------------------
+
+    def name(self) -> str:
+        return 'FinanceData'
+
+    def get_using_names(self) -> [str]:
+        names = []
+        for table in TABLE_LIST:
+            data_table = DatabaseEntry().get_finance_table(table)
+            keys = data_table.get_all_keys()
+            names.extend(keys)
+        return list(set(names))
+
+    def on_std_name_updating(self, old_name: str, new_name: str) -> (bool, str):
+        nop(self)
+        nop(old_name)
+        nop(new_name)
+        return True, ''
+
+    def on_std_name_removed(self, name: str):
+        for table in TABLE_LIST:
+            data_table = DatabaseEntry().get_finance_table(table)
+            data_table.remove_key(name)
+
+    def on_std_name_updated(self, old_name: str, new_name: str):
+        for table in TABLE_LIST:
+            data_table = DatabaseEntry().get_finance_table(table)
+            data_table.replace_key(old_name, new_name)
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
 

@@ -1,11 +1,15 @@
 import sys
 import traceback
-import main_ui
-
 from PyQt5.QtWidgets import QApplication
+
+import main_ui
+import stock_analysis_system
 
 
 def main():
+    sas = stock_analysis_system.StockAnalysisSystem()
+    sas.check_initialize()
+
     app = QApplication(sys.argv)
     main_wnd = main_ui.MainWindow()
     main_wnd.show()

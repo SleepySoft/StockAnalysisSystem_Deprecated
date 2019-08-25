@@ -416,6 +416,16 @@ class ItkvTable:
             False                       # no need to upsert
         )
 
+    def replace_key(self, key_old: str, key_new: str) -> bool:
+        collection = self.__get_collection()
+        if collection is None:
+            return False
+        return collection.update_many(
+            {},   # criteria
+            {'$rename': {key_old: key_new}},     # modifier
+            False                               # no need to upsert
+        )
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def __get_collection(self):

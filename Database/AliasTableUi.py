@@ -22,19 +22,25 @@ class AliasTableUi(QWidget):
         self.__translate = QtCore.QCoreApplication.translate
 
         self.__line_alias = QLineEdit()
+        self.__label_standard = QLabel()
+
         self.__line_standard = QLineEdit()
         self.__line_standard_edit = QLineEdit()
-        self.__table_alias = EasyQTableWidget(0, 2)
-        self.__table_standard_name = EasyQTableWidget(0, 2)
+        self.__line_standard_update = QLineEdit()
+        self.__table_alias = EasyQTableWidget(0, 1)
+        self.__table_standard_name = EasyQTableWidget(0, 3)
 
         self.__button_add = QPushButton(self.__translate('', '添加别名'))
         self.__button_del_alias = QPushButton(self.__translate('', '删除别名'))
-        self.__button_load_csv = QPushButton(self.__translate('', '载入CSV'))
 
-        self.__button_del_standard = QPushButton(self.__translate('', '删除标准名'))
-        self.__button_update_standard = QPushButton(self.__translate('', '更新标准名'))
+        self.__button_load_csv = QPushButton(self.__translate('', '载入CSV'))
+        self.__button_del_standard = QPushButton(self.__translate('', '删除'))
+        self.__button_update_standard = QPushButton(self.__translate('', '更新'))
+        self.__button_refresh_standard = QPushButton(self.__translate('', '刷新'))
 
         self.init_ui()
+
+    # ---------------------------------------------------- UI Init -----------------------------------------------------
 
     def init_ui(self):
         self.__layout_control()
@@ -45,27 +51,30 @@ class AliasTableUi(QWidget):
         self.setLayout(main_layout)
 
         left_layout = QVBoxLayout()
-        left_layout.addWidget(self.__table_alias)
-        left_layout.addLayout(horizon_layout([QLabel(self.__translate('', '别名：')), self.__line_alias]))
-        left_layout.addLayout(horizon_layout([QLabel(self.__translate('', '标准名：')), self.__line_standard]))
-        left_layout.addLayout(horizon_layout([self.__button_add, self.__button_del_alias, self.__button_load_csv]))
+        left_layout.addWidget(self.__table_standard_name)
+        left_layout.addLayout(horizon_layout([
+            self.__line_standard_edit, QLabel(' -> '), self.__line_standard_update]))
+        left_layout.addLayout(horizon_layout([
+            self.__button_refresh_standard, self.__button_update_standard,
+            self.__button_del_standard, self.__button_load_csv]))
 
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self.__table_standard_name)
-        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '标准名：')), self.__line_standard_edit,
-                                               self.__button_del_standard, self.__button_update_standard]))
+        right_layout.addWidget(self.__table_alias)
+        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '标准名：')), self.__label_standard]))
+        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '别名：')), self.__line_standard]))
+        right_layout.addLayout(horizon_layout([self.__button_add, self.__button_del_alias]))
 
-        main_layout.addLayout(left_layout, 1)
+        main_layout.addLayout(left_layout, 2)
         main_layout.addLayout(right_layout, 1)
 
     def __config_control(self):
         self.__table_alias.setHorizontalHeaderLabels(
-            [self.__translate('', '别名'), self.__translate('', '标准名')])
+            [self.__translate('', '别名')])
         self.__table_alias.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.__table_alias.setSelectionMode(QAbstractItemView.SingleSelection)
 
         self.__table_standard_name.setHorizontalHeaderLabels(
-            [self.__translate('', '标准名'), self.__translate('', '别名数量')])
+            [self.__translate('', '标准名'), self.__translate('', '别名'), self.__translate('', '别名数量')])
         self.__table_standard_name.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.__table_standard_name.setSelectionMode(QAbstractItemView.SingleSelection)
 
@@ -77,6 +86,15 @@ class AliasTableUi(QWidget):
         self.__button_load_csv.clicked.connect(self.on_button_click_load_csv)
         self.__button_del_standard.clicked.connect(self.on_button_click_del_standard)
         self.__button_update_standard.clicked.connect(self.on_button_click_update_standard)
+        self.__button_refresh_standard.clicked.connect(self.on_button_click_refresh_standard)
+
+    # ---------------------------------------------------- Interface ---------------------------------------------------
+
+    def get_select_standard_name(self):
+        row = self.__table_standard_name.GetCurrentRow()
+        return '' if len(row) == 0 else row[0]
+
+    # ---------------------------------------------------- UI Event ----------------------------------------------------
 
     def on_click_table_alias(self):
         row_content = self.__table_alias.GetCurrentRow()
@@ -139,15 +157,24 @@ class AliasTableUi(QWidget):
         self.__update_alias_table()
         self.__update_standard_table()
 
+    def on_button_click_refresh_standard(self):
+        self.__alias_table.collect_names()
+        self.__update_standard_table()
+
+    # ---------------------------------------------------- Private -----------------------------------------------------
+
     def __update_alias_table(self):
+        sel_std_name = self.get_select_standard_name()
         aliases_standard_table = self.__alias_table.get_alias_standard_table()
         self.__table_alias.setRowCount(0)
         for alias in sorted(aliases_standard_table.keys()):
             standard_name = aliases_standard_table[alias]
-            row_count = self.__table_alias.rowCount()
-            self.__table_alias.insertRow(row_count)
-            self.__table_alias.setItem(row_count, 0, QTableWidgetItem(alias))
-            self.__table_alias.setItem(row_count, 1, QTableWidgetItem(standard_name))
+            if standard_name == sel_std_name:
+                row_count = self.__table_alias.rowCount()
+                self.__table_alias.insertRow(row_count)
+                self.__table_alias.setItem(row_count, 0, QTableWidgetItem(alias))
+                self.__label_standard.setText('<empty>' if standard_name == '' else standard_name)
+                # self.__table_alias.setItem(row_count, 1, QTableWidgetItem(standard_name))
 
     def __update_standard_table(self):
         standard_name_list = self.__alias_table.get_standard_name_list()
@@ -155,23 +182,26 @@ class AliasTableUi(QWidget):
 
         self.__table_standard_name.setRowCount(0)
         for standard_name in standard_name_list:
-            alias_count = self.__count_alias(aliases_standard_table, standard_name)
+            if standard_name.strip() == '':
+                continue
+            alias_list = self.__get_alias_list(aliases_standard_table, standard_name)
             row_count = self.__table_standard_name.rowCount()
             self.__table_standard_name.insertRow(row_count)
             self.__table_standard_name.setItem(row_count, 0, QTableWidgetItem(standard_name))
-            self.__table_standard_name.setItem(row_count, 1, QTableWidgetItem(str(alias_count)))
+            self.__table_standard_name.setItem(row_count, 1, QTableWidgetItem(','.join(alias_list)))
+            self.__table_standard_name.setItem(row_count, 2, QTableWidgetItem(str(len(alias_list))))
 
-    def __count_alias(self, aliases_standard_table: dict, alias: str) -> int:
-        count = 0
+    def __get_alias_list(self, aliases_standard_table: dict, alias: str) -> int:
+        alias_list = []
         for key in aliases_standard_table:
             if aliases_standard_table[key] == alias:
-                count += 1
-        return count
+                alias_list.append(key)
+        return alias_list
 
     # Interface
 
     def Init(self):
-        self.__update_alias_table()
+        # self.__update_alias_table()
         self.__update_standard_table()
 
 
