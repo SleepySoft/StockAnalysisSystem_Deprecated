@@ -30,7 +30,7 @@ finally:
     pass
 
 
-class DatabaseEntry(metaclass=common.ThreadSafeSingleton):
+class DatabaseEntry:
     def __init__(self, data_path: str = None):
         if data_path is None or not isinstance(data_path, str):
             data_path = root_path + '/Data/'
@@ -43,16 +43,16 @@ class DatabaseEntry(metaclass=common.ThreadSafeSingleton):
         import Database.AliasTable as AliasTable
         import Database.UpdateTableEx as UpdateTableEx
 
-        self.__alias_table = AliasTable.AliasTable()
-        self.__update_table = UpdateTableEx.UpdateTableEx()
-        self.__securities_table = ItkvTable(DatabaseEntry().get_mongo_db_client(),
+        self.__alias_table = AliasTable.AliasTable(self.__sAsUtility)
+        self.__update_table = UpdateTableEx.UpdateTableEx(self.__sAsUtility)
+        self.__securities_table = ItkvTable(self.get_mongo_db_client(),
                                             'StockAnalysisSystem', 'SecuritiesData')
         self.__finance_table = {
-            'BalanceSheet': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+            'BalanceSheet': ItkvTable(self.get_mongo_db_client(),
                                       'StockAnalysisSystem', 'BalanceSheet'),
-            'IncomeStatement': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+            'IncomeStatement': ItkvTable(self.get_mongo_db_client(),
                                          'StockAnalysisSystem', 'IncomeStatement'),
-            'CashFlowStatement': ItkvTable(DatabaseEntry().get_mongo_db_client(),
+            'CashFlowStatement': ItkvTable(self.get_mongo_db_client(),
                                            'StockAnalysisSystem', 'CashFlowStatement'),
         }
 

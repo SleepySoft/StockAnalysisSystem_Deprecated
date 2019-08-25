@@ -5,12 +5,12 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     from Utiltity.time_utility import *
-    import Database.DatabaseEntry as De
+    from Database.SqlRw import SqlAccess
 except Exception as e:
     sys.path.append(root_path)
 
     from Utiltity.time_utility import *
-    import Database.DatabaseEntry as De
+    from Database.SqlRw import SqlAccess
 finally:
     pass
 
@@ -22,8 +22,8 @@ class UpdateTableEx:
     INDEX_UNTIL = 3
     INDEX_LAST_UPDATE = 4
 
-    def __init__(self):
-        pass
+    def __init__(self, sql_db: SqlAccess):
+        self.__sql_db = sql_db
 
     def get_since(self, tags: [str]):
         record = self.get_update_record(tags)
@@ -67,26 +67,34 @@ class UpdateTableEx:
 
         record = self.get_update_record(tags)
         if record is None or len(record) == 0:
-            return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_insert, True)
+            return self.__sql_db.QuickExecuteDML(sql_insert, True)
         elif record[0][field] is None or compare(text_auto_time(date), text_auto_time(record[0][field])):
-            return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_update, True)
+            return self.__sql_db.QuickExecuteDML(sql_update, True)
         else:
             return True
 
     def get_update_record(self, tags: [str]) -> []:
         joined_tags = self.join_tags(tags)
-        return De.DatabaseEntry().get_utility_db().ListFromDB(
+        return self.__sql_db.ListFromDB(
             UpdateTableEx.TABLE, UpdateTableEx.FIELD, "tags = '%s'" % joined_tags)
 
     def delete_update_record(self, tags: [str]):
         joined_tags = self.join_tags(tags)
         sql_delete = ("DELETE FROM %s WHERE tags = '%s';" % (UpdateTableEx.TABLE, joined_tags))
-        return De.DatabaseEntry().get_utility_db().QuickExecuteDML(sql_delete, True)
+        return self.__sql_db.QuickExecuteDML(sql_delete, True)
 
     def join_tags(self, tags: [str]) -> str:
         return '.'.join(tags)
 
 # ----------------------------------------------------- Test Code ------------------------------------------------------
+
+
+def __default_prepare_test() -> UpdateTableEx:
+    data_path = root_path + '/Data/'
+    sql_db = SqlAccess(data_path + 'sAsUtility.db')
+    ut = UpdateTableEx(sql_db)
+    __clear_test_entry(ut)
+    return ut
 
 
 def __clear_test_entry(ut: UpdateTableEx):
@@ -99,8 +107,7 @@ def __clear_test_entry(ut: UpdateTableEx):
 
 
 def test_basic_feature():
-    ut = UpdateTableEx()
-    __clear_test_entry(ut)
+    ut = __default_prepare_test()
 
     assert(ut.update_since(['__Finance Data', 'Annual', '000001'], '19900101'))
     assert(ut.update_until(['__Finance Data', 'Annual', '000001'], '20200101'))
@@ -171,8 +178,7 @@ def test_basic_feature():
 
 
 def test_since_record_unique_and_decrease():
-    ut = UpdateTableEx()
-    __clear_test_entry(ut)
+    ut = __default_prepare_test()
 
     assert(ut.update_since(['__Finance Data', 'Annual', '000001'], '20200101'))
     assert(ut.update_since(['__Finance Data', 'Annual', '000001'], '20000102'))
@@ -198,8 +204,7 @@ def test_since_record_unique_and_decrease():
 
 
 def test_until_record_unique_and_increase():
-    ut = UpdateTableEx()
-    __clear_test_entry(ut)
+    ut = __default_prepare_test()
 
     assert(ut.update_until(['__Finance Data', 'Annual', '000001'], '20200101'))
     assert(ut.update_until(['__Finance Data', 'Annual', '000001'], '20200102'))

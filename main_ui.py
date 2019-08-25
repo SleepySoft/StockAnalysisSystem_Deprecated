@@ -4,6 +4,7 @@
 from PyQt5 import Qt
 
 from Database.AliasTableUi import *
+from stock_analysis_system import StockAnalysisSystem
 
 
 # =========================================== InfoDialog ===========================================
@@ -44,7 +45,7 @@ class MainWindow(CommonMainWindow):
 
         # ---------- Modules and Sub Window ----------
 
-        self.__alias_table_module = AliasTable()
+        self.__alias_table_module = StockAnalysisSystem().get_database_entry().get_alias_table()
         self.__alias_table_module_ui = AliasTableUi(self.__alias_table_module)
 
         # ---------- Deep init ----------

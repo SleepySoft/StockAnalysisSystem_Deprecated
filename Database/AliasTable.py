@@ -8,10 +8,11 @@ author:Sleepy
 @function:
 @modify:
 """
-import sys
+from os import sys, path
+root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 from Utiltity.common import *
-import Database.DatabaseEntry as DatabaseEntry
+from Database.SqlRw import SqlAccess
 
 
 class AliasTable:
@@ -52,7 +53,8 @@ class AliasTable:
     TABLE = 'AliasTable'
     FIELD = ['alias_name', 'standard_name', 'comments']
 
-    def __init__(self):
+    def __init__(self, sql_db: SqlAccess):
+        self.__sql_db = sql_db
         self.__has_update = False
         self.__participants = []
         self.__using_name_list = []
@@ -214,7 +216,7 @@ class AliasTable:
 
     def load_from_db(self) -> bool:
         self.reset()
-        tmp_list = DatabaseEntry.DatabaseEntry().get_utility_db().ListFromDB(
+        tmp_list = self.__sql_db.ListFromDB(
             AliasTable.TABLE, AliasTable.FIELD)
         if tmp_list is None or len(tmp_list) == 0:
             return False
@@ -230,7 +232,7 @@ class AliasTable:
             tmp_list.append(alias)
             tmp_list.append(standard)
             tmp_list.append('')
-        DatabaseEntry.DatabaseEntry().get_utility_db().ListToDB(
+        self.__sql_db.ListToDB(
             AliasTable.TABLE, tmp_list, -1, 3,
             AliasTable.FIELD)
         return True
@@ -429,7 +431,9 @@ class TestAliasParticipant(AliasTable.Participant):
 
 
 def __default_prepare_test() -> (AliasTable, TestAliasParticipant):
-    alias_table = AliasTable()
+    data_path = root_path + '/Data/'
+    sql_db = SqlAccess(data_path + 'sAsUtility.db')
+    alias_table = AliasTable(sql_db)
     participant = TestAliasParticipant()
     alias_table.register_participant(participant)
     return alias_table, participant

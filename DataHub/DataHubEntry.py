@@ -27,18 +27,13 @@ finally:
     logger = logging.getLogger('')
 
 
-class DataHubEntry(metaclass=common.ThreadSafeSingleton):
-    def __init__(self, database_entry: DatabaseEntry = None, collector_plugin: PluginManager = None):
-        if database_entry is None:
-            database_entry = DatabaseEntry()
-        if collector_plugin is None:
-            plugin_path = root_path + '/Collector/'
-            collector_plugin = PluginManager(plugin_path)
-            collector_plugin.refresh()
-
+class DataHubEntry:
+    def __init__(self, database_entry: DatabaseEntry, collector_plugin: PluginManager):
         self.__finance_data = FinanceData(collector_plugin, database_entry.get_update_table())
         self.__trade_calendar = TradeCalendar(collector_plugin, database_entry.get_update_table())
         self.__securities_info = SecuritiesInfo(collector_plugin, database_entry.get_update_table())
+
+        database_entry.get_alias_table().register_participant(self.__finance_data)
 
     def get_finance_data(self):
         return self.__finance_data
