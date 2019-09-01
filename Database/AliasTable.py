@@ -176,6 +176,8 @@ class AliasTable:
             if self.__alias_standard_table[alias] == standard_name:
                 self.__alias_standard_table[alias] = ''
                 self.__has_update = True
+        if standard_name in self.__using_name_list:
+            self.__using_name_list.remove(standard_name)
         self.__notify_name_removed(standard_name)
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -237,12 +239,24 @@ class AliasTable:
             AliasTable.FIELD)
         return True
 
-    def load_from_csv(self, file_name: str, replace: bool=True):
+    def load_from_csv(self, file_name: str):
+        """
+        Load alias - standard name mapping from a csv
+        The CSV file should have columns named: 'alias' and 'standard'
+        :param file_name: The CSV file that you want to load
+        :return: True if OK. Else False
+        """
         df = pd.read_csv(file_name, header=0)
-        column_alias_name = df['Alias Name']
-        column_standard_name = df['Standard Name']
+        column_alias_name = df['alias']
+        column_standard_name = df['standard']
         for alias, standard in zip(column_alias_name, column_standard_name):
-            self.add_alias(self.__trim_name(alias), standard)
+            # self.add_alias(self.__trim_name(alias), standard)
+            try:
+                self.add_alias(alias.strip(), standard.strip())
+            except Exception as e:
+                self.add_alias(str(alias).strip(), str(standard).strip())
+            finally:
+                pass
         return True
 
     def dump_to_csv(self, file_name: str) -> str:

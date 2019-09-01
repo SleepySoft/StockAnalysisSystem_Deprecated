@@ -8,7 +8,7 @@ author:Sleepy
 @function:
 @modify:
 """
-from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QFileDialog
+from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QFileDialog, QCheckBox
 
 from Utiltity.ui_utility import *
 from Database.AliasTable import *
@@ -21,12 +21,15 @@ class AliasTableUi(QWidget):
         self.__has_update = False
         self.__sel_std_name = ''
         self.__sel_alias = ''
+        self.__only_show_no_alias = False
 
         self.__alias_table = alias_table
         self.__translate = QtCore.QCoreApplication.translate
 
         self.__table_alias = EasyQTableWidget(0, 1)
         self.__table_standard_name = EasyQTableWidget(0, 3)
+
+        self.__check_only_no_alias = QCheckBox(self.__translate('', '只看无别名'))
 
         self.__button_collect = QPushButton(self.__translate('', '采集现用名'))
         self.__button_load_csv = QPushButton(self.__translate('', '载入CSV'))
@@ -59,6 +62,7 @@ class AliasTableUi(QWidget):
         left_layout.addLayout(horizon_layout([
             self.__button_collect,
             self.__button_load_csv,
+            self.__check_only_no_alias,
             self.__button_manual_save,
             self.__button_del_standard]))
 
@@ -94,6 +98,7 @@ class AliasTableUi(QWidget):
 
         self.__button_collect.clicked.connect(self.on_button_click_refresh)
         self.__button_load_csv.clicked.connect(self.on_button_click_load_csv)
+        self.__check_only_no_alias.clicked.connect(self.on_check_click_only_no_alias)
         self.__button_manual_save.clicked.connect(self.on_button_click_manual_save)
         self.__button_del_standard.clicked.connect(self.on_button_click_del_standard)
 
@@ -128,11 +133,20 @@ class AliasTableUi(QWidget):
     def on_button_click_load_csv(self):
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
-            self.__alias_table.load_from_csv(file_path, True)
+            self.__alias_table.load_from_csv(file_path)
+            self.__update_standard_table()
             self.__has_update = True
 
+    def on_check_click_only_no_alias(self):
+        self.__only_show_no_alias = self.__check_only_no_alias.isChecked()
+        self.__update_standard_table()
+
     def on_button_click_manual_save(self):
-        self.__has_update = not self.__alias_table.dump_to_db()
+        if self.__alias_table.dump_to_db():
+            QMessageBox.information(self,
+                                    self.__translate('', '提示'),
+                                    self.__translate('', '保存到数据库成功'), QMessageBox.Ok)
+            self.__has_update = False
 
     def on_button_click_del_standard(self):
         select_model = self.__table_standard_name.selectionModel()
@@ -216,6 +230,8 @@ class AliasTableUi(QWidget):
             if standard_name.strip() == '':
                 continue
             alias_list = self.__get_alias_list(aliases_standard_table, standard_name)
+            if self.__only_show_no_alias and len(alias_list) != 0:
+                continue
             row_count = self.__table_standard_name.rowCount()
             self.__table_standard_name.insertRow(row_count)
             self.__table_standard_name.setItem(row_count, 0, QTableWidgetItem(standard_name))
