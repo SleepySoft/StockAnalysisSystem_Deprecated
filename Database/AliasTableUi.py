@@ -18,25 +18,29 @@ class AliasTableUi(QWidget):
     def __init__(self, alias_table: AliasTable):
         super().__init__()
 
+        self.__has_update = False
+        self.__sel_std_name = ''
+        self.__sel_alias = ''
+
         self.__alias_table = alias_table
         self.__translate = QtCore.QCoreApplication.translate
 
-        self.__line_alias = QLineEdit()
-        self.__label_standard = QLabel()
-
-        self.__line_standard = QLineEdit()
-        self.__line_standard_edit = QLineEdit()
-        self.__line_standard_update = QLineEdit()
         self.__table_alias = EasyQTableWidget(0, 1)
         self.__table_standard_name = EasyQTableWidget(0, 3)
 
-        self.__button_add = QPushButton(self.__translate('', '添加别名'))
-        self.__button_del_alias = QPushButton(self.__translate('', '删除别名'))
-
+        self.__button_collect = QPushButton(self.__translate('', '采集现用名'))
         self.__button_load_csv = QPushButton(self.__translate('', '载入CSV'))
-        self.__button_del_standard = QPushButton(self.__translate('', '删除'))
-        self.__button_update_standard = QPushButton(self.__translate('', '更新'))
-        self.__button_refresh_standard = QPushButton(self.__translate('', '刷新'))
+        self.__button_manual_save = QPushButton(self.__translate('', '手动保存'))
+        self.__button_del_standard = QPushButton(self.__translate('', '删除记录'))
+
+        self.__label_standard = QLabel()
+        self.__line_standard_edit = QLineEdit()
+        self.__button_update_standard_name = QPushButton(self.__translate('', '更改标准名'))
+
+        self.__label_alias = QLabel()
+        self.__line_alias = QLineEdit()
+        self.__button_add_alias = QPushButton(self.__translate('', '添加别名'))
+        self.__button_del_alias = QPushButton(self.__translate('', '删除别名'))
 
         self.init_ui()
 
@@ -53,16 +57,23 @@ class AliasTableUi(QWidget):
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.__table_standard_name)
         left_layout.addLayout(horizon_layout([
-            self.__line_standard_edit, QLabel(' -> '), self.__line_standard_update]))
-        left_layout.addLayout(horizon_layout([
-            self.__button_refresh_standard, self.__button_update_standard,
-            self.__button_del_standard, self.__button_load_csv]))
+            self.__button_collect,
+            self.__button_load_csv,
+            self.__button_manual_save,
+            self.__button_del_standard]))
 
         right_layout = QVBoxLayout()
+        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '当前标准名：')),
+                                               self.__label_standard]))
+        right_layout.addLayout(horizon_layout([self.__button_update_standard_name,
+                                               QLabel(self.__translate('', ' -> ')),
+                                               self.__line_standard_edit]))
         right_layout.addWidget(self.__table_alias)
-        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '标准名：')), self.__label_standard]))
-        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '别名：')), self.__line_standard]))
-        right_layout.addLayout(horizon_layout([self.__button_add, self.__button_del_alias]))
+        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '当前别名：')),
+                                               self.__label_alias,
+                                               self.__button_del_alias]))
+        right_layout.addLayout(horizon_layout([QLabel(self.__translate('', '添加别名：')),
+                                              self.__line_alias, self.__button_add_alias]))
 
         main_layout.addLayout(left_layout, 2)
         main_layout.addLayout(right_layout, 1)
@@ -81,56 +92,47 @@ class AliasTableUi(QWidget):
         self.__table_alias.clicked.connect(self.on_click_table_alias)
         self.__table_standard_name.clicked.connect(self.on_click_table_standard_name)
 
-        self.__button_add.clicked.connect(self.on_button_click_add)
-        self.__button_del_alias.clicked.connect(self.on_button_click_del_alias)
+        self.__button_collect.clicked.connect(self.on_button_click_refresh)
         self.__button_load_csv.clicked.connect(self.on_button_click_load_csv)
+        self.__button_manual_save.clicked.connect(self.on_button_click_manual_save)
         self.__button_del_standard.clicked.connect(self.on_button_click_del_standard)
-        self.__button_update_standard.clicked.connect(self.on_button_click_update_standard)
-        self.__button_refresh_standard.clicked.connect(self.on_button_click_refresh_standard)
+
+        self.__button_update_standard_name.clicked.connect(self.on_button_click_update_standard)
+        self.__button_add_alias.clicked.connect(self.on_button_click_add_alias)
+        self.__button_del_alias.clicked.connect(self.on_button_click_del_alias)
 
     # ---------------------------------------------------- Interface ---------------------------------------------------
 
     def get_select_standard_name(self):
-        row = self.__table_standard_name.GetCurrentRow()
-        return '' if len(row) == 0 else row[0]
+        return self.__sel_std_name
 
     # ---------------------------------------------------- UI Event ----------------------------------------------------
 
     def on_click_table_alias(self):
         row_content = self.__table_alias.GetCurrentRow()
-        if len(row_content) >= 2:
-            self.__line_alias.setText(row_content[0])
-            self.__line_standard.setText(row_content[1])
+        if len(row_content) >= 1:
+            self.__sel_alias = row_content[0]
+            self.__label_alias.setText(self.__sel_alias)
 
     def on_click_table_standard_name(self):
         standard_name = self.__table_standard_name.GetCurrentRow()
         if len(standard_name) >= 1:
-            self.__line_standard_edit.setText(standard_name[0])
+            self.__sel_std_name = standard_name[0]
+            self.__label_standard.setText(self.__sel_std_name)
+            self.__update_alias_table()
 
-    def on_button_click_add(self):
-        alias = self.__line_alias.text()
-        standard = self.__line_standard.text()
-        self.__alias_table.add_alias(alias, standard)
-        self.__alias_table.dump_to_db()
-        self.__update_alias_table()
-        self.__update_standard_table()
-
-    def on_button_click_del_alias(self):
-        select_model = self.__table_alias.selectionModel()
-        if not select_model.hasSelection():
-            return
-        row_index = select_model.currentIndex().row()
-        alias = self.__table_alias.model().index(row_index, 0).data()
-        # standard = self.__table_alias.model().index(row_index, 1).data()
-        self.__alias_table.del_alias(alias)
-        self.__alias_table.dump_to_db()
-        self.__update_alias_table()
+    def on_button_click_refresh(self):
+        self.__alias_table.collect_names()
         self.__update_standard_table()
 
     def on_button_click_load_csv(self):
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
             self.__alias_table.load_from_csv(file_path, True)
+            self.__has_update = True
+
+    def on_button_click_manual_save(self):
+        self.__has_update = not self.__alias_table.dump_to_db()
 
     def on_button_click_del_standard(self):
         select_model = self.__table_standard_name.selectionModel()
@@ -139,27 +141,56 @@ class AliasTableUi(QWidget):
         row_index = select_model.currentIndex().row()
         standard = self.__table_standard_name.model().index(row_index, 0).data()
         self.__alias_table.del_standard_name(standard)
-        self.__alias_table.dump_to_db()
+        # self.__alias_table.dump_to_db()
+        self.__has_update = True
         self.__update_alias_table()
         self.__update_standard_table()
 
     def on_button_click_update_standard(self):
+        standard_old = self.get_select_standard_name()
         standard_new = self.__line_standard_edit.text()
-        if standard_new == '':
+
+        if standard_old == '' or standard_new == '':
             return
-        select_model = self.__table_standard_name.selectionModel()
-        if not select_model.hasSelection():
+
+        # select_model = self.__table_standard_name.selectionModel()
+        # if not select_model.hasSelection():
+        #     return
+        # row_index = select_model.currentIndex().row()
+        # standard = self.__table_standard_name.model().index(row_index, 0).data()
+
+        reply = QMessageBox.information(self, self.__translate('', '警告'),
+                                        self.__translate('',
+                                                         '更改标准名会影响所有使用这个字段名的表，' +
+                                                         '操作即时生效且无法回滚。\n是否确定？'),
+                                        QMessageBox.Yes | QMessageBox.No)
+        if reply != QMessageBox.Yes:
             return
-        row_index = select_model.currentIndex().row()
-        standard = self.__table_standard_name.model().index(row_index, 0).data()
-        self.__alias_table.update_standard_name(standard, standard_new)
-        self.__alias_table.dump_to_db()
+
+        self.__alias_table.update_standard_name(standard_old, standard_new)
+        # self.__alias_table.dump_to_db()
+        self.__has_update = True
         self.__update_alias_table()
         self.__update_standard_table()
 
-    def on_button_click_refresh_standard(self):
-        self.__alias_table.collect_names()
+    def on_button_click_add_alias(self):
+        alias = self.__line_alias.text()
+        standard = self.__label_standard.text()
+        self.__alias_table.add_alias(alias, standard)
+        # self.__alias_table.dump_to_db()
+        self.__has_update = True
+        self.__update_alias_table()
         self.__update_standard_table()
+
+    def on_button_click_del_alias(self):
+        if self.__sel_alias != '':
+            self.__alias_table.del_alias(self.__sel_alias)
+            self.__sel_alias = ''
+            self.__label_alias.setText('')
+            # self.__alias_table.dump_to_db()
+            self.__has_update = True
+            self.__update_alias_table()
+            self.__update_standard_table()
 
     # ---------------------------------------------------- Private -----------------------------------------------------
 

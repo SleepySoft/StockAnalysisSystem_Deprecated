@@ -4,11 +4,8 @@
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Data/sAsUtility.db" beforeDir="false" afterPath="$PROJECT_DIR$/Data/sAsUtility.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataHub/DataHubEntry.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataHub/DataHubEntry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/AliasTable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/AliasTable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/DatabaseEntry.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/DatabaseEntry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Database/UpdateTableEx.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/UpdateTableEx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_ui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/AliasTableUi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Database/AliasTableUi.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,52 +16,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
+        <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="34" selection-start-line="34" selection-end-line="34" />
-              <folding>
-                <element signature="e#141#165#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-646">
+              <caret line="148" column="48" selection-start-line="148" selection-start-column="48" selection-end-line="148" selection-end-column="48" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="125" selection-start-line="125" selection-end-line="125" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="157">
-              <caret line="89" selection-start-line="89" selection-end-line="89" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DataHub/DataHubEntry.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="33" selection-start-line="33" selection-end-line="33" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="81">
-              <caret line="160" selection-start-line="160" selection-end-line="160" />
+            <state relative-caret-position="66">
+              <caret line="147" lean-forward="true" selection-start-line="147" selection-end-line="147" />
               <folding>
                 <element signature="e#133#202#0" expanded="true" />
               </folding>
@@ -73,12 +37,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main_ui.py">
+        <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="35">
-              <caret line="45" column="54" lean-forward="true" selection-start-line="45" selection-start-column="54" selection-end-line="45" selection-end-column="54" />
+            <state relative-caret-position="190">
+              <caret line="15" selection-start-line="15" selection-end-line="15" />
               <folding>
-                <element signature="e#44#64#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -87,10 +51,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stock_analysis_system.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="92">
-              <caret line="42" selection-start-line="42" selection-end-line="42" />
+            <state relative-caret-position="153">
+              <caret line="46" column="19" lean-forward="true" selection-start-line="46" selection-start-column="19" selection-end-line="46" selection-end-column="19" />
               <folding>
                 <element signature="e#145#169#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="46">
+              <caret line="245" column="30" selection-start-line="245" selection-start-column="30" selection-end-line="245" selection-end-column="30" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -107,26 +83,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>__save_single_data</find>
-      <find>__table_alias</find>
-      <find>__line_standard_edit</find>
-      <find>__button_load_csv</find>
-      <find>__button_update_standard</find>
-      <find>on_button_click_update_standard</find>
-      <find>__using_name_list</find>
-      <find>__update_alias_table</find>
-      <find>__standard_alias_table</find>
-      <find>alias</find>
-      <find>DatabaseEntry().get_alias_table()</find>
-      <find>__alias_table</find>
-      <find>FinanceData(</find>
-      <find>FinanceData</find>
-      <find>tell_names</find>
-      <find>__check_init</find>
-      <find>__initing</find>
-      <find>root_path</find>
-      <find>DataTable</find>
-      <find>__button_refresh_standard</find>
       <find>__check_init_status</find>
       <find>AliasTable</find>
       <find>database</find>
@@ -137,6 +93,26 @@
       <find>UpdateTableEx</find>
       <find>DatabaseEntry</find>
       <find>DataHubEntry</find>
+      <find>__button_add</find>
+      <find>__line_standard_edit</find>
+      <find>__line_standard_update</find>
+      <find>__button_update_standard_name</find>
+      <find>__button_update_standard</find>
+      <find>__button_refresh_standard</find>
+      <find>__line_standard</find>
+      <find>on_button_click_add</find>
+      <find>__button_collect_standard</find>
+      <find>__button_collect</find>
+      <find>on_button_click_refresh_standard</find>
+      <find>on_click_table_alias</find>
+      <find>on_button_click_del_standard</find>
+      <find>dump_to_db</find>
+      <find>__button_add_alias</find>
+      <find>__table_alias</find>
+      <find>get_select_standard_name</find>
+      <find>__sel_std_name</find>
+      <find>__label_alias</find>
+      <find>__sel_alias</find>
     </findStrings>
     <replaceStrings>
       <replace>__Finance Data</replace>
@@ -157,6 +133,7 @@
       <replace>self.__sql_db</replace>
       <replace>self.__database</replace>
       <replace>self.__sql_db.</replace>
+      <replace>__button_collect</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\D\Code\git\StockAnalysisSystem</dir>
@@ -208,16 +185,16 @@
         <option value="$PROJECT_DIR$/Database/NoSqlRw.py" />
         <option value="$USER_HOME$/Desktop/test.py" />
         <option value="$USER_HOME$/Desktop/b.py" />
-        <option value="$PROJECT_DIR$/Database/AliasTableUi.py" />
         <option value="$PROJECT_DIR$/DataHub/finance_data.py" />
         <option value="$PROJECT_DIR$/Utiltity/common.py" />
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/stock_analysis_system.py" />
-        <option value="$PROJECT_DIR$/Database/AliasTable.py" />
         <option value="$PROJECT_DIR$/Database/UpdateTableEx.py" />
         <option value="$PROJECT_DIR$/Database/DatabaseEntry.py" />
         <option value="$PROJECT_DIR$/main_ui.py" />
         <option value="$PROJECT_DIR$/DataHub/DataHubEntry.py" />
+        <option value="$PROJECT_DIR$/Database/AliasTable.py" />
+        <option value="$PROJECT_DIR$/Database/AliasTableUi.py" />
       </list>
     </option>
   </component>
@@ -396,8 +373,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.UpdateTableEx" />
         <item itemvalue="Python.AliasTable" />
+        <item itemvalue="Python.UpdateTableEx" />
         <item itemvalue="Python.b" />
         <item itemvalue="Python.NoSqlRw" />
       </list>
@@ -427,21 +404,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17474186" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4988086" weight="0.23005566" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49483716" weight="0.36734694" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.55837965" weight="0.580705" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4940429" weight="0.09461967" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.55758536" visible="true" weight="0.23376623" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3283859" />
       <window_info anchor="bottom" id="Python Console" order="9" weight="0.3283859" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.44162032" side_tool="true" visible="true" weight="0.580705" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.4424146" side_tool="true" visible="true" weight="0.23376623" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -549,51 +527,6 @@
           <line>669</line>
           <option name="timeStamp" value="152" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/AliasTable.py</url>
-          <line>148</line>
-          <option name="timeStamp" value="155" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/DataHub/finance_data.py</url>
-          <line>246</line>
-          <option name="timeStamp" value="156" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/AliasTableUi.py</url>
-          <line>94</line>
-          <option name="timeStamp" value="158" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/AliasTableUi.py</url>
-          <line>160</line>
-          <option name="timeStamp" value="159" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/DatabaseEntry.py</url>
-          <line>34</line>
-          <option name="timeStamp" value="162" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/stock_analysis_system.py</url>
-          <line>41</line>
-          <option name="timeStamp" value="163" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/stock_analysis_system.py</url>
-          <line>42</line>
-          <option name="timeStamp" value="164" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/DatabaseEntry.py</url>
-          <line>47</line>
-          <option name="timeStamp" value="165" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Database/DatabaseEntry.py</url>
-          <line>49</line>
-          <option name="timeStamp" value="166" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
@@ -615,13 +548,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/indexes/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="91">
-          <caret line="4374" selection-start-line="4374" selection-end-line="4374" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Utiltity/Deprecated_flexible_table.py" />
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/generic.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -848,32 +774,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="106">
-          <caret line="62" column="8" selection-start-line="62" selection-start-column="8" selection-end-line="62" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/trade_calendar.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="133">
           <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -939,56 +845,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_ui.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="35">
-          <caret line="45" column="54" lean-forward="true" selection-start-line="45" selection-start-column="54" selection-end-line="45" selection-end-column="54" />
-          <folding>
-            <element signature="e#44#64#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="160" selection-start-line="160" selection-end-line="160" />
-          <folding>
-            <element signature="e#133#202#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="89" selection-start-line="89" selection-end-line="89" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stock_analysis_system.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="42" selection-start-line="42" selection-end-line="42" />
-          <folding>
-            <element signature="e#145#169#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
-          <folding>
-            <element signature="e#141#165#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/DataHubEntry.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58">
+        <state relative-caret-position="589">
           <caret line="33" selection-start-line="33" selection-end-line="33" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
@@ -996,10 +855,84 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/main_ui.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="798">
+          <caret line="45" column="54" selection-start-line="45" selection-start-column="54" selection-end-line="45" selection-end-column="54" />
+          <folding>
+            <element signature="e#44#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/DataHub/securities_info.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58">
+        <state relative-caret-position="343">
           <caret line="125" selection-start-line="125" selection-end-line="125" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/DatabaseEntry.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1">
+          <caret line="47" selection-start-line="47" selection-end-line="47" />
+          <folding>
+            <element signature="e#141#165#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stock_analysis_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="46" column="19" lean-forward="true" selection-start-line="46" selection-start-column="19" selection-end-line="46" selection-end-column="19" />
+          <folding>
+            <element signature="e#145#169#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DataHub/finance_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="46">
+          <caret line="245" column="30" selection-start-line="245" selection-start-column="30" selection-end-line="245" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/AliasTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-646">
+          <caret line="148" column="48" selection-start-line="148" selection-start-column="48" selection-end-line="148" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/bson/son.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="78" selection-start-line="78" selection-end-line="78" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="147" lean-forward="true" selection-start-line="147" selection-end-line="147" />
+          <folding>
+            <element signature="e#133#202#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

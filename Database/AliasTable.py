@@ -136,7 +136,7 @@ class AliasTable:
         if alias_name in self.__alias_standard_table.keys():
             del self.__alias_standard_table[alias_name]
             self.__has_update = True
-        for key in self.__standard_alias_table.keys():
+        for key in list(self.__standard_alias_table.keys()):
             val = self.__standard_alias_table[key]
             if alias_name in val:
                 val.remove(alias_name)
