@@ -12,7 +12,7 @@ author:Sleepy
 
 import pandas as pd
 
-import strategy_manager as sm
+from Recycled import strategy_manager as sm
 
 
 class BalanceSheetBasicCheck:

@@ -1,8 +1,7 @@
 import traceback
 
 import pandas as pd
-import module_manager
-import stock_analysis_system as sAs
+from Recycled import module_manager
 
 
 # ===================================== Plug-in Interface =====================================

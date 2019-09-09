@@ -9,12 +9,10 @@ author:Sleepy
 @modify:
 """
 
-
-import numpy as np
 import pandas as pd
 import json
 
-import data_collector
+from Recycled import data_collector
 import Utiltity.common
 import Utiltity.constant
 import stock_analysis_system as sAs

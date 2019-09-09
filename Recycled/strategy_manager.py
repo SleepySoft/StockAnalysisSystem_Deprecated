@@ -10,7 +10,7 @@ author:YuQiu
 """
 import traceback
 
-import module_manager
+from Recycled import module_manager
 
 
 class StrategyReport:
