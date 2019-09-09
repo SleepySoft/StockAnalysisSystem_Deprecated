@@ -2,18 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a6233d5-a998-487a-9151-02a40664cf2b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/StockAnalysisSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/StockAnalysisSystem.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Database/UpdateTableExUi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Doc/Design.vsd" beforeDir="false" afterPath="$PROJECT_DIR$/Doc/Design.vsd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_center.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/data_center.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_collector.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/data_collector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/module_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/module_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/strategy/strategy_balance_sheet_basic_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/strategy/strategy_balance_sheet_basic_check.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/strategy_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/strategy_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui_module.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/unit_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/update_center.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/strategy/strategy_balance_sheet_basic_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/Recycled/strategy/strategy_balance_sheet_basic_check.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,16 +15,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="readme.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/readme.py">
-          <provider selected="true" editor-type-id="text-editor" />
+      <file leaf-file-name="UpdateTableExUi.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Database/UpdateTableExUi.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="155">
+              <caret line="72" column="24" lean-forward="true" selection-start-line="72" selection-start-column="24" selection-end-line="72" selection-end-column="24" />
+              <folding>
+                <element signature="e#133#213#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
+      <file leaf-file-name="AliasTableUi.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="152">
-              <caret line="8" column="17" lean-forward="true" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+            <state>
+              <caret selection-end-line="19" />
             </state>
           </provider>
         </entry>
@@ -159,6 +157,7 @@
         <option value="$PROJECT_DIR$/Database/AliasTable.py" />
         <option value="$PROJECT_DIR$/update_center.py" />
         <option value="$PROJECT_DIR$/Database/SqlRw.py" />
+        <option value="$PROJECT_DIR$/Database/UpdateTableExUi.py" />
       </list>
     </option>
   </component>
@@ -173,6 +172,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -183,13 +183,12 @@
             <path>
               <item name="StockAnalysisSystem" type="b2602c69:ProjectViewProjectNode" />
               <item name="StockAnalysisSystem" type="462c0819:PsiDirectoryNode" />
-              <item name="DataHub" type="462c0819:PsiDirectoryNode" />
+              <item name="Database" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -197,15 +196,15 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\D\Code\git\StockAnalysisSystem\Database" />
+      <recent name="C:\D\Code\git\StockAnalysisSystem\Collector" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\D\Private\Code\git\StockAnalysisSystem\Recycled" />
       <recent name="C:\D\Code\git\StockAnalysisSystem\Recycled" />
       <recent name="C:\D\Code\git\StockAnalysisSystem\Database" />
       <recent name="C:\D\Code\git\StockAnalysisSystem" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\D\Code\git\StockAnalysisSystem\Database" />
-      <recent name="C:\D\Code\git\StockAnalysisSystem\Collector" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -353,14 +352,14 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1743941" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1743941" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="10" sideWeight="0.50105375" side_tool="true" visible="true" weight="0.3273743" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5015806" side_tool="true" visible="true" weight="0.3273743" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4940429" weight="0.09461967" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="9" sideWeight="0.49947312" weight="0.3273743" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49894625" visible="true" weight="0.3273743" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49841937" visible="true" weight="0.3273743" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.55758536" weight="0.21706864" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -374,21 +373,21 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21604449" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3283859" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.43784785" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.16512059" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3283859" />
       <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.2820037" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3283859" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.16512059" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.3283859" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -498,6 +497,14 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/io/common.py" />
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/frame.py" />
     <entry file="file://$PROJECT_DIR$/../../../SDK/Anaconda3/Lib/site-packages/pandas/core/internals/managers.py" />
@@ -555,13 +562,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-76">
           <caret line="208" column="35" selection-start-line="208" selection-start-column="23" selection-end-line="208" selection-end-column="35" />
-          <folding>
-            <element signature="e#44#54#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py" />
     <entry file="file://$PROJECT_DIR$/stock_analysis_system.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
@@ -613,11 +616,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Recycled/data_collector.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3135">
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
+        <state relative-caret-position="-3135" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Recycled/data_center.py">
@@ -641,23 +640,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui_module.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="16" column="43" lean-forward="true" selection-start-line="16" selection-start-column="43" selection-end-line="16" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/update_center.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/ui_module.py" />
     <entry file="file://$PROJECT_DIR$/Recycled/unit_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="43" lean-forward="true" selection-start-line="43" selection-end-line="43" />
-          <folding>
-            <element signature="e#135#151#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -680,18 +667,38 @@
         <state relative-caret-position="-282" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/strategy/strategy_balance_sheet_basic_check.py">
+    <entry file="file://$PROJECT_DIR$/Recycled/strategy/strategy_balance_sheet_basic_check.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-73" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/readme.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
+      <provider editor-type-id="text-editor">
         <state relative-caret-position="152">
           <caret line="8" column="17" lean-forward="true" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+        </state>
+      </provider>
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/AliasTableUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret selection-end-line="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Database/UpdateTableExUi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="72" column="24" lean-forward="true" selection-start-line="72" selection-start-column="24" selection-end-line="72" selection-end-column="24" />
+          <folding>
+            <element signature="e#133#213#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
