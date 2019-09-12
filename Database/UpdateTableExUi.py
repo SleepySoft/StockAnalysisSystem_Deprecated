@@ -67,11 +67,14 @@ class UpdateTableExUi(QWidget):
         self.__update_table = update_table
         self.__update_agents = []
 
+        self.__ui_inited = False
+
     def init_ui(self):
         pass
 
     def update_ui(self):
-        pass
+        if not self.__ui_inited:
+            return
 
     def get_update_table(self) -> UpdateTableEx:
         return self.__update_table
