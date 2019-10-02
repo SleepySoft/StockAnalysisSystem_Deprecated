@@ -1,6 +1,8 @@
 # StockAnalysisSystem
 This program is designed for Chinese market and Chinese accounting policies (currently). So this document will only provide Chinese version.
 
+# SORRY, currently I'm focusing on "History" project. I'll continue this project after "History" done.
+
 # 股票分析系统
 
 更确切的说，应该叫上市公司财报分析系统。当初写这个程序的目的就是能够快速高效地分析和排除上市公司。这一想法来源于《手把手教你读财报》里的一句话：财报是用来排除公司的。
