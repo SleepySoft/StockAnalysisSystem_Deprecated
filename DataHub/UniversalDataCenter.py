@@ -10,6 +10,7 @@ try:
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
+    from Database import NoSqlRw
     from Database import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
@@ -19,6 +20,7 @@ except Exception as e:
     from Utiltity.common import *
     from Utiltity.df_utility import *
     from Utiltity.time_utility import *
+    from Database import NoSqlRw
     from Database import UpdateTableEx
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
@@ -26,21 +28,22 @@ finally:
     logger = logging.getLogger('')
 
 
-UPDATE_STRATEGY_TYPE = int
-
-UPDATE_STRATEGY_AUTO = 1
-UPDATE_STRATEGY_POSITIVE = 2
-UPDATE_STRATEGY_MANUAL = 3
-UPDATE_STRATEGY_OFFLINE = 4
+# UPDATE_STRATEGY_TYPE = int
+#
+# UPDATE_STRATEGY_AUTO = 1
+# UPDATE_STRATEGY_POSITIVE = 2
+# UPDATE_STRATEGY_MANUAL = 3
+# UPDATE_STRATEGY_OFFLINE = 4
 
 
 class UniversalDataTable:
-    def __init__(self, uri: str, identify_field: str, time_serial_field: str):
+    def __init__(self, uri: str, depot_name: str, table_prefix: str,
+                 identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
         self.__uri = uri
-        self.__identify_field = identify_field
-        self.__time_serial_field = time_serial_field
-
-        self.__table = None
+        self.__depot_name = depot_name
+        self.__table_prefix = table_prefix
+        self.__identity_field = identity_field
+        self.__datetime_field = datetime_field
 
     # -------------------------------------------------------------------
 
@@ -50,28 +53,37 @@ class UniversalDataTable:
     def query(self, uri: str, identify: str or [str], time_serial: tuple, extra: dict) -> pd.DataFrame or None:
         pass
 
-    def merge(self, df: pd.DataFrame):
-        pass
+    def merge(self, uri: str, identify: str, df: pd.DataFrame):
+        table = self.data_table(uri, identify, (None, None), {})
+        identity_field, datetime_field = table.identity_field(), table.datetime_field()
+
+        for index, row in df.iterrows():
+            if NoSqlRw.str_available(identity_field):
+                identity_value = row[identity_field]
+            else:
+                identity_value = None
+            if NoSqlRw.str_available(datetime_field):
+                datetime_value = row[datetime_field]
+                if isinstance(datetime_value, str):
+                    datetime_value = text_auto_time(datetime_value)
+            else:
+                datetime_value = None
+            table.upsert(identity_value, datetime_value, row.to_dict())
 
     def range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime) or None:
-        nop(uri)
-        nop(identify)
-        return None
+        table = self.data_table(uri, identify, (None, None), {})
+        return table.min_of(table.datetime_field()), table.max_of(table.datetime_field())
 
     def ref_range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime) or None:
-        nop(uri)
-        nop(identify)
-        return None
+        pass
 
     def update_range(self) -> (datetime.datetime, datetime.datetime) or None:
         pass
 
-    def depot_name(self, uri: str, identify: str or [str], time_serial: tuple, extra: dict) -> str:
-        nop(self)
-        nop(identify)
-        nop(time_serial)
-        nop(extra)
-        return uri.replace('.', '_')
+    def data_table(self, uri: str, identify: str or [str], time_serial: tuple, extra: dict) -> NoSqlRw.ItkvTable:
+        nop(identify, time_serial, extra)
+        return DatabaseEntry().query_nosql_table(self.__depot_name, uri.replace('.', '_'),
+                                                 self.__identity_field, self.__datetime_field)
 
 
 # ----------------------------------------------------------------------------------------------------------------------

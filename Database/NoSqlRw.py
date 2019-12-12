@@ -7,6 +7,10 @@ import config
 from pymongo import MongoClient
 
 
+def str_available(value: str) -> bool:
+    return value is not None and isinstance(value, str) and value != ''
+
+
 def text2date(text: str) -> datetime:
     return datetime.strptime(text, '%Y-%m-%d')
 
@@ -291,10 +295,21 @@ class ItkvTable:
     Other Key-Value pairs are extendable
     """
 
-    def __init__(self, client: MongoClient, database: str, table: str):
+    def __init__(self, client: MongoClient, database: str, table: str,
+                 identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
         self.__client = client
         self.__database = database
         self.__table = table
+        self.__identity_field = identity_field
+        self.__datetime_field = datetime_field
+
+    def identity_field(self) -> str or None:
+        return self.__identity_field
+
+    def datetime_field(self) -> str or None:
+        return self.__datetime_field
+
+    # -----------------------------------------------------------------
 
     def drop(self):
         collection = self.__get_collection()
@@ -313,6 +328,7 @@ class ItkvTable:
         Args:
             identity    : str or list of str, None if you don't want to specify
             time        : datetime or time format str, None if you don't want to specify
+            data        : the data that you want to update or insert
             extra_spec  : dict, to specify the extra conditions, None if you don't want to specify
             identity and time are also the conditions to find the entries
         Return value:
@@ -328,19 +344,20 @@ class ItkvTable:
         if isinstance(time, str):
             time = text_auto_time(time)
         document = {}
-        if identity is not None and isinstance(identity, str) and identity != '':
-            document['Identity'] = identity
-        if time is not None:
-            document['DateTime'] = time
+        if str_available(self.__identity_field) and str_available(identity):
+            document[self.__identity_field] = identity
+        if str_available(self.__datetime_field) and time is not None:
+            document[self.__datetime_field] = time
         document.update(data)
-        return collection.update_many(spec, {'$set': document}, True)
+        return collection.update_many(spec, {'$set': document}, True) if len(spec) > 0 else collection.insert(document)
 
     def delete(self, identity: str or list = None, since: datetime = None, until: datetime = None,
                extra_spec: dict = None, keys: list = None):
         """ Delete document or delete key-value in document.
         Args:
             identity        : str or list of str, None if you don't want to specify
-            since, until    : datetime or time format str, None if you don't want to specify
+            since           : datetime or time format str, None if you don't want to specify
+            until           : datetime or time format str, None if you don't want to specify
             extra_spec      : dict, to specify the extra conditions, None if you don't want to specify
             keys            : The keys you want to remove, None to move the whole document
         Return value:
@@ -467,36 +484,40 @@ class ItkvTable:
             None
         """
 
-        if identity is None:
+        if identity is None or identity == '':
             spec = {}
-        elif isinstance(identity, str):
-            spec = {'Identity': identity}
-        elif isinstance(identity, list):
-            spec = {'Identity': {'$in': identity}}
-        else:
-            raise Exception('<identity> should be str or a list of str, or just None')
+        elif str_available(self.__identity_field) and str_available(identity):
+            spec = {self.__identity_field: identity}
+        elif str_available(self.__identity_field) and isinstance(identity, (list, tuple)):
+            spec = {self.__identity_field: {'$in': list(identity)}}
+        # else:
+        #     raise Exception('<identity> should be str or a list of str, or just None')
 
         if isinstance(since, str):
             since = text_auto_time(since)
         elif isinstance(since, datetime) or since is None:
             pass
-        else:
-            raise Exception('<since> should be time format str or datetime, or just None')
+        # else:
+        #     raise Exception('<since> should be time format str or datetime, or just None')
 
         if isinstance(until, str):
             until = text_auto_time(until)
         elif isinstance(until, datetime) or until is None:
             pass
-        else:
-            raise Exception('<until> should be time format str or datetime, or just None')
+        # else:
+            # raise Exception('<until> should be time format str or datetime, or just None')
 
         time_limit = {}
-        if since is not None:
-            time_limit['$gte'] = since
-        if until is not None:
-            time_limit['$lte'] = until
-        if len(time_limit) > 0:
-            spec['DateTime'] = time_limit
+        if since is not None or until is not None:
+            if since == until:
+                time_limit['$eq'] = until
+            else:
+                if since is not None:
+                    time_limit['$gte'] = since
+                if until is not None:
+                    time_limit['$lte'] = until
+        if str_available(self.__datetime_field) and len(time_limit) > 0:
+            spec[self.__datetime_field] = time_limit
 
         if extra_spec is not None and len(extra_spec) > 0:
             spec.update(extra_spec)
@@ -736,6 +757,105 @@ def test_min_max():
     assert str(max_time) == '2200-12-01 00:00:00'
 
 
+def test_upsert_by_identify_and_datetime():
+    table = __prepare_empty_test_table()
+
+    print('------------------------------- upsert_by_identify_and_datetime 01 -------------------------------')
+
+    table.upsert('identity1', '2000-01-01', {'Foo1': 'bar1'})
+    table.upsert('identity2', '2000-02-01', {'Foo2': 'bar2'})
+    table.upsert('identity3', '2000-03-01', {'Foo3': 'bar3'})
+    table.upsert('identity4', '2000-04-01', {'Foo4': 'bar4'})
+    table.upsert('identity5', '2000-04-01', {'Foo5': 'bar5'})
+
+    result = table.query()
+    print(result)
+    assert(len(result) == 5)
+
+    print('------------------------------- upsert_by_identify_and_datetime 02 -------------------------------')
+
+    table.upsert('identity1', '2000-01-01', {'Foo1': 'bar1', 'Foo2': 'bar2'})
+    table.upsert('identity1', '2000-02-01', {'Foo1': 'bar1', 'Foo2': 'bar2'})
+    table.upsert('identity1', '2000-03-01', {'Foo1': 'bar1', 'Foo2': 'bar2'})
+
+    result = table.query('identity1')
+    print(result)
+    assert(len(result) == 3)
+
+
+def test_upsert_by_identify_or_datetime():
+    table = __prepare_empty_test_table()
+
+    print('------------------------------- upsert_by_identify_or_datetime 00 -------------------------------')
+
+    table.upsert('identity1', '', {'Foo1': 'bar1'})
+    table.upsert('identity2', None, {'Foo2': 'bar2'})
+    table.upsert(None, None, {'Foo3': 'bar3'})
+    table.upsert('', '2000-04-01', {'Foo4': 'bar4'})
+    table.upsert(None, '2000-05-01', {'Foo5': 'bar5'})
+
+    result = table.query()
+    print(result)
+    assert(len(result) == 5)
+
+    print('------------------------------- upsert_by_identify_or_datetime 03 -------------------------------')
+
+    # Without identify and time, just insert anyway
+
+    table.upsert('', None, {'Foo1': 'bar1'})
+    table.upsert(None, '', {'Foo2': 'bar2'})
+    table.upsert(None, None, {'Foo3': 'bar3'})
+
+    result = table.query()
+    print(result)
+    assert(len(result) == 8)
+
+    print('------------------------------- upsert_by_identify_or_datetime 01 -------------------------------')
+
+    table.upsert('identity1', '', {'Foo2': 'bar2'})
+    table.upsert('identity1', None, {'Foo3': 'bar3'})
+
+    result = table.query('identity1')
+    print(result)
+    assert(len(result) == 1)
+    assert(result[0]['Foo1'] == 'bar1')
+    assert(result[0]['Foo2'] == 'bar2')
+    assert(result[0]['Foo3'] == 'bar3')
+
+    print('------------------------------- upsert_by_identify_or_datetime 02 -------------------------------')
+
+    table.upsert('identity2', None, {'Foo1': 'bar1'})
+    table.upsert('identity2', '', {'Foo2': 'bar2'})
+    table.upsert('identity2', None, {'Foo3': 'bar3'})
+
+    result = table.query('identity2')
+    print(result)
+    assert(len(result) == 1)
+    assert(result[0]['Foo1'] == 'bar1')
+    assert(result[0]['Foo2'] == 'bar2')
+    assert(result[0]['Foo3'] == 'bar3')
+
+    print('------------------------------- upsert_by_identify_or_datetime 0405 -------------------------------')
+
+    table.upsert('', '2000-04-01', {'Foo4': 'bar44'})
+    table.upsert('', '2000-04-01', {'Foo7': 'bar7'})
+    table.upsert(None, '2000-04-01', {'Foo6': 'bar6'})
+    table.upsert(None, '2000-05-01', {'Foo9': 'bar9'})
+
+    result = table.query(None, '2000-04-01', '2000-04-01')
+    print(result)
+    assert(len(result) == 1)
+    assert(result[0]['Foo4'] == 'bar44')
+    assert(result[0]['Foo7'] == 'bar7')
+    assert(result[0]['Foo6'] == 'bar6')
+
+    result = table.query('', '2000-05-01', '2000-05-01')
+    print(result)
+    assert(len(result) == 1)
+    assert(result[0]['Foo5'] == 'bar5')
+    assert(result[0]['Foo9'] == 'bar9')
+
+
 def test_entry():
     test_basic_update_query_drop()
     test_query()
@@ -744,6 +864,8 @@ def test_entry():
     test_get_all_keys()
     test_remove_key()
     test_min_max()
+    test_upsert_by_identify_and_datetime()
+    test_upsert_by_identify_or_datetime()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

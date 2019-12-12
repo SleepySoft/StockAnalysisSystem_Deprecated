@@ -35,6 +35,8 @@ class DatabaseEntry:
         if data_path is None or not isinstance(data_path, str):
             data_path = root_path + '/Data/'
 
+        self.__no_sql_tables = {}
+
         self.__sAsUtility = SqlAccess(data_path + 'sAsUtility.db')
         self.__sAsDailyData = SqlAccess(data_path + 'sAsDailyData.db')
         self.__sAsFinanceData = SqlAccess(data_path + 'sAsFinanceData.db')
@@ -55,6 +57,18 @@ class DatabaseEntry:
             'CashFlowStatement': ItkvTable(self.get_mongo_db_client(),
                                            'StockAnalysisSystem', 'CashFlowStatement'),
         }
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def query_nosql_table(self, db: str, table: str,
+                          identity_field: str = 'Identity',
+                          datetime_field: str = 'DateTime') -> ItkvTable:
+        if db not in self.__no_sql_tables.keys():
+            self.__no_sql_tables[db] = {}
+        db_entry = self.__no_sql_tables.get(db)
+        if table not in db_entry.keys():
+            db_entry[table] = ItkvTable(self.get_mongo_db_client(), db, table, identity_field, datetime_field)
+        return db_entry.get(table)
 
     # ------------------------------------------------- Database Entry -------------------------------------------------
 
