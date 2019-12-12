@@ -8,7 +8,7 @@ class Collector:
     def inited(self) -> bool:
         pass
 
-    # Validate this collector is still valid or not.
+    # Validate this Collector is still valid or not.
     def validate(self) -> bool:
         pass
 

@@ -62,7 +62,7 @@ def test_fetch_annual_pdf_from_szse():
 
 
 # def test__StockFinancialDataFromSZSE():
-#     import collector.stock_fina_szse as sf
+#     import Collector.stock_fina_szse as sf
 #     # sf.StockFinancialDataFromSZSE().TestWithFile('D:/example.html')
 #     sf.DownloadStockAnnualReport()
 

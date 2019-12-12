@@ -34,9 +34,10 @@ class PluginManager:
             try:
                 plugin = __import__(plugin_name)
             except Exception as e:
-                print('Error when import module: ' + plugin_name)
+                print('Error => When import module: ' + plugin_name)
                 print('Error =>', e)
                 print('Error =>', traceback.format_exc())
+                print('Error => Ignore')
                 continue
             finally:
                 pass
@@ -54,8 +55,9 @@ class PluginManager:
         """
         module_list = []
         for file_name, plugin in self.__plugins:
-            capacities = self.__safe_execute(plugin, 'plugin_capacities')
-            if isinstance(capacities, list) and capacity in capacities:
+            # capacities = self.__safe_execute(plugin, 'plugin_capacities')
+            # if isinstance(capacities, list) and capacity in capacities:
+            if self.__safe_execute(plugin, 'plugin_adapt', {'uri': capacity}):
                 module_list.append(plugin)
         return module_list
 

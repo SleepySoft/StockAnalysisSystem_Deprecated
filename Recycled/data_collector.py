@@ -103,7 +103,7 @@ class FetchContext:
         self.__plugin_loader = module_manager.ModuleManager()
 
     def Init(self) -> bool:
-        return self.__plugin_loader.LoadModuleFromFolder('collector')
+        return self.__plugin_loader.LoadModuleFromFolder('Collector')
 
     # ------------------------- Plugin Specify/Exclude -------------------------
 
@@ -180,7 +180,7 @@ class DataCollector:
         self.__collector_loader = module_manager.ModuleManager()
 
     def Init(self) -> bool:
-        return self.__collector_loader.LoadModuleFromFolder('collector')
+        return self.__collector_loader.LoadModuleFromFolder('Collector')
 
     # --------------------------------------- User Interface ---------------------------------------
 

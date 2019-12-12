@@ -25,7 +25,7 @@ class StockCalendar:
         self.__calendar = df
         return True
 
-    # Auto check and update data to DB. Depends on collector's implementation.
+    # Auto check and update data to DB. Depends on Collector's implementation.
     def check_update(self, **kw) -> bool:
         return self.force_update()
 

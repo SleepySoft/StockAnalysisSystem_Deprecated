@@ -20,6 +20,13 @@ def yesterday() -> datetime.datetime:
     return text2date(date_text)
 
 
+def days_ago(days: int) -> datetime.datetime:
+    now_date = datetime.datetime.today()
+    now_date -= datetime.timedelta(days=days)
+    date_text = now_date.strftime('%Y-%m-%d')
+    return text2date(date_text)
+
+
 def tomorrow_of(time: datetime.datetime):
     return time + datetime.timedelta(days=1)
 
@@ -68,4 +75,19 @@ def date2text(time: datetime.datetime) -> str:
 
 def datetime2text(time: datetime.datetime) -> str:
     return time.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def normalize_time_serial(time_serial: tuple or list,
+                          since_default: datetime.datetime = None,
+                          until_default: datetime.datetime = None) -> (datetime.datetime, datetime.datetime):
+    since = time_serial[0] if time_serial is not None and \
+                              isinstance(time_serial, (list, tuple)) and len(time_serial) > 0 else since_default
+    until = time_serial[1] if time_serial is not None and \
+                              isinstance(time_serial, (list, tuple)) and len(time_serial) > 1 else until_default
+    if since is not None and not isinstance(since, datetime.datetime):
+        since = text_auto_time(str(since))
+    if until is not None and not isinstance(until, datetime.datetime):
+        until = text_auto_time(str(until))
+    return since, until
+
 
