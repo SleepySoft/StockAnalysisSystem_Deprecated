@@ -152,7 +152,7 @@ class ParameterChecker:
 class UniversalDataTable:
     def __init__(self, uri: str, database_entry: DatabaseEntry, depot_name: str,
                  table_prefix: str, identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
-        self.__uri = uri
+        self.__uri = uri.lower()
         self.__database_entry = database_entry
         self.__depot_name = depot_name
         self.__table_prefix = table_prefix
@@ -297,19 +297,27 @@ class UniversalDataCenter:
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
             return False
-        if time_serial is not None:
+
+        since, until = normalize_time_serial(time_serial, None, None)
+        if since is not None and until is not None:
             # User specified
-            result = self.query_from_plugin(uri, identify, time_serial, extra)
-        else:
             pass
+        else:
+            # Guess the update date time range
+            update_since, update_until = table.update_range()
+            if update_since is not None and update_until is not None:
+                # Auto detect successfully
+                since, until = update_since, update_until
+            else:
+                last_update = self.get_update_table().get_last_update_time(identify.split('.'))
+                since = last_update
+                until = today()
 
-        update_since, update_until = table.update_range()
-        if update_since is None or update_until is None:
-            last_udpate = self.get_update_table().get_last_update_time(identify.split('.'))
-            update_since = last_udpate
-            update_until = today()
+        if since == until:
+            # Does not need update.
+            return True
 
-        result = self.query_from_plugin(uri, identify, (update_since, update_until), extra)
+        result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), extra)
         if result is None:
             self.log_error('Cannot fetch data from plugin for : ' + uri)
             return False

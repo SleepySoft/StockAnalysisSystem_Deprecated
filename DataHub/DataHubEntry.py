@@ -5,26 +5,18 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import Utiltity.common as common
-
-    # from DataHub.finance_data import FinanceData
-    # from DataHub.trade_calendar import TradeCalendar
-    # from DataHub.securities_info import SecuritiesInfo
-    from DataHub.UniversalDataCenter import UniversalDataTable
-    from DataHub.UniversalDataCenter import UniversalDataCenter
-
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.UniversalDataCenter import UniversalDataTable
+    from DataHub.UniversalDataCenter import UniversalDataCenter
 except Exception as e:
     sys.path.append(root_path)
 
     import Utiltity.common as common
-
-    # from DataHub.finance_data import FinanceData
-    # from DataHub.trade_calendar import TradeCalendar
-    # from DataHub.securities_info import SecuritiesInfo
-
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.UniversalDataCenter import UniversalDataTable
+    from DataHub.UniversalDataCenter import UniversalDataCenter
 finally:
     logger = logging.getLogger('')
 
