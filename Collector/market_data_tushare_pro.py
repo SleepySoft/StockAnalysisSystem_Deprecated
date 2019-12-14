@@ -23,6 +23,13 @@ ts.set_token(config.TS_TOKEN)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+CAPACITY_LIST = {
+    'Marker.TradeCalender',
+    'Marker.SecuritiesInfo',
+    'Marker.IndexComponent',
+}
+
+
 def plugin_prob() -> dict:
     return {
         'plugin_name': 'market_data_tushare_pro',
@@ -31,28 +38,24 @@ def plugin_prob() -> dict:
     }
 
 
+def plugin_adapt(uri: str) -> bool:
+    return uri in CAPACITY_LIST
+
+
 def plugin_capacities() -> list:
-    return [
-        'TradeCalender',
-        'SecuritiesInfo',
-        'IndexComponent',
-    ]
+    return CAPACITY_LIST
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def __fetch_trade_calender(**kwargs) -> pd.DataFrame:
-    exchange = kwargs.get('exchange')
-    since = kwargs.get('since')
-    until = kwargs.get('until')
-    if not isinstance(exchange, str) or \
-       not isinstance(since, (date, str)) or \
-       not isinstance(until, (date, str)):
+def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
+    exchange = kwargs.get('exchange', '')
+    if str_available(exchange) and exchange not in ['SSE', 'SZSE']:
         return None
-    if isinstance(since, str):
-        since = text2date(since)
-    if isinstance(until, str):
-        since = text2date(until)
+
+    time_serial = kwargs.get('datetime', None)
+    since, until = normalize_time_serial(time_serial, text2date('1900-01-01'), today())
+
     ts_since = since.strftime('%Y%m%d')
     ts_until = until.strftime('%Y%m%d')
 
@@ -72,7 +75,7 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame:
     return result
 
 
-def __fetch_securities_info(**kwargs) -> pd.DataFrame:
+def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
     # exchange = kwargs.get('exchange')
     # if isinstance(exchange, str):
     #     exchange = [str]
@@ -102,17 +105,21 @@ def __fetch_securities_info(**kwargs) -> pd.DataFrame:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def query(**kwargs) -> pd.DataFrame or None:
+    uri = kwargs.get('uri')
+    if uri == 'Marker.TradeCalender':
+        return __fetch_trade_calender(**kwargs)
+    elif uri == 'Marker.SecuritiesInfo':
+        return __fetch_securities_info(**kwargs)
+    elif uri == 'Marker.IndexComponent':
+        return None
+    else:
+        return None
+
+
 def validate(**kwargs) -> bool:
-    content = kwargs.get('content')
+    nop(kwargs)
     return True
 
 
-def fetch_data(**kwargs) -> pd.DataFrame:
-    content = kwargs.get('content')
-    if content == 'TradeCalender':
-        return __fetch_trade_calender(**kwargs)
-    elif content == 'SecuritiesInfo':
-        return __fetch_securities_info(**kwargs)
-    else:
-        return None
 

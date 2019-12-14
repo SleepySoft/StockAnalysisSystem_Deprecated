@@ -6,14 +6,30 @@ import main_ui
 import stock_analysis_system
 
 
-def main():
-    sas = stock_analysis_system.StockAnalysisSystem()
-    sas.check_initialize()
-
+def run_ui():
     app = QApplication(sys.argv)
     main_wnd = main_ui.MainWindow()
     main_wnd.show()
     app.exec_()
+
+
+def run_console():
+    sas = stock_analysis_system.StockAnalysisSystem()
+    data_hub = sas.get_data_hub_entry()
+    data_center = data_hub.get_data_center()
+
+    data_center.update_local_data('Marker.SecuritiesInfo', exchange='')
+    data_center.update_local_data('Marker.SecuritiesInfo', exchange='')
+
+    exit(0)
+
+
+def main():
+    sas = stock_analysis_system.StockAnalysisSystem()
+    sas.check_initialize()
+
+    run_console()
+    run_ui()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

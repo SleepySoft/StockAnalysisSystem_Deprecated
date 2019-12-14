@@ -26,6 +26,7 @@ class DataHubEntry:
         self.__database_entry = database_entry
         self.__collector_plugin = collector_plugin
         self.__data_center = UniversalDataCenter(database_entry, collector_plugin)
+        self.build_data_table()
 
     def get_data_center(self) -> UniversalDataCenter:
         return self.__data_center
@@ -35,6 +36,11 @@ class DataHubEntry:
             UniversalDataTable('Finance.BalanceSheet', self.__database_entry, 'StockAnalysisSystem'),
             UniversalDataTable('Finance.IncomeStatement', self.__database_entry, 'StockAnalysisSystem'),
             UniversalDataTable('Finance.CashFlowStatement', self.__database_entry, 'StockAnalysisSystem'),
+
+            UniversalDataTable('Marker.TradeCalender', self.__database_entry, 'StockAnalysisSystem',
+                               identity_field='exchange', datetime_field='trade_date'),
+            UniversalDataTable('Marker.SecuritiesInfo', self.__database_entry, 'StockAnalysisSystem',
+                               identity_field='code'),
         ]
         for table in table_list:
             self.get_data_center().register_data_table(table)

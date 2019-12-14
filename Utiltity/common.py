@@ -175,6 +175,10 @@ def correct_start_end(start: int, end: int, start_limit: int, end_limit: int) ->
     return _start, _end
 
 
+def str_available(value: str) -> bool:
+    return value is not None and isinstance(value, str) and value != ''
+
+
 # -------------------------------------------- DataFrame operation --------------------------------------------
 
 def ClipDataFrame(df: pd.DataFrame, index: [int], columns: [str]):

@@ -150,9 +150,29 @@ class ParameterChecker:
 
 
 class UniversalDataTable:
-    def __init__(self, uri: str, database_entry: DatabaseEntry, depot_name: str,
-                 table_prefix: str, identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
-        self.__uri = uri.lower()
+    DEFAULT_SINCE_DATE = text2date('1900-01-01')
+
+    def __init__(self,
+                 uri: str, database_entry: DatabaseEntry,
+                 depot_name: str, table_prefix: str = '',
+                 identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
+        """
+        If you specify both identity_field and datetime_field, the combination will be the primary key. Which means
+            an id can have multiple different time serial record. e.g. stock daily price table.
+        If you only specify the identity_field, the identity_field will be the only primary key. Which means
+            its a time independent serial record with id. e.g. stock information table
+        If you only specify the datetime_field, the datetime_field will be the only primary key. Which means
+            it's a time serial record without id. e.g. log table
+        If you do not specify neither identity_field and datetime_field, the table has not primary key. Which means
+            the table cannot not updated by id or time. Record is increase only except update by manual.
+        :param uri: The URI of the resource.
+        :param database_entry: The instance of DatabaseEntry.
+        :param depot_name: The name of database.
+        :param table_prefix: The prefix of table, default empty.
+        :param identity_field: The identity filed name.
+        :param datetime_field: The datetime filed name.
+        """
+        self.__uri = uri
         self.__database_entry = database_entry
         self.__depot_name = depot_name
         self.__table_prefix = table_prefix
@@ -168,7 +188,7 @@ class UniversalDataTable:
     # -------------------------------------------------------------------
 
     def adapt(self, uri: str) -> bool:
-        return self.__uri == uri
+        return self.__uri.lower() == uri.lower()
 
     def query(self, uri: str, identify: str or [str], time_serial: tuple,
               extra: dict, fields: list) -> pd.DataFrame or None:
@@ -212,7 +232,7 @@ class UniversalDataTable:
 
     def data_table(self, uri: str, identify: str or [str], time_serial: tuple, extra: dict) -> NoSqlRw.ItkvTable:
         nop(identify, time_serial, extra)
-        return self.__database_entry.query_nosql_table(self.__depot_name, uri.replace('.', '_'),
+        return self.__database_entry.query_nosql_table(self.__depot_name, self.__table_prefix + uri.replace('.', '_'),
                                                        self.__identity_field, self.__datetime_field)
 
 
@@ -250,11 +270,12 @@ class UniversalDataCenter:
 
     # -------------------------------------------------------------------
 
-    def query(self, uri: str, identify: str or [str], time_serial: tuple, extra: dict) -> pd.DataFrame or None:
+    def query(self, uri: str, identify: str or [str] = None,
+              time_serial: tuple = None, **extra) -> pd.DataFrame or None:
         return self.query_from_local(uri, identify, time_serial, extra)
 
-    def query_from_local(self, uri: str, identify: str or [str],
-                         time_serial: tuple, extra: dict) -> pd.DataFrame or None:
+    def query_from_local(self, uri: str, identify: str or [str] = None,
+                         time_serial: tuple = None, extra: dict = None) -> pd.DataFrame or None:
         table = self.get_data_table(uri)
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
@@ -262,8 +283,8 @@ class UniversalDataCenter:
         result = table.query(uri, identify, time_serial, extra)
         return result
 
-    def query_from_plugin(self, uri: str, identify: str or [str],
-                          time_serial: tuple, extra: dict = None) -> pd.DataFrame or None:
+    def query_from_plugin(self, uri: str, identify: str or [str] = None,
+                          time_serial: tuple = None, **extra) -> pd.DataFrame or None:
         table = self.get_data_table(uri)
 
         if table is not None:
@@ -291,8 +312,8 @@ class UniversalDataCenter:
                 return df
         return None
 
-    def update_local_data(self, uri: str, identify: str or [str],
-                          time_serial: tuple = None, extra: dict = None) -> bool:
+    def update_local_data(self, uri: str, identify: str or [str] = None,
+                          time_serial: tuple = None, **extra) -> bool:
         table = self.get_data_table(uri)
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
@@ -304,20 +325,20 @@ class UniversalDataCenter:
             pass
         else:
             # Guess the update date time range
-            update_since, update_until = table.update_range()
+            update_since, update_until = table.update_range(uri, identify)
             if update_since is not None and update_until is not None:
                 # Auto detect successfully
                 since, until = update_since, update_until
             else:
-                last_update = self.get_update_table().get_last_update_time(identify.split('.'))
-                since = last_update
+                last_update = self.get_update_table().get_last_update_time(uri.split('.'))
+                since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
                 until = today()
 
         if since == until:
             # Does not need update.
             return True
 
-        result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), extra)
+        result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), **extra)
         if result is None:
             self.log_error('Cannot fetch data from plugin for : ' + uri)
             return False
