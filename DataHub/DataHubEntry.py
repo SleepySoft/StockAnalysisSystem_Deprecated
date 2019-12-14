@@ -40,7 +40,7 @@ class DataHubEntry:
             UniversalDataTable('Marker.TradeCalender', self.__database_entry, 'StockAnalysisSystem',
                                identity_field='exchange', datetime_field='trade_date'),
             UniversalDataTable('Marker.SecuritiesInfo', self.__database_entry, 'StockAnalysisSystem',
-                               identity_field='code'),
+                               identity_field='code', datetime_field=None),
         ]
         for table in table_list:
             self.get_data_center().register_data_table(table)

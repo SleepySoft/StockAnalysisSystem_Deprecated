@@ -155,7 +155,8 @@ class UniversalDataTable:
     def __init__(self,
                  uri: str, database_entry: DatabaseEntry,
                  depot_name: str, table_prefix: str = '',
-                 identity_field: str = 'Identity', datetime_field: str = 'DateTime'):
+                 identity_field: str = 'Identity' or None,
+                 datetime_field: str = 'DateTime' or None):
         """
         If you specify both identity_field and datetime_field, the combination will be the primary key. Which means
             an id can have multiple different time serial record. e.g. stock daily price table.
@@ -205,21 +206,30 @@ class UniversalDataTable:
         identity_field, datetime_field = table.identity_field(), table.datetime_field()
 
         for index, row in df.iterrows():
+            identity_value = None
             if NoSqlRw.str_available(identity_field):
-                identity_value = row[identity_field]
-            else:
-                identity_value = None
+                if identity_field in list(row.index):
+                    identity_value = row[identity_field]
+            if NoSqlRw.str_available(identity_field) and identity_value is None:
+                print('Warning: identity field "' + identity_field + '" of <' + uri + '> missing.')
+                continue
+
+            datetime_value = None
             if NoSqlRw.str_available(datetime_field):
-                datetime_value = row[datetime_field]
-                if isinstance(datetime_value, str):
-                    datetime_value = text_auto_time(datetime_value)
-            else:
-                datetime_value = None
+                if datetime_field in list(row.index):
+                    datetime_value = row[datetime_field]
+                    if isinstance(datetime_value, str):
+                        datetime_value = text_auto_time(datetime_value)
+            if NoSqlRw.str_available(datetime_field) and datetime_value is None:
+                print('Warning: datetime field "' + datetime_field + '" of <' + uri + '> missing.')
+                continue
+
             table.upsert(identity_value, datetime_value, row.to_dict())
 
     def range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
         table = self.data_table(uri, identify, (None, None), {})
-        return table.min_of(table.datetime_field()), table.max_of(table.datetime_field())
+        return (table.min_of(self.datetime_field()), table.max_of(self.datetime_field())) \
+            if str_available(self.datetime_field()) else (None, None)
 
     def ref_range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
         nop(self, uri, identify)
