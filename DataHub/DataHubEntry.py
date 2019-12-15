@@ -21,6 +21,42 @@ finally:
     logger = logging.getLogger('')
 
 
+NO_SPEC = {
+}
+
+RESULT_FIELDS_SECURITIES_INFO = {
+    'code':           (['str'], []),
+    'name':           (['str'], []),
+    'area':           (['str'], []),
+    'industry':       (['str'], []),
+    'fullname':       (['str'], []),
+    'en_name':        (['str'], []),
+    'market':         (['str'], []),
+    'exchange':       (['str'], ['SSE', 'SZSE']),
+    'currency':       (['str'], []),
+    'list_status':    (['int'], []),
+    'listing_date':   (['datetime'], []),
+    'delisting_date': (['datetime'], []),
+    'stock_connect':  (['int'], []),
+}
+
+
+PLUGIN_DEC_URI = 0
+PLUGIN_DEC_IDENTITY_FIELD = 1
+PLUGIN_DEC_DATETIME_FIELD = 2
+PLUGIN_DEC_QUERY_FIELD_INFO = 3
+PLUGIN_DEC_RESULT_FIELD_INFO = 4
+
+DATA_FORMAT_DECLARE = [
+    ('Marker.TradeCalender', 'exchange', 'trade_date', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Marker.SecuritiesInfo', 'code', None, NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+
+    ('Finance.BalanceSheet', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.CashFlowStatement', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+]
+
+
 class DataHubEntry:
     def __init__(self, database_entry: DatabaseEntry, collector_plugin: PluginManager):
         self.__database_entry = database_entry
@@ -32,18 +68,21 @@ class DataHubEntry:
         return self.__data_center
 
     def build_data_table(self):
-        table_list = [
-            UniversalDataTable('Finance.BalanceSheet', self.__database_entry, 'StockAnalysisSystem'),
-            UniversalDataTable('Finance.IncomeStatement', self.__database_entry, 'StockAnalysisSystem'),
-            UniversalDataTable('Finance.CashFlowStatement', self.__database_entry, 'StockAnalysisSystem'),
-
-            UniversalDataTable('Marker.TradeCalender', self.__database_entry, 'StockAnalysisSystem',
-                               identity_field='exchange', datetime_field='trade_date'),
-            UniversalDataTable('Marker.SecuritiesInfo', self.__database_entry, 'StockAnalysisSystem',
-                               identity_field='code', datetime_field=None),
-        ]
-        for table in table_list:
-            self.get_data_center().register_data_table(table)
+        # table_list = [
+        #     UniversalDataTable('Finance.BalanceSheet', self.__database_entry, 'StockAnalysisSystem'),
+        #     UniversalDataTable('Finance.IncomeStatement', self.__database_entry, 'StockAnalysisSystem'),
+        #     UniversalDataTable('Finance.CashFlowStatement', self.__database_entry, 'StockAnalysisSystem'),
+        #
+        #     UniversalDataTable('Marker.TradeCalender', self.__database_entry, 'StockAnalysisSystem',
+        #                        identity_field='exchange', datetime_field='trade_date'),
+        #     UniversalDataTable('Marker.SecuritiesInfo', self.__database_entry, 'StockAnalysisSystem',
+        #                        identity_field='code', datetime_field=None),
+        # ]
+        for data_format in DATA_FORMAT_DECLARE:
+            self.get_data_center().register_data_table(
+                UniversalDataTable(data_format[PLUGIN_DEC_URI], self.__database_entry, 'StockAnalysisSystem',
+                                   data_format[PLUGIN_DEC_IDENTITY_FIELD], data_format[PLUGIN_DEC_DATETIME_FIELD])
+            )
 
 
 

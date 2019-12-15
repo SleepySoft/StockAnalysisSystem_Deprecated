@@ -354,7 +354,7 @@ class UniversalDataCenter:
             return False
 
         table.merge(uri, identify, result)
-        self.get_update_table().update_latest_update_time(identify.split('.'))
+        self.get_update_table().update_latest_update_time(uri.split('.'))
 
         return True
 

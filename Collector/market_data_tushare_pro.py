@@ -76,10 +76,6 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
 
 
 def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
-    # exchange = kwargs.get('exchange')
-    # if isinstance(exchange, str):
-    #     exchange = [str]
-
     pro = ts.pro_api()
     # If we specify the exchange parameter, it raises error.
     result = pro.stock_basic()
