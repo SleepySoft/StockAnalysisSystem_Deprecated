@@ -24,36 +24,56 @@ finally:
 NO_SPEC = {
 }
 
-RESULT_FIELDS_SECURITIES_INFO = {
-    'code':           (['str'], []),
-    'name':           (['str'], []),
-    'area':           (['str'], []),
-    'industry':       (['str'], []),
-    'fullname':       (['str'], []),
-    'en_name':        (['str'], []),
-    'market':         (['str'], []),
-    'exchange':       (['str'], ['SSE', 'SZSE']),
-    'currency':       (['str'], []),
-    'list_status':    (['int'], []),
-    'listing_date':   (['datetime'], []),
-    'delisting_date': (['datetime'], []),
-    'stock_connect':  (['int'], []),
+# ---------------------------------------- Query ----------------------------------------
+
+QUERY_FIELDS_TRADE_CALENDER = {
+    'exchange':     ([str], ['SSE', 'SZSE'], True)
 }
 
+# ---------------------------------------- Result ----------------------------------------
 
-PLUGIN_DEC_URI = 0
-PLUGIN_DEC_IDENTITY_FIELD = 1
-PLUGIN_DEC_DATETIME_FIELD = 2
-PLUGIN_DEC_QUERY_FIELD_INFO = 3
-PLUGIN_DEC_RESULT_FIELD_INFO = 4
+RESULT_FIELDS_TRADE_CALENDER = {
+    'exchange':     (['str'], ['SSE', 'SZSE'],      True),
+    'trade_date':   (['datetime'], [],              True),
+    'status':       (['int'], [],                   True),
+}
+
+RESULT_FIELDS_SECURITIES_INFO = {
+    'code':           (['str'], [],                 True),
+    'name':           (['str'], [],                 True),
+    'area':           (['str'], [],                 False),
+    'industry':       (['str'], [],                 False),
+    'fullname':       (['str'], [],                 False),
+    'en_name':        (['str'], [],                 False),
+    'market':         (['str'], [],                 False),
+    'exchange':       (['str'], ['SSE', 'SZSE'],    True),
+    'currency':       (['str'], [],                 False),
+    'list_status':    (['int'], [],                 False),
+    'listing_date':   (['datetime'], [],            False),
+    'delisting_date': (['datetime'], [],            False),
+    'stock_connect':  (['int'], [],                 False),
+}
+
+# ---------------------------------------- Declare ----------------------------------------
+
+DFTDB = 'StockAnalysisSystem'
+DFTPRX = ''
+
+DATA_FORMAT_URI = 0
+DATA_FORMAT_DATABASE = 1
+DATA_FORMAT_TABLE_PREFIX = 2
+DATA_FORMAT_IDENTITY_FIELD = 3
+DATA_FORMAT_DATETIME_FIELD = 4
+DATA_FORMAT_QUERY_FIELD_INFO = 5
+DATA_FORMAT_RESULT_FIELD_INFO = 6
 
 DATA_FORMAT_DECLARE = [
-    ('Marker.TradeCalender', 'exchange', 'trade_date', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
-    ('Marker.SecuritiesInfo', 'code', None, NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Marker.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date',   QUERY_FIELDS_TRADE_CALENDER, NO_SPEC),
+    ('Marker.SecuritiesInfo', DFTDB, DFTPRX, 'code',     None,           NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
 
-    ('Finance.BalanceSheet', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.BalanceSheet', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.CashFlowStatement', '', '', NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.CashFlowStatement', DFTDB, DFTPRX, NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
 ]
 
 
@@ -68,20 +88,11 @@ class DataHubEntry:
         return self.__data_center
 
     def build_data_table(self):
-        # table_list = [
-        #     UniversalDataTable('Finance.BalanceSheet', self.__database_entry, 'StockAnalysisSystem'),
-        #     UniversalDataTable('Finance.IncomeStatement', self.__database_entry, 'StockAnalysisSystem'),
-        #     UniversalDataTable('Finance.CashFlowStatement', self.__database_entry, 'StockAnalysisSystem'),
-        #
-        #     UniversalDataTable('Marker.TradeCalender', self.__database_entry, 'StockAnalysisSystem',
-        #                        identity_field='exchange', datetime_field='trade_date'),
-        #     UniversalDataTable('Marker.SecuritiesInfo', self.__database_entry, 'StockAnalysisSystem',
-        #                        identity_field='code', datetime_field=None),
-        # ]
         for data_format in DATA_FORMAT_DECLARE:
             self.get_data_center().register_data_table(
-                UniversalDataTable(data_format[PLUGIN_DEC_URI], self.__database_entry, 'StockAnalysisSystem',
-                                   data_format[PLUGIN_DEC_IDENTITY_FIELD], data_format[PLUGIN_DEC_DATETIME_FIELD])
+                UniversalDataTable(data_format[DATA_FORMAT_URI], self.__database_entry,
+                                   data_format[DATA_FORMAT_DATABASE], data_format[DATA_FORMAT_TABLE_PREFIX],
+                                   data_format[DATA_FORMAT_IDENTITY_FIELD], data_format[DATA_FORMAT_DATETIME_FIELD])
             )
 
 

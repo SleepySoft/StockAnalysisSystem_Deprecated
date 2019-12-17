@@ -47,50 +47,50 @@ class ParameterChecker:
     # Key: str - The key you need to check in the dict param
     # Val: tuple - The first item: The list of expect types for this key, you can specify a None if None is allowed
     #              The second item: The list of expect values for this key, an empty list means it can be any value
-    DICT_PARAM_INFO_EXAMPLE = {
-        'identify':     ([str], ['id1', 'id2']),
-        'datetime':     ([datetime.datetime, None], [])
-    }
+    #              The third item: True if it's necessary, False if it's optional.
+    # DICT_PARAM_INFO_EXAMPLE = {
+    #     'identify':     ([str], ['id1', 'id2'], True),
+    #     'datetime':     ([datetime.datetime, None], [], False)
+    # }
 
     # The param info for checking a dataframe.
     # It's almost likely to the dict param info except the type should be str instead of real python type
-    DATAFRAME_PARAM_INFO_EXAMPLE = {
-        'identity':         (['str'], []),
-        'period':           (['datetime'], [])}                # The last day of report period
+    # DATAFRAME_PARAM_INFO_EXAMPLE = {
+    #     'identity':         (['str'], [], False),
+    #     'period':           (['datetime'], [], True)
+    # }
 
-    def __init__(self,
-                 df_param_info: dict = None, df_must_params: list = None,
-                 dict_param_info: dict = None, dict_must_params: list = None):
+    def __init__(self, df_param_info: dict = None, dict_param_info: dict = None):
         self.__df_param_info = df_param_info
-        self.__df_must_params = df_must_params
         self.__dict_param_info = dict_param_info
-        self.__dict_must_params = dict_must_params
 
     def check_dict(self, argv: dict) -> bool:
         if self.__dict_param_info is None or len(self.__dict_param_info) == 0:
             return True
-        return ParameterChecker.check_dict_param(argv, self.__dict_param_info, self.__dict_must_params)
+        return ParameterChecker.check_dict_param(argv, self.__dict_param_info)
 
     def check_dataframe(self, df: dict) -> bool:
         if self.__df_param_info is None or len(self.__df_param_info) == 0:
             return True
-        return ParameterChecker.check_dict_param(df, self.__df_param_info, self.__df_must_params)
+        return ParameterChecker.check_dict_param(df, self.__df_param_info)
 
     @staticmethod
-    def check_dict_param(argv: dict, param_info: dict, must_params: list = None) -> bool:
+    def check_dict_param(argv: dict, param_info: dict) -> bool:
         if argv is None or len(argv) == 0:
             return False
         keys = list(argv.keys())
+
         for param in param_info.keys():
+            types, values, must = param_info[param]
+
             if param not in keys:
-                if must_params is None or param in must_params:
+                if must:
                     logger.info('Param key check error: Param is missing - ' + param)
                     return False
                 else:
                     continue
 
             value = argv[param]
-            types, values = param_info[param]
             if value is None and None in types:
                 continue
             if not isinstance(value, tuple([t for t in types if t is not None])):
@@ -106,7 +106,7 @@ class ParameterChecker:
         return True
 
     @staticmethod
-    def check_dataframe_field(df: pd.DataFrame, field_info: dict, must_fields: list = None) -> bool:
+    def check_dataframe_field(df: pd.DataFrame, field_info: dict) -> bool:
         """
         Check whether DataFrame filed fits the field info.
         :param df: The DataFrame you want to check
@@ -119,9 +119,12 @@ class ParameterChecker:
         if df is None or len(df) == 0:
             return False
         columns = list(df.columns)
+
         for field in field_info.keys():
+            types, values, must = field_info[field]
+
             if field not in columns:
-                if must_fields is None or field in must_fields:
+                if must:
                     logger.info('DataFrame field check error: Field is missing - ' + field)
                     return False
                 else:
@@ -129,7 +132,6 @@ class ParameterChecker:
 
             type_ok = False
             type_df = df[field].dtype
-            types, values = field_info[field]
             for py_type in types:
                 df_type = ParameterChecker.PYTHON_DATAFRAME_TYPE_MAPPING.get(py_type)
                 if df_type is not None and df_type == type_df:

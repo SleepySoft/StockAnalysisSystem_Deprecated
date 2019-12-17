@@ -18,8 +18,11 @@ def run_console():
     data_hub = sas.get_data_hub_entry()
     data_center = data_hub.get_data_center()
 
-    data_center.update_local_data('Marker.SecuritiesInfo', exchange='')
-    data_center.update_local_data('Marker.SecuritiesInfo', exchange='')
+    print('Updating SecuritiesInfo...')
+    data_center.update_local_data('Marker.SecuritiesInfo')
+
+    print('Updating TradeCalender...')
+    data_center.update_local_data('Marker.TradeCalender', exchange='SSE')
 
     exit(0)
 
