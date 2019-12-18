@@ -1,6 +1,7 @@
 import logging
 
 from os import sys, path
+import datetime
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
@@ -30,6 +31,11 @@ QUERY_FIELDS_TRADE_CALENDER = {
     'exchange':     ([str], ['SSE', 'SZSE'], True)
 }
 
+QUERY_FIELDS_FINANCE_DATA = {
+    'stock_identity':   ([str], [], False),
+    'since':            ([datetime.datetime, None], []),
+    'until':            ([datetime.datetime, None], [])}
+
 # ---------------------------------------- Result ----------------------------------------
 
 RESULT_FIELDS_TRADE_CALENDER = {
@@ -54,6 +60,10 @@ RESULT_FIELDS_SECURITIES_INFO = {
     'stock_connect':  (['int'], [],                 False),
 }
 
+RESULT_FIELDS_FINANCE_DATA = {
+    'identity':         (['str'], [], True),
+    'period':           (['datetime'], [], True)}                # The last day of report period
+
 # ---------------------------------------- Declare ----------------------------------------
 
 DFTDB = 'StockAnalysisSystem'
@@ -71,9 +81,9 @@ DATA_FORMAT_DECLARE = [
     ('Marker.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date',   QUERY_FIELDS_TRADE_CALENDER, NO_SPEC),
     ('Marker.SecuritiesInfo', DFTDB, DFTPRX, 'code',     None,           NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
 
-    ('Finance.BalanceSheet', DFTDB, DFTPRX,      NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.BalanceSheet', DFTDB, DFTPRX,      NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.CashFlowStatement', DFTDB, DFTPRX, NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.CashFlowStatement', DFTDB, DFTPRX, QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
 ]
 
 
@@ -89,11 +99,68 @@ class DataHubEntry:
 
     def build_data_table(self):
         for data_format in DATA_FORMAT_DECLARE:
+            if not DataHubEntry.check_data_format_structure(data_format):
+                print('Error data declare format: ' + data_format[DATA_FORMAT_URI])
+                continue
             self.get_data_center().register_data_table(
                 UniversalDataTable(data_format[DATA_FORMAT_URI], self.__database_entry,
                                    data_format[DATA_FORMAT_DATABASE], data_format[DATA_FORMAT_TABLE_PREFIX],
                                    data_format[DATA_FORMAT_IDENTITY_FIELD], data_format[DATA_FORMAT_DATETIME_FIELD])
             )
+
+    @staticmethod
+    def check_data_format(data_format: tuple) -> bool:
+        if len(data_format) != 5:
+            print('Error: The size of data format declare should be 5.')
+            return False
+
+        if not isinstance(data_format[DATA_FORMAT_URI], str):
+            print('Error: The uri (index: %s) should be str.' % DATA_FORMAT_URI)
+            return False
+        if not isinstance(data_format[DATA_FORMAT_DATABASE], str):
+            print('Error: The database name (index: %s) should be str.' % DATA_FORMAT_DATABASE)
+            return False
+        if not isinstance(data_format[DATA_FORMAT_TABLE_PREFIX], str):
+            print('Error: The table prefix (index: %s) should be str.' % DATA_FORMAT_TABLE_PREFIX)
+            return False
+
+        if data_format[DATA_FORMAT_IDENTITY_FIELD] is not None and \
+                not isinstance(data_format[DATA_FORMAT_IDENTITY_FIELD], str):
+            print('Error: The identify field (index: %s) should be None or str.' % DATA_FORMAT_IDENTITY_FIELD)
+            return False
+        if data_format[DATA_FORMAT_DATETIME_FIELD] is not None and \
+                not isinstance(data_format[DATA_FORMAT_DATETIME_FIELD], str):
+            print('Error: The datetime field (index: %s) should be None or str.' % DATA_FORMAT_DATETIME_FIELD)
+            return False
+
+        if not isinstance(data_format[DATA_FORMAT_QUERY_FIELD_INFO], dict):
+            print('Error: The query format (index: %s) should be None or str.' % DATA_FORMAT_QUERY_FIELD_INFO)
+            return False
+        if not isinstance(data_format[DATA_FORMAT_RESULT_FIELD_INFO], dict):
+            print('Error: The result format (index: %s) should be None or str.' % DATA_FORMAT_RESULT_FIELD_INFO)
+            return False
+
+        if not DataHubEntry.check_query_result_declare(data_format[DATA_FORMAT_QUERY_FIELD_INFO]):
+            print('Query format declare error.')
+            return False
+        if not DataHubEntry.check_query_result_declare(data_format[DATA_FORMAT_RESULT_FIELD_INFO]):
+            print('Result format declare error.')
+            return False
+        return True
+
+    @staticmethod
+    def check_query_result_declare(dec: dict) -> bool:
+        for key in dec:
+            val = dec[key]
+            if len(val) != 3 or \
+                    not isinstance(val[0], list) or \
+                    not isinstance(val[1], list) or \
+                    not isinstance(val[2], bool):
+                print('Result format declare error.')
+                return False
+        return True
+
+
 
 
 
