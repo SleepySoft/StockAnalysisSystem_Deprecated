@@ -40,7 +40,7 @@ class ParameterChecker:
 
     PYTHON_DATAFRAME_TYPE_MAPPING = {
         'str': 'object',
-        'int64': 'int',
+        'int': 'int64',
         'datetime': 'datetime64[ns]',
     }
 
@@ -72,7 +72,7 @@ class ParameterChecker:
     def check_dataframe(self, df: dict) -> bool:
         if self.__df_param_info is None or len(self.__df_param_info) == 0:
             return True
-        return ParameterChecker.check_dict_param(df, self.__df_param_info)
+        return ParameterChecker.check_dataframe_field(df, self.__df_param_info)
 
     @staticmethod
     def check_dict_param(argv: dict, param_info: dict) -> bool:
@@ -136,7 +136,7 @@ class ParameterChecker:
                     break
             if not type_ok:
                 logger.info('DataFrame field check error: Field type mismatch - ' +
-                            str(df_type) + ' is not in ' + str(df_type))
+                            str(df_type) + ' not match ' + str(type_df))
                 return False
 
             if len(values) > 0:
@@ -299,6 +299,7 @@ class UniversalDataCenter:
                           time_serial: tuple = None, **extra) -> pd.DataFrame or None:
         if not self.check_query_params(uri, identify, time_serial, **extra):
             return None
+        argv = self.pack_query_params(uri, identify, time_serial, **extra)
         plugins = self.get_plugin_manager().find_module_has_capacity(uri)
         for plugin in plugins:
             df = self.get_plugin_manager().execute_module_function(plugin, 'query', argv)
@@ -312,23 +313,27 @@ class UniversalDataCenter:
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
             return False
-        if not self.check_query_params(uri, identify, time_serial, **extra):
-            return False
 
         # ----------------- Decide update time range -----------------
         since, until = normalize_time_serial(time_serial, None, None)
-        if since is not None and until is not None:
-            # User specified
-            pass
-        else:
-            # Guess the update date time range
-            update_since, update_until = table.update_range(uri, identify)
-            if update_since is not None and update_until is not None:
-                # Auto detect successfully
-                since, until = update_since, update_until
+        update_since, update_until = table.update_range(uri, identify)
+
+        # Guess the update date time range
+        # If the parameter user specified. Just use user specified.
+        # If not, try to use the table update range to fill the missing one.
+        # If table update range is not specified:
+        #   - for since, use the default since date.
+        #   - for until, use today.
+        if since is None:
+            if update_since is not None:
+                since = update_since
             else:
                 last_update = self.get_update_table().get_last_update_time(uri.split('.'))
                 since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
+        if until is None:
+            if update_until is not None:
+                until = update_until
+            else:
                 until = today()
         if since == until:
             # Does not need update.
@@ -370,9 +375,9 @@ class UniversalDataCenter:
         pack = {'uri': uri}
         if extra is not None:
             pack.update(extra)
-        if str_available(identify) is not None and str_available(identity_field):
+        if str_available(identify) and str_available(identity_field):
             pack[identity_field] = identify
-        if str_available(identify) is not None and str_available(datetime_field):
+        if time_serial is not None and str_available(datetime_field):
             pack[datetime_field] = time_serial
         return pack
 

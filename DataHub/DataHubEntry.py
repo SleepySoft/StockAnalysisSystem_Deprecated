@@ -73,7 +73,7 @@ QUERY_FIELDS_FINANCE_DATA = {
 
 RESULT_FIELDS_FINANCE_DATA = {
     'stock_identity': (['str'], [],         True, ''),
-    'period':         ([tuple,  None], [],  True, '')                # The last day of report period
+    'period':         (['datetime'], [],    True, '')                # The last day of report period
 }
 
 # ---------------------------------------- Declare ----------------------------------------
@@ -124,8 +124,8 @@ class DataHubEntry:
 
     @staticmethod
     def check_data_format(data_format: tuple) -> bool:
-        if len(data_format) != 5:
-            print('Error: The size of data format declare should be 5.')
+        if len(data_format) != 7:
+            print('Error: The size of data format declare should be 7.')
             return False
 
         if not isinstance(data_format[DATA_FORMAT_URI], str):

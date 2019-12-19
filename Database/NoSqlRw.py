@@ -412,14 +412,14 @@ class ItkvTable:
         collection = self.__get_collection()
         if collection is None:
             return None
-        result = list(collection.find({field: {'$exists': True}}).sort([(field, -1)]).limit(1))
+        result = list(collection.find({field: {'$exists': True}}).sort([(field, +1)]).limit(1))
         return result[0].get(field, None) if result is not None and len(result) > 0 else None
 
     def max_of(self, field: str) -> any:
         collection = self.__get_collection()
         if collection is None:
             return None
-        result = list(collection.find({field: {'$exists': True}}).sort([(field, +1)]).limit(1))
+        result = list(collection.find({field: {'$exists': True}}).sort([(field, -1)]).limit(1))
         return result[0].get(field, None) if result is not None and len(result) > 0 else None
 
     def get_all_keys(self):

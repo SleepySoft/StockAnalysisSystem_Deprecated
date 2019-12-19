@@ -24,9 +24,9 @@ ts.set_token(config.TS_TOKEN)
 # -------------------------------------------------------- Prob --------------------------------------------------------
 
 CAPACITY_LIST = [
-    'Marker.TradeCalender',
-    'Marker.SecuritiesInfo',
-    'Marker.IndexComponent',
+    'Market.TradeCalender',
+    'Market.SecuritiesInfo',
+    'Market.IndexComponent',
 ]
 
 
@@ -53,7 +53,7 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
     if str_available(exchange) and exchange not in ['SSE', 'SZSE']:
         return None
 
-    time_serial = kwargs.get('datetime', None)
+    time_serial = kwargs.get('trade_date', None)
     since, until = normalize_time_serial(time_serial, text2date('1900-01-01'), today())
 
     ts_since = since.strftime('%Y%m%d')
@@ -105,11 +105,11 @@ def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
 
 def query(**kwargs) -> pd.DataFrame or None:
     uri = kwargs.get('uri')
-    if uri == 'Marker.TradeCalender':
+    if uri == 'Market.TradeCalender':
         return __fetch_trade_calender(**kwargs)
-    elif uri == 'Marker.SecuritiesInfo':
+    elif uri == 'Market.SecuritiesInfo':
         return __fetch_securities_info(**kwargs)
-    elif uri == 'Marker.IndexComponent':
+    elif uri == 'Market.IndexComponent':
         return None
     else:
         return None
