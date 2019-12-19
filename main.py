@@ -19,10 +19,10 @@ def run_console():
     data_center = data_hub.get_data_center()
 
     print('Updating SecuritiesInfo...')
-    data_center.update_local_data('Marker.SecuritiesInfo')
+    data_center.update_local_data('Market.SecuritiesInfo')
 
     print('Updating TradeCalender...')
-    data_center.update_local_data('Marker.TradeCalender', exchange='SSE')
+    data_center.update_local_data('Market.TradeCalender', exchange='SSE')
 
     exit(0)
 

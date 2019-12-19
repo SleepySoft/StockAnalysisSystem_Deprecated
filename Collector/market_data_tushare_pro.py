@@ -21,13 +21,13 @@ finally:
 ts.set_token(config.TS_TOKEN)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------- Prob --------------------------------------------------------
 
-CAPACITY_LIST = {
+CAPACITY_LIST = [
     'Marker.TradeCalender',
     'Marker.SecuritiesInfo',
     'Marker.IndexComponent',
-}
+]
 
 
 def plugin_prob() -> dict:
@@ -76,6 +76,8 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
 
 
 def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
+    nop(kwargs)
+
     pro = ts.pro_api()
     # If we specify the exchange parameter, it raises error.
     result = pro.stock_basic()
@@ -84,8 +86,7 @@ def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
         result.rename(columns={'symbol': 'code',
                                'curr_type': 'currency',
                                'list_date': 'listing_date',
-                               'delist_date': 'delisting_date',
-                               'stock_connect': 'stock_connect'}, inplace=True)
+                               'delist_date': 'delisting_date'}, inplace=True)
         if 'code' not in result.columns:
             return None
         if 'listing_date' in result.columns:
@@ -96,6 +97,7 @@ def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
             result['exchange'] = result['ts_code'].apply(lambda val: val.split('.')[1])
             result['exchange'] = result['exchange'].apply(lambda val: 'SSE' if val == 'SH' else val)
             result['exchange'] = result['exchange'].apply(lambda val: 'SZSE' if val == 'SZ' else val)
+        result['stock_identity'] = result['code'] + '.' + result['exchange']
     return result
 
 

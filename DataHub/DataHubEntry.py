@@ -8,6 +8,7 @@ try:
     import Utiltity.common as common
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.UniversalDataCenter import ParameterChecker
     from DataHub.UniversalDataCenter import UniversalDataTable
     from DataHub.UniversalDataCenter import UniversalDataCenter
 except Exception as e:
@@ -16,53 +17,64 @@ except Exception as e:
     import Utiltity.common as common
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.UniversalDataCenter import ParameterChecker
     from DataHub.UniversalDataCenter import UniversalDataTable
     from DataHub.UniversalDataCenter import UniversalDataCenter
 finally:
     logger = logging.getLogger('')
 
 
-NO_SPEC = {
+NOT_SPEC = {
 }
 
-# ---------------------------------------- Query ----------------------------------------
+
+# --------------------- Market.TradeCalender ---------------------
 
 QUERY_FIELDS_TRADE_CALENDER = {
-    'exchange':     ([str], ['SSE', 'SZSE'], True)
+    'exchange':     ([str], ['SSE', 'SZSE'],    True,  ''),
+    'trade_date':   ([tuple], [],               False,  ''),
 }
 
-QUERY_FIELDS_FINANCE_DATA = {
-    'stock_identity':   ([str], [], False),
-    'since':            ([datetime.datetime, None], []),
-    'until':            ([datetime.datetime, None], [])}
-
-# ---------------------------------------- Result ----------------------------------------
-
 RESULT_FIELDS_TRADE_CALENDER = {
-    'exchange':     (['str'], ['SSE', 'SZSE'],      True),
-    'trade_date':   (['datetime'], [],              True),
-    'status':       (['int'], [],                   True),
+    'exchange':     (['str'], ['SSE', 'SZSE'],  True,  ''),
+    'trade_date':   (['datetime'], [],          True,  ''),
+    'status':       (['int'], [],               True,  ''),
+}
+
+# --------------------- Market.SecuritiesInfo ---------------------
+
+QUERY_FIELDS_SECURITIES_INFO = {
+    'stock_identity': ([str], [],                   False,  ''),
 }
 
 RESULT_FIELDS_SECURITIES_INFO = {
-    'code':           (['str'], [],                 True),
-    'name':           (['str'], [],                 True),
-    'area':           (['str'], [],                 False),
-    'industry':       (['str'], [],                 False),
-    'fullname':       (['str'], [],                 False),
-    'en_name':        (['str'], [],                 False),
-    'market':         (['str'], [],                 False),
-    'exchange':       (['str'], ['SSE', 'SZSE'],    True),
-    'currency':       (['str'], [],                 False),
-    'list_status':    (['int'], [],                 False),
-    'listing_date':   (['datetime'], [],            False),
-    'delisting_date': (['datetime'], [],            False),
-    'stock_connect':  (['int'], [],                 False),
+    'stock_identity': (['str'], [],                 True,  ''),
+    'code':           (['str'], [],                 True,  ''),
+    'name':           (['str'], [],                 True,  ''),
+    'area':           (['str'], [],                 False, ''),
+    'industry':       (['str'], [],                 False, ''),
+    'fullname':       (['str'], [],                 False, ''),
+    'en_name':        (['str'], [],                 False, ''),
+    'market':         (['str'], [],                 False, ''),
+    'exchange':       (['str'], ['SSE', 'SZSE'],    True,  ''),
+    'currency':       (['str'], [],                 False, ''),
+    'list_status':    (['int'], [],                 False, ''),
+    'listing_date':   (['datetime'], [],            False, ''),
+    'delisting_date': (['datetime'], [],            False, ''),
+    'stock_connect':  (['int'], [],                 False, ''),
+}
+
+# ------------------------ FinanceData.* ------------------------
+
+QUERY_FIELDS_FINANCE_DATA = {
+    'stock_identity': ([str], [],                           False, ''),
+    'period':         ([tuple,  None], [],                  False, ''),
 }
 
 RESULT_FIELDS_FINANCE_DATA = {
-    'identity':         (['str'], [], True),
-    'period':           (['datetime'], [], True)}                # The last day of report period
+    'stock_identity': (['str'], [],         True, ''),
+    'period':         ([tuple,  None], [],  True, '')                # The last day of report period
+}
 
 # ---------------------------------------- Declare ----------------------------------------
 
@@ -78,12 +90,12 @@ DATA_FORMAT_QUERY_FIELD_INFO = 5
 DATA_FORMAT_RESULT_FIELD_INFO = 6
 
 DATA_FORMAT_DECLARE = [
-    ('Marker.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date',   QUERY_FIELDS_TRADE_CALENDER, NO_SPEC),
-    ('Marker.SecuritiesInfo', DFTDB, DFTPRX, 'code',     None,           NO_SPEC, RESULT_FIELDS_SECURITIES_INFO),
+    ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date', QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
+    ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
 
-    ('Finance.BalanceSheet', DFTDB, DFTPRX,      QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.BalanceSheet', DFTDB, DFTPRX,      QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
-    ('Finance.CashFlowStatement', DFTDB, DFTPRX, QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.BalanceSheet', DFTDB, DFTPRX,      'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
+    ('Finance.CashFlowStatement', DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_SECURITIES_INFO),
 ]
 
 
@@ -99,13 +111,15 @@ class DataHubEntry:
 
     def build_data_table(self):
         for data_format in DATA_FORMAT_DECLARE:
-            if not DataHubEntry.check_data_format_structure(data_format):
+            if not DataHubEntry.check_data_format(data_format):
                 print('Error data declare format: ' + data_format[DATA_FORMAT_URI])
                 continue
             self.get_data_center().register_data_table(
                 UniversalDataTable(data_format[DATA_FORMAT_URI], self.__database_entry,
                                    data_format[DATA_FORMAT_DATABASE], data_format[DATA_FORMAT_TABLE_PREFIX],
-                                   data_format[DATA_FORMAT_IDENTITY_FIELD], data_format[DATA_FORMAT_DATETIME_FIELD])
+                                   data_format[DATA_FORMAT_IDENTITY_FIELD], data_format[DATA_FORMAT_DATETIME_FIELD]),
+                ParameterChecker(data_format[DATA_FORMAT_RESULT_FIELD_INFO],
+                                 data_format[DATA_FORMAT_QUERY_FIELD_INFO])
             )
 
     @staticmethod
@@ -152,10 +166,11 @@ class DataHubEntry:
     def check_query_result_declare(dec: dict) -> bool:
         for key in dec:
             val = dec[key]
-            if len(val) != 3 or \
+            if len(val) != 4 or \
                     not isinstance(val[0], list) or \
                     not isinstance(val[1], list) or \
-                    not isinstance(val[2], bool):
+                    not isinstance(val[2], bool) or \
+                    not isinstance(val[3], str):
                 print('Result format declare error.')
                 return False
         return True

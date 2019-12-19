@@ -81,7 +81,7 @@ class ParameterChecker:
         keys = list(argv.keys())
 
         for param in param_info.keys():
-            types, values, must = param_info[param]
+            types, values, must, _ = param_info[param]
 
             if param not in keys:
                 if must:
@@ -111,9 +111,6 @@ class ParameterChecker:
         Check whether DataFrame filed fits the field info.
         :param df: The DataFrame you want to check
         :param field_info: The definition of fields info
-        :param must_fields: The must fields.
-                            If not None, the specified fields must exist.
-                            If None, all fields should exist.
         :return: True if all fields are satisfied. False if not.
         """
         if df is None or len(df) == 0:
@@ -121,7 +118,7 @@ class ParameterChecker:
         columns = list(df.columns)
 
         for field in field_info.keys():
-            types, values, must = field_info[field]
+            types, values, must, _ = field_info[field]
 
             if field not in columns:
                 if must:
@@ -157,8 +154,8 @@ class UniversalDataTable:
     def __init__(self,
                  uri: str, database_entry: DatabaseEntry,
                  depot_name: str, table_prefix: str = '',
-                 identity_field: str = 'Identity' or None,
-                 datetime_field: str = 'DateTime' or None):
+                 identity_field: str or None = 'Identity',
+                 datetime_field: str or None = 'DateTime'):
         """
         If you specify both identity_field and datetime_field, the combination will be the primary key. Which means
             an id can have multiple different time serial record. e.g. stock daily price table.
@@ -173,7 +170,7 @@ class UniversalDataTable:
         :param depot_name: The name of database.
         :param table_prefix: The prefix of table, default empty.
         :param identity_field: The identity filed name.
-        :param datetime_field: The datetime filed name.
+        :param datetime_field: The datetime filed name.,
         """
         self.__uri = uri
         self.__database_entry = database_entry
@@ -264,11 +261,11 @@ class UniversalDataCenter:
     def get_update_table(self) -> UpdateTableEx:
         return self.__database_entry.get_update_table()
 
-    def get_data_table(self, uri: str) -> UniversalDataTable:
-        for table in self.__data_table:
+    def get_data_table(self, uri: str) -> (UniversalDataTable, ParameterChecker):
+        for table, checker in self.__data_table:
             if table.adapt(uri):
-                return table
-        return None
+                return table, checker
+        return None, None
 
     def get_last_error(self) -> str:
         return self.__last_error
@@ -276,9 +273,10 @@ class UniversalDataCenter:
     def log_error(self, error_text: str):
         self.__last_error = error_text
 
-    def register_data_table(self, table: UniversalDataTable):
+    def register_data_table(self, table: UniversalDataTable,
+                            params_checker: ParameterChecker or None = None):
         if table not in self.__data_table:
-            self.__data_table.append(table)
+            self.__data_table.append((table, params_checker))
 
     # -------------------------------------------------------------------
 
@@ -288,35 +286,19 @@ class UniversalDataCenter:
 
     def query_from_local(self, uri: str, identify: str or [str] = None,
                          time_serial: tuple = None, extra: dict = None) -> pd.DataFrame or None:
-        table = self.get_data_table(uri)
+        table, checker = self.get_data_table(uri)
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
             return None
-        result = table.query(uri, identify, time_serial, extra)
+        if not self.check_query_params(uri, identify, time_serial, **extra):
+            return None
+        result = table.query(uri, identify, time_serial, extra, extra.get('fields', None))
         return result
 
     def query_from_plugin(self, uri: str, identify: str or [str] = None,
                           time_serial: tuple = None, **extra) -> pd.DataFrame or None:
-        table = self.get_data_table(uri)
-
-        if table is not None:
-            identity_field = table.identity_field()
-            datetime_field = table.datetime_field()
-        else:
-            identity_field = None
-            datetime_field = None
-        if not NoSqlRw.str_available(identity_field):
-            identity_field = 'identify'
-        if not NoSqlRw.str_available(datetime_field):
-            datetime_field = 'datetime'
-
-        argv = {
-            'uri':          uri,
-            identity_field: identify,
-            datetime_field: time_serial,
-        }
-        argv.update(extra if isinstance(extra, dict) else {})
-
+        if not self.check_query_params(uri, identify, time_serial, **extra):
+            return None
         plugins = self.get_plugin_manager().find_module_has_capacity(uri)
         for plugin in plugins:
             df = self.get_plugin_manager().execute_module_function(plugin, 'query', argv)
@@ -326,11 +308,14 @@ class UniversalDataCenter:
 
     def update_local_data(self, uri: str, identify: str or [str] = None,
                           time_serial: tuple = None, **extra) -> bool:
-        table = self.get_data_table(uri)
+        table, checker = self.get_data_table(uri)
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
             return False
+        if not self.check_query_params(uri, identify, time_serial, **extra):
+            return False
 
+        # ----------------- Decide update time range -----------------
         since, until = normalize_time_serial(time_serial, None, None)
         if since is not None and until is not None:
             # User specified
@@ -345,19 +330,59 @@ class UniversalDataCenter:
                 last_update = self.get_update_table().get_last_update_time(uri.split('.'))
                 since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
                 until = today()
-
         if since == until:
             # Does not need update.
             return True
 
+        # ------------------------- Fetch -------------------------
         result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), **extra)
-        if result is None:
+        if result is None or not isinstance(result, pd.DataFrame):
             self.log_error('Cannot fetch data from plugin for : ' + uri)
             return False
 
+        # ------------------------- Check -------------------------
+        if checker is not None:
+            if not checker.check_dataframe(result):
+                self.log_error('Result format error: ' + uri)
+                return False
+
+        # ------------------------- Merge -------------------------
         table.merge(uri, identify, result)
         self.get_update_table().update_latest_update_time(uri.split('.'))
 
+        return True
+
+    def pack_query_params(self, uri: str, identify: str or [str], time_serial: tuple, **extra) -> dict:
+        table, _ = self.get_data_table(uri)
+
+        if table is not None:
+            identity_field = table.identity_field()
+            datetime_field = table.datetime_field()
+        else:
+            identity_field = None
+            datetime_field = None
+
+        if not NoSqlRw.str_available(identity_field):
+            identity_field = 'identify'
+        if not NoSqlRw.str_available(datetime_field):
+            datetime_field = 'datetime'
+
+        pack = {'uri': uri}
+        if extra is not None:
+            pack.update(extra)
+        if str_available(identify) is not None and str_available(identity_field):
+            pack[identity_field] = identify
+        if str_available(identify) is not None and str_available(datetime_field):
+            pack[datetime_field] = time_serial
+        return pack
+
+    def check_query_params(self, uri: str, identify: str or [str], time_serial: tuple, **extra) -> bool:
+        _, checker = self.get_data_table(uri)
+        if checker is not None:
+            argv = self.pack_query_params(uri, identify, time_serial, **extra)
+            if not checker.check_dict(argv):
+                self.log_error('Query format error: ' + uri)
+                return False
         return True
 
 

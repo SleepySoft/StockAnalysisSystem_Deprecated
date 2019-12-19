@@ -67,7 +67,7 @@ class FinanceData(DataUtility.DataUtility):
             'IncomeStatement': {},
             'CashFlowStatement': {},
         }
-        # key: report_type; value: stock_identify
+        # key: report_type; value: stock_identity
         self.__save_table = {
             'BalanceSheet': [],
             'IncomeStatement': [],
@@ -218,11 +218,11 @@ class FinanceData(DataUtility.DataUtility):
         for report_type in self.__save_table.keys():
             save_list = self.__save_table.get(report_type)
             data_table = DatabaseEntry().get_finance_table(report_type)
-            for stock_identify in save_list:
-                df = self.__cached_data.get(report_type).get(stock_identify)
-                self.__save_single_data(stock_identify, df, data_table)
+            for stock_identity in save_list:
+                df = self.__cached_data.get(report_type).get(stock_identity)
+                self.__save_single_data(stock_identity, df, data_table)
 
-    def __save_single_data(self, stock_identify: str, df: pd.DataFrame, data_table: NoSqlRw.ItkvTable):
+    def __save_single_data(self, stock_identity: str, df: pd.DataFrame, data_table: NoSqlRw.ItkvTable):
         nop(self)
         if 'period' not in df.columns:
             return False
@@ -230,7 +230,7 @@ class FinanceData(DataUtility.DataUtility):
             period = row['period']
             if isinstance(period, str):
                 period = text_auto_time(period)
-            data_table.upsert(stock_identify, period, row.to_dict())
+            data_table.upsert(stock_identity, period, row.to_dict())
         return True
 
     # --------------------------------------- interface of AliasTable.Participant --------------------------------------

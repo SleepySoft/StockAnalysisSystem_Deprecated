@@ -23,7 +23,14 @@ finally:
 ts.set_token(config.TS_TOKEN)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------- Prob --------------------------------------------------------
+
+CAPACITY_LIST = [
+    'Finance.BalanceSheet',
+    'Finance.BalanceSheet',
+    'Finance.CashFlowStatement',
+]
+
 
 def plugin_prob() -> dict:
     return {
@@ -33,44 +40,45 @@ def plugin_prob() -> dict:
     }
 
 
+def plugin_adapt(uri: str) -> bool:
+    return uri in CAPACITY_LIST
+
+
 def plugin_capacities() -> list:
-    return [
-        'BalanceSheet',
-        'CashFlowStatement',
-        'IncomeStatement',
-    ]
+    return CAPACITY_LIST
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def __fetch_finance_data(**kwargs) -> pd.DataFrame:
-    content = kwargs.get('content')
-    if not isinstance(content, str):
-        return None
+    uri = kwargs.get('uri')
+    period = kwargs.get('period')
 
     ts_code = pickup_ts_code(kwargs)
-    ts_since, ts_until = pickup_since_until_as_date(kwargs)
+    since, until = normalize_time_serial(period, text2date('1900-01-01'), today())
+
+    ts_since = since.strftime('%Y%m%d')
+    ts_until = until.strftime('%Y%m%d')
 
     pro = ts.pro_api()
     # If we specify the exchange parameter, it raises error.
 
-    if content == 'BalanceSheet':
+    if uri == 'Finance.BalanceSheet':
         result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-    elif content == 'CashFlowStatement':
+    elif uri == 'Finance.CashFlowStatement':
         result = pro.cashflow(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-    elif content == 'IncomeStatement':
+    elif uri == 'Finance.BalanceSheet':
         result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
     else:
-        print('Unknown content: ' + content)
         result = None
 
     # if result is not None:
     #     result.to_csv(root_path + '/TestData/finance_data_' + content + '_' + ts_code + '.csv')
 
     if result is not None:
-        result.rename(columns={'ts_code': 'identity', 'end_date': 'period'}, inplace=True)
-        result['identity'] = result['identity'].str.replace('.SH', '.SSE')
-        result['identity'] = result['identity'].str.replace('.SZ', '.SZSE')
+        result.rename(columns={'ts_code': 'stock_identity', 'end_date': 'period'}, inplace=True)
+        result['stock_identity'] = result['stock_identity'].str.replace('.SH', '.SSE')
+        result['stock_identity'] = result['stock_identity'].str.replace('.SZ', '.SZSE')
         result['period'] = pd.to_datetime(result['period'])
 
     return result
@@ -78,19 +86,14 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def validate(**kwargs) -> bool:
-    content = kwargs.get('content')
-    return True
-
-
-def fetch_data(**kwargs) -> pd.DataFrame:
-    content = kwargs.get('content')
-    if content == 'BalanceSheet':
-        return __fetch_finance_data(**kwargs)
-    elif content == 'CashFlowStatement':
-        return __fetch_finance_data(**kwargs)
-    elif content == 'IncomeStatement':
+def query(**kwargs) -> pd.DataFrame or None:
+    uri = kwargs.get('uri')
+    if uri in CAPACITY_LIST:
         return __fetch_finance_data(**kwargs)
     else:
         return None
 
+
+def validate(**kwargs) -> bool:
+    nop(kwargs)
+    return True
