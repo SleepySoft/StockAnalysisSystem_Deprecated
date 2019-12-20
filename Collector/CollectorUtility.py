@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
@@ -60,9 +61,23 @@ def pickup_ts_code(kwargs: dict) -> str:
     return code_exchange_to_ts_code(code, exchange)
 
 
+def path_from_plugin_param(**kwargs) -> str:
+    uri = kwargs.get('uri')
+    uri.replace('.', '_')
+    return root_path + '/TestData/' + uri + '.csv'
 
 
+def check_execute_test_flag(**kwargs) -> pd.DataFrame or None:
+    if kwargs.get('test_flag', False):
+        uri = path_from_plugin_param(**kwargs)
+        return pd.DataFrame.from_csv(uri)
+    return None
 
+
+def check_execute_dump_flag(result: pd.DataFrame, **kwargs):
+    if kwargs.get('dump_flag', False):
+        uri = path_from_plugin_param(**kwargs)
+        result.to_csv(uri)
 
 
 

@@ -9,12 +9,14 @@ try:
     import config
     from Utiltity.common import *
     from Utiltity.time_utility import *
+    from Collector.CollectorUtility import *
 except Exception as e:
     sys.path.append(root_path)
 
     import config
     from Utiltity.common import *
     from Utiltity.time_utility import *
+    from Collector.CollectorUtility import *
 finally:
     pass
 
@@ -53,15 +55,18 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
     if str_available(exchange) and exchange not in ['SSE', 'SZSE']:
         return None
 
-    time_serial = kwargs.get('trade_date', None)
-    since, until = normalize_time_serial(time_serial, text2date('1900-01-01'), today())
+    result = check_execute_test_flag(**kwargs)
+    if result is None:
+        time_serial = kwargs.get('trade_date', None)
+        since, until = normalize_time_serial(time_serial, text2date('1900-01-01'), today())
 
-    ts_since = since.strftime('%Y%m%d')
-    ts_until = until.strftime('%Y%m%d')
+        ts_since = since.strftime('%Y%m%d')
+        ts_until = until.strftime('%Y%m%d')
 
-    pro = ts.pro_api()
-    # If we specify the exchange parameter, it raises error.
-    result = pro.trade_cal('', start_date=ts_since, end_date=ts_until)
+        pro = ts.pro_api()
+        # If we specify the exchange parameter, it raises error.
+        result = pro.trade_cal('', start_date=ts_since, end_date=ts_until)
+    check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
         result.rename(columns={'exchange': 'exchange', 'cal_date': 'trade_date', 'is_open': 'status'}, inplace=True)
@@ -76,11 +81,12 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
 
 
 def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
-    nop(kwargs)
-
-    pro = ts.pro_api()
-    # If we specify the exchange parameter, it raises error.
-    result = pro.stock_basic()
+    result = check_execute_test_flag(**kwargs)
+    if result is None:
+        pro = ts.pro_api()
+        # If we specify the exchange parameter, it raises error.
+        result = pro.stock_basic()
+    check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
         result.rename(columns={'symbol': 'code',

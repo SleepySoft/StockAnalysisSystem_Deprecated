@@ -51,29 +51,29 @@ def plugin_capacities() -> list:
 # ----------------------------------------------------------------------------------------------------------------------
 
 def __fetch_finance_data(**kwargs) -> pd.DataFrame:
-    uri = kwargs.get('uri')
-    period = kwargs.get('period')
+    result = check_execute_test_flag(**kwargs)
+    if result is None:
+        uri = kwargs.get('uri')
+        period = kwargs.get('period')
 
-    ts_code = pickup_ts_code(kwargs)
-    since, until = normalize_time_serial(period, text2date('1900-01-01'), today())
+        ts_code = pickup_ts_code(kwargs)
+        since, until = normalize_time_serial(period, text2date('1900-01-01'), today())
 
-    ts_since = since.strftime('%Y%m%d')
-    ts_until = until.strftime('%Y%m%d')
+        ts_since = since.strftime('%Y%m%d')
+        ts_until = until.strftime('%Y%m%d')
 
-    pro = ts.pro_api()
-    # If we specify the exchange parameter, it raises error.
+        pro = ts.pro_api()
+        # If we specify the exchange parameter, it raises error.
 
-    if uri == 'Finance.BalanceSheet':
-        result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-    elif uri == 'Finance.CashFlowStatement':
-        result = pro.cashflow(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-    elif uri == 'Finance.BalanceSheet':
-        result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-    else:
-        result = None
-
-    # if result is not None:
-    #     result.to_csv(root_path + '/TestData/finance_data_' + content + '_' + ts_code + '.csv')
+        if uri == 'Finance.BalanceSheet':
+            result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        elif uri == 'Finance.CashFlowStatement':
+            result = pro.cashflow(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        elif uri == 'Finance.BalanceSheet':
+            result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        else:
+            result = None
+    check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
         result.rename(columns={'ts_code': 'stock_identity', 'end_date': 'period'}, inplace=True)
