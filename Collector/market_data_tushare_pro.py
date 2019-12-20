@@ -52,7 +52,7 @@ def plugin_capacities() -> list:
 
 def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
     exchange = kwargs.get('exchange', '')
-    if str_available(exchange) and exchange not in ['SSE', 'SZSE']:
+    if str_available(exchange) and exchange not in ['SSE', 'SZSE', 'A-SHARE']:
         return None
 
     result = check_execute_test_flag(**kwargs)
@@ -71,9 +71,9 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
     if result is not None:
         result.rename(columns={'exchange': 'exchange', 'cal_date': 'trade_date', 'is_open': 'status'}, inplace=True)
         # Because tushare only support SSE and they are the same
-        if exchange == 'SZSE':
+        if exchange == 'SZSE' or exchange == 'A-SHARE':
             result.drop(result[result.exchange != 'SSE'].index, inplace=True)
-            result['exchange'] = 'SZSE'
+            result['exchange'] = exchange
         else:
             result.drop(result[result.exchange != exchange].index, inplace=True)
         result['trade_date'] = pd.to_datetime(result['trade_date'])
