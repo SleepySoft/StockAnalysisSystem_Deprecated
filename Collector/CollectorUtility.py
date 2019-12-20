@@ -63,8 +63,8 @@ def pickup_ts_code(kwargs: dict) -> str:
 
 def path_from_plugin_param(**kwargs) -> str:
     uri = kwargs.get('uri')
-    uri.replace('.', '_')
-    return root_path + '/TestData/' + uri + '.csv'
+    file = uri.replace('.', '_')
+    return root_path + '/TestData/' + file + '.csv'
 
 
 def check_execute_test_flag(**kwargs) -> pd.DataFrame or None:

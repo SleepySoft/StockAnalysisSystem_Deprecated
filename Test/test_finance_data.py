@@ -25,19 +25,19 @@ def dump_test_data() -> bool:
     data_hub = sas.get_data_hub_entry()
     data_center = data_hub.get_data_center()
 
-    df = data_center.query_from_plugin('Finance.BalanceSheet', '600000',
+    df = data_center.query_from_plugin('Finance.BalanceSheet', '600000.SSE',
                                        (text2date('2010-01-01'), today()), dump_flag=True)
     if df is None:
         ret = False
         print('Dump Finance.BalanceSheet Failed.')
 
-    df = data_center.query_from_plugin('Finance.IncomeStatement', '600000',
+    df = data_center.query_from_plugin('Finance.IncomeStatement', '600000.SSE',
                                        (text2date('2010-01-01'), today()), dump_flag=True)
     if df is None:
         ret = False
         print('Dump Finance.IncomeStatement Failed.')
 
-    df = data_center.query_from_plugin('Finance.CashFlowStatement', '600000',
+    df = data_center.query_from_plugin('Finance.CashFlowStatement', '600000.SSE',
                                        (text2date('2010-01-01'), today()), dump_flag=True)
     if df is None:
         ret = False
@@ -74,7 +74,7 @@ def test_entry() -> bool:
 
 
 def main():
-    test_entry()
+    dump_test_data()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

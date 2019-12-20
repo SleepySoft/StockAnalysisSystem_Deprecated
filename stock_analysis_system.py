@@ -31,8 +31,10 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
         import Database.DatabaseEntry as DatabaseEntry
         import Utiltity.plugin_manager as plugin_manager
 
-        self.__collector_plugin = plugin_manager.PluginManager('./Collector')
-        self.__strategy_plugin = plugin_manager.PluginManager('./Strategy')
+        root_path = path.dirname(path.abspath(__file__))
+
+        self.__collector_plugin = plugin_manager.PluginManager(path.join(root_path, 'Collector'))
+        self.__strategy_plugin = plugin_manager.PluginManager(path.join(root_path, 'Collector'))
 
         self.__collector_plugin.refresh()
         self.__strategy_plugin.refresh()
