@@ -292,7 +292,12 @@ class UniversalDataCenter:
             return None
         if not self.check_query_params(uri, identify, time_serial, **extra):
             return None
-        result = table.query(uri, identify, time_serial, extra, extra.get('fields', None))
+        if 'fields' in extra:
+            fields = extra.get('fields')
+            del extra['fields']
+        else:
+            fields = None
+        result = table.query(uri, identify, time_serial, extra, fields)
         return result
 
     def query_from_plugin(self, uri: str, identify: str or [str] = None,

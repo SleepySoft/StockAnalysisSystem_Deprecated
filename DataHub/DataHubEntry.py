@@ -1,13 +1,13 @@
 import logging
 
 from os import sys, path
-import datetime
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import Utiltity.common as common
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.DataUtility import DataUtility
     from DataHub.UniversalDataCenter import ParameterChecker
     from DataHub.UniversalDataCenter import UniversalDataTable
     from DataHub.UniversalDataCenter import UniversalDataCenter
@@ -17,6 +17,7 @@ except Exception as e:
     import Utiltity.common as common
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
+    from DataHub.DataUtility import DataUtility
     from DataHub.UniversalDataCenter import ParameterChecker
     from DataHub.UniversalDataCenter import UniversalDataTable
     from DataHub.UniversalDataCenter import UniversalDataCenter
@@ -104,10 +105,16 @@ class DataHubEntry:
         self.__database_entry = database_entry
         self.__collector_plugin = collector_plugin
         self.__data_center = UniversalDataCenter(database_entry, collector_plugin)
+        self.__data_utility = DataUtility(self.__data_center)
         self.build_data_table()
 
     def get_data_center(self) -> UniversalDataCenter:
         return self.__data_center
+
+    def get_data_utility(self) -> DataUtility:
+        return self.__data_utility
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     def build_data_table(self):
         for data_format in DATA_FORMAT_DECLARE:

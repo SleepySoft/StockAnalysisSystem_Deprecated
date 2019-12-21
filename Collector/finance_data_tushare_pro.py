@@ -27,7 +27,7 @@ ts.set_token(config.TS_TOKEN)
 
 CAPACITY_LIST = [
     'Finance.BalanceSheet',
-    'Finance.BalanceSheet',
+    'Finance.IncomeStatement',
     'Finance.CashFlowStatement',
 ]
 
