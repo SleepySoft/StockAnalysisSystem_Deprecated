@@ -26,6 +26,7 @@ ts.set_token(config.TS_TOKEN)
 # -------------------------------------------------------- Prob --------------------------------------------------------
 
 CAPACITY_LIST = [
+    'Finance.Audit',
     'Finance.BalanceSheet',
     'Finance.IncomeStatement',
     'Finance.CashFlowStatement',
@@ -65,7 +66,9 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         pro = ts.pro_api()
         # If we specify the exchange parameter, it raises error.
 
-        if uri == 'Finance.BalanceSheet':
+        if uri == 'Finance.Audit':
+            result = pro.fina_audit(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        elif uri == 'Finance.BalanceSheet':
             result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
         elif uri == 'Finance.IncomeStatement':
             result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
@@ -80,6 +83,11 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         result['stock_identity'] = result['stock_identity'].str.replace('.SH', '.SSE')
         result['stock_identity'] = result['stock_identity'].str.replace('.SZ', '.SZSE')
         result['period'] = pd.to_datetime(result['period'])
+
+        if uri == 'Finance.Audit':
+            result.rename(columns={'audit_result': 'conclusion',
+                                   'audit_agency': 'agency',
+                                   'audit_sign': 'sign'}, inplace=True)
 
     return result
 

@@ -65,6 +65,21 @@ RESULT_FIELDS_SECURITIES_INFO = {
     'stock_connect':  (['int'], [],                 False, ''),
 }
 
+# ---------------------- FinanceData.Audit ----------------------
+
+QUERY_FIELDS_FINANCE_AUDIT = {
+    'stock_identity': ([str], [],                           False, ''),
+    'period':         ([tuple,  None], [],                  False, ''),
+}
+
+RESULT_FIELDS_FINANCE_AUDIT = {
+    'stock_identity': (['str'], [],         True, ''),
+    'period':         (['datetime'], [],    True, ''),                  # The last day of report period
+    'conclusion':     (['str'], [],         True, '审计结果'),
+    'agency': (['str'], [],                 True, '会计事务所'),
+    'sign': (['str'], [],                   True, '签字会计师'),
+}
+
 # ------------------------ FinanceData.* ------------------------
 
 QUERY_FIELDS_FINANCE_DATA = {
@@ -94,6 +109,7 @@ DATA_FORMAT_DECLARE = [
     ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date', QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
     ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
 
+    ('Finance.Audit', DFTDB, DFTPRX,             'stock_identity', 'period', QUERY_FIELDS_FINANCE_AUDIT, RESULT_FIELDS_FINANCE_AUDIT),
     ('Finance.BalanceSheet', DFTDB, DFTPRX,      'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
     ('Finance.IncomeStatement', DFTDB, DFTPRX,   'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
     ('Finance.CashFlowStatement', DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),

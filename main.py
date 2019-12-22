@@ -20,11 +20,11 @@ def run_console():
     data_center = data_hub.get_data_center()
     data_utility = data_hub.get_data_utility()
 
-    # print('Updating SecuritiesInfo...')
-    # data_center.update_local_data('Market.SecuritiesInfo')
-    #
-    # print('Updating TradeCalender...')
-    # data_center.update_local_data('Market.TradeCalender', exchange='SSE')
+    print('Updating SecuritiesInfo...')
+    data_center.update_local_data('Market.SecuritiesInfo')
+
+    print('Updating TradeCalender...')
+    data_center.update_local_data('Market.TradeCalender', exchange='SSE')
 
     stock_list = data_utility.get_stock_list()
 
@@ -35,6 +35,7 @@ def run_console():
     for stock_identity, name in stock_list:
         start_single = time.time()
         print('Updating Finance Data for ' + stock_identity + ' [' + name + ']')
+        data_center.update_local_data('Finance.Audit', stock_identity)
         data_center.update_local_data('Finance.BalanceSheet', stock_identity)
         data_center.update_local_data('Finance.IncomeStatement', stock_identity)
         data_center.update_local_data('Finance.CashFlowStatement', stock_identity)
@@ -42,7 +43,7 @@ def run_console():
         counter += 1
         print('Done (%s / %s). Time Spending: %s s' % (counter, len(stock_list), time.time() - start_single))
 
-        # For the sake of: 
+        # For the sake of:
         # 抱歉，您每分钟最多访问该接口80次，权限的具体详情访问：https://tushare.pro/document/1?doc_id=108
         time.sleep(1)
     print('Update Finance Data for All A-SHARE Stock Done. Time Spending: ' + str(time.time() - start_total) + 's')
