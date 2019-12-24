@@ -41,10 +41,15 @@ class DatabaseEntry:
         self.__mongo_db_client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
 
         import Database.AliasTable as AliasTable
+        import Database.XListTable as XListTable
         import Database.UpdateTableEx as UpdateTableEx
 
         self.__alias_table = AliasTable.AliasTable(self.__sAsUtility)
         self.__update_table = UpdateTableEx.UpdateTableEx(self.__sAsUtility)
+
+        self.__gray_table = XListTable.XListTable('gray_table', self.__sAsUtility)
+        self.__focus_table = XListTable.XListTable('focus_table', self.__sAsUtility)
+        self.__black_table = XListTable.XListTable('black_table', self.__sAsUtility)
 
     # ------------------------------------------------- Database Entry -------------------------------------------------
 
@@ -61,6 +66,15 @@ class DatabaseEntry:
 
     def get_update_table(self):
         return self.__update_table
+
+    def get_gray_table(self):
+        return self.__gray_table
+
+    def get_focus_table(self):
+        return self.__focus_table
+
+    def get_black_table(self):
+        return self.__black_table
 
     # ------------------------------------------------ NoSQL Table Entry -----------------------------------------------
 
