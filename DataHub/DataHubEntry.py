@@ -109,9 +109,9 @@ DATA_FORMAT_DECLARE = [
     ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date', QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
     ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
 
-    ('Finance.Audit', DFTDB, DFTPRX,             'stock_identity', 'period', QUERY_FIELDS_FINANCE_AUDIT, RESULT_FIELDS_FINANCE_AUDIT),
-    ('Finance.BalanceSheet', DFTDB, DFTPRX,      'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
-    ('Finance.IncomeStatement', DFTDB, DFTPRX,   'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
+    ('Finance.Audit',             DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_AUDIT, RESULT_FIELDS_FINANCE_AUDIT),
+    ('Finance.BalanceSheet',      DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
+    ('Finance.IncomeStatement',   DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
     ('Finance.CashFlowStatement', DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
 ]
 
