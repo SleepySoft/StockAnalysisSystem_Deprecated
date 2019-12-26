@@ -73,16 +73,6 @@ RESULT_FIELDS_SECURITIES_INFO = {
     'code':           (['str'], [],                 True,  ''),
     'name':           (['str'], [],                 True,  ''),
     'exchange':       (['str'], ['SSE', 'SZSE'],    True,  ''),
-    # 'area':           (['str'], [],                 False, ''),
-    # 'industry':       (['str'], [],                 False, ''),
-    # 'fullname':       (['str'], [],                 False, ''),
-    # 'en_name':        (['str'], [],                 False, ''),
-    # 'market':         (['str'], [],                 False, ''),
-    # 'currency':       (['str'], [],                 False, ''),
-    # 'list_status':    (['int'], [],                 False, ''),
-    # 'listing_date':   (['datetime'], [],            False, ''),
-    # 'delisting_date': (['datetime'], [],            False, ''),
-    # 'stock_connect':  (['int'], [],                 False, ''),
 }
 
 # ---------------------- FinanceData.Audit ----------------------

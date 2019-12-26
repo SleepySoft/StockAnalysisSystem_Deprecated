@@ -23,8 +23,8 @@ def run_console():
     # print('Updating SecuritiesInfo...')
     # data_center.update_local_data('Market.SecuritiesInfo', test_flag=True)
 
-    print('Updating Naming History...')
-    data_center.update_local_data('Market.NamingHistory', dump_flag=True)
+    # print('Updating Naming History...')
+    # data_center.update_local_data('Market.NamingHistory', dump_flag=True)
 
     # print('Updating TradeCalender...')
     # data_center.update_local_data('Market.TradeCalender', exchange='SSE')
