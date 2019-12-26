@@ -20,8 +20,11 @@ def run_console():
     data_center = data_hub.get_data_center()
     data_utility = data_hub.get_data_utility()
 
-    print('Updating SecuritiesInfo...')
-    data_center.update_local_data('Market.SecuritiesInfo', test_flag=True)
+    # print('Updating SecuritiesInfo...')
+    # data_center.update_local_data('Market.SecuritiesInfo', test_flag=True)
+
+    print('Updating Naming History...')
+    data_center.update_local_data('Market.NamingHistory', dump_flag=True)
 
     # print('Updating TradeCalender...')
     # data_center.update_local_data('Market.TradeCalender', exchange='SSE')

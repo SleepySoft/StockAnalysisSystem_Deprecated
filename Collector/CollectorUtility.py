@@ -40,6 +40,22 @@ def pickup_since_until_as_date(kwargs: dict) -> (str, str):
     return param_as_date_str(kwargs, since), param_as_date_str(kwargs, until)
 
 
+def ts_exchange_to_stock_exchange(exchange: str) -> str:
+    return {
+        'SH': 'SSE',
+        'SZ': 'SZSE',
+    }.get(exchange, exchange)
+
+
+def ts_code_to_stock_identity(ts_code: str) -> str:
+    parts = ts_code.split('.')
+    if len(parts) != 2:
+        # Error
+        return ts_code
+    return parts[0] + '.' + ts_exchange_to_stock_exchange(parts[1])
+
+
+
 def stock_identity_to_ts_code(stock_identity: str) -> str:
     if stock_identity.endswith('.SSE'):
         return stock_identity.replace('.SSE', '.SH')

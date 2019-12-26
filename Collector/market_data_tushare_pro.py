@@ -27,6 +27,7 @@ ts.set_token(config.TS_TOKEN)
 
 CAPACITY_LIST = [
     'Market.TradeCalender',
+    'Market.NamingHistory',
     'Market.SecuritiesInfo',
     'Market.IndexComponent',
 ]
@@ -80,6 +81,30 @@ def __fetch_trade_calender(**kwargs) -> pd.DataFrame or None:
     return result
 
 
+def __fetch_naming_history(**kwargs):
+    result = check_execute_test_flag(**kwargs)
+    if result is None:
+        ts_code = pickup_ts_code(kwargs)
+        period = kwargs.get('naming_date')
+        since, until = normalize_time_serial(period, text2date('1900-01-01'), today())
+
+        ts_since = since.strftime('%Y%m%d')
+        ts_until = until.strftime('%Y%m%d')
+
+        pro = ts.pro_api()
+        result = pro.namechange(ts_code=ts_code, start_date=ts_since, end_date=ts_until,
+                                fields='ts_code,name,start_date,end_date,ann_date,change_reason')
+    check_execute_dump_flag(result, **kwargs)
+
+    if result is not None:
+        if 'start_date' in result.columns:
+            result['naming_date'] = pd.to_datetime(result['start_date'], format='%Y-%m-%d')
+        if 'stock_identity' not in result.columns:
+            result['stock_identity'] = result['ts_code'].apply(ts_code_to_stock_identity)
+
+    return result
+
+
 def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
     result = check_execute_test_flag(**kwargs)
     if result is None:
@@ -116,6 +141,8 @@ def query(**kwargs) -> pd.DataFrame or None:
     uri = kwargs.get('uri')
     if uri == 'Market.TradeCalender':
         return __fetch_trade_calender(**kwargs)
+    elif uri == 'Market.NamingHistory':
+        return __fetch_naming_history(**kwargs)
     elif uri == 'Market.SecuritiesInfo':
         return __fetch_securities_info(**kwargs)
     elif uri == 'Market.IndexComponent':

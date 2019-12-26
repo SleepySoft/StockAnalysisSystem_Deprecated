@@ -1,6 +1,7 @@
 import logging
 
 from os import sys, path
+from datetime import datetime
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
@@ -29,6 +30,10 @@ NOT_SPEC = {
 }
 
 
+# Principle: Only declare the minimal common field
+# 原则：只限制通用字段且限制的字段尽可能少
+
+
 # --------------------- Market.TradeCalender ---------------------
 
 QUERY_FIELDS_TRADE_CALENDER = {
@@ -41,6 +46,21 @@ RESULT_FIELDS_TRADE_CALENDER = {
     'trade_date':   (['datetime'], [],          True,  ''),
     'status':       (['int'], [],               True,  ''),
 }
+
+# ---------------------- Market.NamingHistory ---------------------
+
+
+QUERY_FIELDS_NAMING_HISTORY = {
+    'stock_identity': ([str], [],                   False,  ''),
+    'naming_date':    ([tuple, datetime, None], [], False,  ''),
+}
+
+RESULT_FIELDS_NAMING_HISTORY = {
+    'stock_identity': (['str'], [],                 True,  ''),
+    'name':           (['str'], [],                 True,  ''),
+    'naming_date':    (['datetime'], [],            True,  ''),
+}
+
 
 # --------------------- Market.SecuritiesInfo ---------------------
 
@@ -106,9 +126,9 @@ DATA_FORMAT_QUERY_FIELD_INFO = 5
 DATA_FORMAT_RESULT_FIELD_INFO = 6
 
 DATA_FORMAT_DECLARE = [
-    ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date', QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
-    ('Market.NamingHistory', DFTDB, DFTPRX, 'stock_identity', 'updat',   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
-    ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
+    ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date',       QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
+    ('Market.NamingHistory', DFTDB, DFTPRX, 'stock_identity', 'naming_date', QUERY_FIELDS_NAMING_HISTORY, RESULT_FIELDS_NAMING_HISTORY),
+    ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,         QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
 
     ('Finance.Audit',             DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_AUDIT, RESULT_FIELDS_FINANCE_AUDIT),
     ('Finance.BalanceSheet',      DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
