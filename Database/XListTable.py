@@ -54,6 +54,17 @@ class XListTable:
     def get_name_table(self) -> pd.DataFrame:
         return self.__local_data
 
+    def import_csv(self, csv_file: str, replace: bool = False) -> bool:
+        df = pd.DataFrame.from_csv(csv_file)
+        header = list(df.columns)
+        if 'name' not in header or 'reason' not in header or 'comments' not in header:
+            return False
+        if replace:
+            self.clear()
+        for index, row in df.iterrows():
+            self.upsert_to_list(row.name, row.reason, row.comments)
+        return True
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
