@@ -315,7 +315,7 @@ def stock_code_to_stock_identity(stock_code: str) -> str:
 
 
 def normalize_stock_identity(stock_code: str) -> str:
-    if stock_code.endswith('SSE') or stock_code.endswith('SZSE'):
+    if stock_code.endswith('.SSE') or stock_code.endswith('.SZSE'):
         return stock_code
     return stock_code_to_stock_identity(stock_code)
 

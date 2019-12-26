@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QFileDialog, QCheckBox
 from Utiltity.ui_utility import *
 from Utiltity.df_utility import *
 from Database.XListTable import *
+from DataHub.DataUtility import *
 from Database.DatabaseEntry import *
 from stock_analysis_system import StockAnalysisSystem
 
@@ -74,6 +75,7 @@ class XListTableUi(QWidget):
         self.__button_import_csv = QPushButton(self.__translate('', 'Import'))
         self.__button_save = QPushButton(self.__translate('', 'Save'))
         self.__button_reload = QPushButton(self.__translate('', 'Reload'))
+        self.__button_reset = QPushButton(self.__translate('', 'Reset'))
 
         self.init_ui()
 
@@ -97,6 +99,7 @@ class XListTableUi(QWidget):
         sub_layout.addWidget(self.__button_import_csv)
         sub_layout.addWidget(self.__button_save)
         sub_layout.addWidget(self.__button_reload)
+        sub_layout.addWidget(self.__button_reset)
         main_layout.addLayout(sub_layout)
 
     def __config_control(self):
@@ -105,6 +108,7 @@ class XListTableUi(QWidget):
         self.__button_import_csv.clicked.connect(self.on_button_import_csv)
         self.__button_save.clicked.connect(self.on_button_save)
         self.__button_reload.clicked.connect(self.on_button_reload)
+        self.__button_reset.clicked.connect(self.on_button_reset)
         self.setMinimumSize(800, 600)
 
     # ---------------------------------------------------- UI Event ----------------------------------------------------
@@ -138,11 +142,13 @@ class XListTableUi(QWidget):
                                 QMessageBox.Ok)
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
-            ret = self.__x_table.import_csv(file_path, False)
-            QMessageBox.information(self, self.__translate('', '执行结果'),
-                                    self.__translate('',
-                                                     '导入成功' if ret else '导入失败，请检查CSV文件格式'),
-                                    QMessageBox.Ok)
+            csv_name_column_to_identity(file_path, 'name')
+            # ret = self.__x_table.import_csv(file_path, False)
+            # QMessageBox.information(self, self.__translate('', '执行结果'),
+            #                         self.__translate('',
+            #                                          '导入成功' if ret else '导入失败，请检查CSV文件格式'),
+            #                         QMessageBox.Ok)
+            # self.__refresh()
 
     def on_button_save(self):
         reply = QMessageBox.information(self, self.__translate('', '写入警告'),
@@ -163,6 +169,18 @@ class XListTableUi(QWidget):
         if reply != QMessageBox.Yes:
             return
         self.__x_table.reload()
+        self.__refresh()
+
+    def on_button_reset(self):
+        reply = QMessageBox.information(self, self.__translate('', '操作警告'),
+                                        self.__translate('',
+                                                         '此操作会清空整个名单，'
+                                                         '不过在你点击“保存”前不会影响数据库。\n' 
+                                                         '\n是否确定？'),
+                                        QMessageBox.Yes | QMessageBox.No)
+        if reply != QMessageBox.Yes:
+            return
+        self.__x_table.clear()
         self.__refresh()
 
     # ---------------------------------------------------- pvivate -----------------------------------------------------

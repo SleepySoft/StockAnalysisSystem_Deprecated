@@ -15,6 +15,7 @@ import pandas as pd
 from Utiltity.common import *
 from Utiltity.time_utility import *
 from Database.SqlRw import SqlAccess
+from stock_analysis_system import StockAnalysisSystem
 
 
 class XListTable:
@@ -55,14 +56,20 @@ class XListTable:
         return self.__local_data
 
     def import_csv(self, csv_file: str, replace: bool = False) -> bool:
-        df = pd.DataFrame.from_csv(csv_file)
+        df = pd.read_csv(csv_file, index_col=None)
         header = list(df.columns)
         if 'name' not in header or 'reason' not in header or 'comments' not in header:
             return False
         if replace:
             self.clear()
+
+        data_utility = StockAnalysisSystem().get_data_hub_entry().get_data_utility()
+        name_column = df['name'].values.tolist()
+        id_column = data_utility.names_to_stock_identity(name_column)
+        df['name'] = np.array(id_column)
+
         for index, row in df.iterrows():
-            self.upsert_to_list(row.name, row.reason, row.comments)
+            self.upsert_to_list(row['name'], row['reason'], row['comments'])
         return True
 
 
