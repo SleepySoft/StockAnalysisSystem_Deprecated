@@ -85,7 +85,8 @@ def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
     if result is None:
         pro = ts.pro_api()
         # If we specify the exchange parameter, it raises error.
-        result = pro.stock_basic()
+        result = pro.stock_basic(fields='ts_code,symbol,name,area,industry,fullname,list_date,'
+                                        'enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
     check_execute_dump_flag(result, **kwargs)
 
     if result is not None:

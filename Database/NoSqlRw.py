@@ -349,7 +349,14 @@ class ItkvTable:
         if str_available(self.__datetime_field) and time is not None:
             document[self.__datetime_field] = time
         document.update(data)
-        return collection.update_many(spec, {'$set': document}, True) if len(spec) > 0 else collection.insert(document)
+        try:
+            ret = collection.update_many(spec, {'$set': document}, True) \
+                if len(spec) > 0 else collection.insert(document)
+        except Exception as e:
+            ret = False
+        finally:
+            pass
+        return ret
 
     def delete(self, identity: str or list = None, since: datetime = None, until: datetime = None,
                extra_spec: dict = None, keys: list = None):

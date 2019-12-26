@@ -223,7 +223,7 @@ class UniversalDataTable:
                 print('Warning: datetime field "' + datetime_field + '" of <' + uri + '> missing.')
                 continue
 
-            table.upsert(identity_value, datetime_value, row.to_dict())
+            table.upsert(identity_value, datetime_value, row.dropna().to_dict())
 
     def range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
         table = self.data_table(uri, identify, (None, None), {})

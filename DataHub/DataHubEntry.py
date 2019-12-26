@@ -52,17 +52,17 @@ RESULT_FIELDS_SECURITIES_INFO = {
     'stock_identity': (['str'], [],                 True,  ''),
     'code':           (['str'], [],                 True,  ''),
     'name':           (['str'], [],                 True,  ''),
-    'area':           (['str'], [],                 False, ''),
-    'industry':       (['str'], [],                 False, ''),
-    'fullname':       (['str'], [],                 False, ''),
-    'en_name':        (['str'], [],                 False, ''),
-    'market':         (['str'], [],                 False, ''),
     'exchange':       (['str'], ['SSE', 'SZSE'],    True,  ''),
-    'currency':       (['str'], [],                 False, ''),
-    'list_status':    (['int'], [],                 False, ''),
-    'listing_date':   (['datetime'], [],            False, ''),
-    'delisting_date': (['datetime'], [],            False, ''),
-    'stock_connect':  (['int'], [],                 False, ''),
+    # 'area':           (['str'], [],                 False, ''),
+    # 'industry':       (['str'], [],                 False, ''),
+    # 'fullname':       (['str'], [],                 False, ''),
+    # 'en_name':        (['str'], [],                 False, ''),
+    # 'market':         (['str'], [],                 False, ''),
+    # 'currency':       (['str'], [],                 False, ''),
+    # 'list_status':    (['int'], [],                 False, ''),
+    # 'listing_date':   (['datetime'], [],            False, ''),
+    # 'delisting_date': (['datetime'], [],            False, ''),
+    # 'stock_connect':  (['int'], [],                 False, ''),
 }
 
 # ---------------------- FinanceData.Audit ----------------------
@@ -107,6 +107,7 @@ DATA_FORMAT_RESULT_FIELD_INFO = 6
 
 DATA_FORMAT_DECLARE = [
     ('Market.TradeCalender', DFTDB, DFTPRX,  'exchange', 'trade_date', QUERY_FIELDS_TRADE_CALENDER,  RESULT_FIELDS_TRADE_CALENDER),
+    ('Market.NamingHistory', DFTDB, DFTPRX, 'stock_identity', 'updat',   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
     ('Market.SecuritiesInfo', DFTDB, DFTPRX, 'stock_identity', None,   QUERY_FIELDS_SECURITIES_INFO, RESULT_FIELDS_SECURITIES_INFO),
 
     ('Finance.Audit',             DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_AUDIT, RESULT_FIELDS_FINANCE_AUDIT),
