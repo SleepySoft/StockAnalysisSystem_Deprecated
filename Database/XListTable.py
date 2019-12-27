@@ -42,7 +42,9 @@ class XListTable:
 
     def upsert_to_list(self, name: str, reason: str, comments: str = ''):
         self.remove_from_list(name)
-        self.__local_data.loc[len(self.__local_data)] = [name, reason, comments, now()]
+        s = pd.Series([name, reason, comments, now()], index=XListTable.FIELD)
+        self.__local_data = self.__local_data.append(s, ignore_index=True)
+        # self.__local_data.loc[len(self.__local_data), :] = [name, reason, comments, now()]
 
     def remove_from_list(self, name: str):
         name_field = XListTable.FIELD[XListTable.INDEX_NAME]
