@@ -63,9 +63,10 @@ class XListTableUi(QWidget):
 
     # --------------------------------------------------------------------------------------
 
-    def __init__(self, x_table: XListTable):
+    def __init__(self, x_table: XListTable, title: str = ''):
         super(XListTableUi, self).__init__()
 
+        self.__title = title
         self.__x_table = x_table
         self.__main_table = EasyQTableWidget(self)
         self.__translate = QtCore.QCoreApplication.translate
@@ -110,6 +111,7 @@ class XListTableUi(QWidget):
         self.__button_reload.clicked.connect(self.on_button_reload)
         self.__button_reset.clicked.connect(self.on_button_reset)
         self.setMinimumSize(800, 600)
+        self.setWindowTitle(self.__title)
 
     # ---------------------------------------------------- UI Event ----------------------------------------------------
 
@@ -196,7 +198,7 @@ class XListTableUi(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    dlg = WrapperQDialog(XListTableUi(DatabaseEntry().get_black_table()), False)
+    dlg = WrapperQDialog(XListTableUi(DatabaseEntry().get_black_table(), '黑名单'), False)
     dlg.exec()
 
 

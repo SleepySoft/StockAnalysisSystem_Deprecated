@@ -175,6 +175,8 @@ class CommonMainWindow(QMainWindow):
             dock_wnd.move(self.geometry().center() - dock_wnd.rect().center())
         if dock_show:
             dock_wnd.show()
+        else:
+            dock_wnd.hide()
 
         sub_window_data.dock_wnd = dock_wnd
 

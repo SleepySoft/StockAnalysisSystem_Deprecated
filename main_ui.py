@@ -10,12 +10,13 @@ from stock_analysis_system import StockAnalysisSystem
 # =========================================== InfoDialog ===========================================
 
 class InfoDialog(QDialog):
-    def __init__(self, title, text):
+    def __init__(self, title: str, text: str):
         super().__init__()
         self.__text = text
         self.__title = title
         self.__button_ok = QPushButton('OK')
         self.__layout_main = QVBoxLayout()
+
         self.init_ui()
 
     def init_ui(self):
@@ -73,8 +74,8 @@ class MainWindow(CommonMainWindow):
         self.add_sub_window(self.__alias_table_module_ui, {
             'DockName': self.__translate('main', 'Alias Table'),
             'DockArea': Qt.LeftDockWidgetArea,
-            'DockShow': True,
-            'DockFloat': True,
+            'DockShow': False,
+            'DockFloat': False,
             'MenuName': self.__translate('main', 'Alias Table'),
             'MenuPresent': True,
             'ActionName': self.__translate('main', 'Alias Table'),
