@@ -50,17 +50,17 @@ class DataUtility:
         securities_info = self.__data_center.query('Market.SecuritiesInfo',
                                                    fields=['stock_identity', 'name'])
         if securities_info is not None:
-            self.__stock_id_using_name_table = {line.get('stock_identity'): line.get('name')
-                                                for line in securities_info}
+            self.__stock_id_using_name_table = {row['stock_identity']: row['name']
+                                                for index, row in securities_info.iterrows()}
 
         securities_used_name = self.__data_center.query('Market.NamingHistory',
                                                         fields=['stock_identity', 'name', 'naming_date'])
         if securities_used_name is not None:
             self.__stock_history_name_id_table = {
                 # Convert to lower case and remove * mark for easy indexing.
-                line.get('name', '').lower().replace('*', ''): (line.get('stock_identity'),
-                                                                line.get('naming_date'))
-                for line in securities_used_name}
+                row['name'].lower().replace('*', ''): (row['stock_identity'],
+                                                       row['naming_date'])
+                for index, row in securities_used_name.iterrows()}
             
             # Also add current name into history naming list
             if securities_info is not None:

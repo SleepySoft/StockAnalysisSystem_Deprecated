@@ -14,42 +14,63 @@ def run_ui():
     app.exec_()
 
 
-def run_console():
+def update_local(update_list: [str]):
     sas = stock_analysis_system.StockAnalysisSystem()
     data_hub = sas.get_data_hub_entry()
     data_center = data_hub.get_data_center()
     data_utility = data_hub.get_data_utility()
 
-    # print('Updating SecuritiesInfo...')
-    # data_center.update_local_data('Market.SecuritiesInfo', test_flag=True)
+    if 'Market.SecuritiesInfo' in update_list:
+        print('Updating SecuritiesInfo...')
+        data_center.update_local_data('Market.SecuritiesInfo')
 
-    # print('Updating Naming History...')
-    # data_center.update_local_data('Market.NamingHistory', dump_flag=True)
+    if 'Market.NamingHistory' in update_list:
+        print('Updating Naming History...')
+        data_center.update_local_data('Market.NamingHistory')
 
-    # print('Updating TradeCalender...')
-    # data_center.update_local_data('Market.TradeCalender', exchange='SSE')
-    #
-    # stock_list = data_utility.get_stock_list()
-    #
-    # start_total = time.time()
-    # print('Updating Finance Data for All A-SHARE Stock.')
-    #
-    # counter = 0
-    # for stock_identity, name in stock_list:
-    #     start_single = time.time()
-    #     print('Updating Finance Data for ' + stock_identity + ' [' + name + ']')
-    #     data_center.update_local_data('Finance.Audit', stock_identity)
-    #     data_center.update_local_data('Finance.BalanceSheet', stock_identity)
-    #     data_center.update_local_data('Finance.IncomeStatement', stock_identity)
-    #     data_center.update_local_data('Finance.CashFlowStatement', stock_identity)
-    #
-    #     counter += 1
-    #     print('Done (%s / %s). Time Spending: %s s' % (counter, len(stock_list), time.time() - start_single))
-    #
-    #     # For the sake of:
-    #     # 抱歉，您每分钟最多访问该接口80次，权限的具体详情访问：https://tushare.pro/document/1?doc_id=108
-    #     time.sleep(1)
-    # print('Update Finance Data for All A-SHARE Stock Done. Time Spending: ' + str(time.time() - start_total) + 's')
+    if 'Market.TradeCalender' in update_list:
+        print('Updating TradeCalender...')
+        data_center.update_local_data('Market.TradeCalender', exchange='SSE')
+
+    stock_list = data_utility.get_stock_list()
+
+    start_total = time.time()
+    print('Updating Finance Data for All A-SHARE Stock.')
+
+    counter = 0
+    for stock_identity, name in stock_list:
+        start_single = time.time()
+        print('Updating Finance Data for ' + stock_identity + ' [' + name + ']')
+        if 'Finance.Audit' in update_list:
+            data_center.update_local_data('Finance.Audit', stock_identity)
+        if 'Finance.BalanceSheet' in update_list:
+            data_center.update_local_data('Finance.BalanceSheet', stock_identity)
+        if 'Finance.IncomeStatement' in update_list:
+            data_center.update_local_data('Finance.IncomeStatement', stock_identity)
+        if 'Finance.CashFlowStatement' in update_list:
+            data_center.update_local_data('Finance.CashFlowStatement', stock_identity)
+
+        counter += 1
+        print('Done (%s / %s). Time Spending: %s s' % (counter, len(stock_list), time.time() - start_single))
+
+        # For the sake of:
+        # 抱歉，您每分钟最多访问该接口80次，权限的具体详情访问：https://tushare.pro/document/1?doc_id=108
+        time.sleep(1)
+
+    print('Update Finance Data for All A-SHARE Stock Done. Time Spending: ' + str(time.time() - start_total) + 's')
+
+
+def run_console():
+    update_local([
+        'Market.SecuritiesInfo',
+        'Market.NamingHistory',
+        'Market.TradeCalender',
+
+        'Finance.Audit',
+        'Finance.BalanceSheet',
+        'Finance.IncomeStatement',
+        'Finance.CashFlowStatement',
+    ])
 
     exit(0)
 

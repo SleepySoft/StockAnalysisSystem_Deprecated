@@ -142,13 +142,13 @@ class XListTableUi(QWidget):
                                 QMessageBox.Ok)
         file_path, ok = QFileDialog.getOpenFileName(self, 'Load CSV file', '', 'CSV Files (*.csv);;All Files (*)')
         if ok:
-            csv_name_column_to_identity(file_path, 'name')
-            # ret = self.__x_table.import_csv(file_path, False)
-            # QMessageBox.information(self, self.__translate('', '执行结果'),
-            #                         self.__translate('',
-            #                                          '导入成功' if ret else '导入失败，请检查CSV文件格式'),
-            #                         QMessageBox.Ok)
-            # self.__refresh()
+            # csv_name_column_to_identity(file_path, 'name')
+            ret = self.__x_table.import_csv(file_path, False)
+            QMessageBox.information(self, self.__translate('', '执行结果'),
+                                    self.__translate('',
+                                                     '导入成功' if ret else '导入失败，请检查CSV文件格式'),
+                                    QMessageBox.Ok)
+            self.__refresh()
 
     def on_button_save(self):
         reply = QMessageBox.information(self, self.__translate('', '写入警告'),

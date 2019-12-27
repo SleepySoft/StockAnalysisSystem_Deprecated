@@ -36,29 +36,35 @@ finally:
 # UPDATE_STRATEGY_OFFLINE = 4
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                 ParameterChecker
+# ----------------------------------------------------------------------------------------------------------------------
+
 class ParameterChecker:
+
+    """
+    Key: str - The key you need to check in the dict param
+    Val: tuple - The first item: The list of expect types for this key, you can specify a None if None is allowed
+                 The second item: The list of expect values for this key, an empty list means it can be any value
+                 The third item: True if it's necessary, False if it's optional.
+    DICT_PARAM_INFO_EXAMPLE = {
+        'identify':     ([str], ['id1', 'id2'], True),
+        'datetime':     ([datetime.datetime, None], [], False)
+    }
+
+    The param info for checking a dataframe.
+    It's almost likely to the dict param info except the type should be str instead of real python type
+    DATAFRAME_PARAM_INFO_EXAMPLE = {
+        'identity':         (['str'], [], False),
+        'period':           (['datetime'], [], True)
+    }
+    """
 
     PYTHON_DATAFRAME_TYPE_MAPPING = {
         'str': 'object',
         'int': 'int64',
         'datetime': 'datetime64[ns]',
     }
-
-    # Key: str - The key you need to check in the dict param
-    # Val: tuple - The first item: The list of expect types for this key, you can specify a None if None is allowed
-    #              The second item: The list of expect values for this key, an empty list means it can be any value
-    #              The third item: True if it's necessary, False if it's optional.
-    # DICT_PARAM_INFO_EXAMPLE = {
-    #     'identify':     ([str], ['id1', 'id2'], True),
-    #     'datetime':     ([datetime.datetime, None], [], False)
-    # }
-
-    # The param info for checking a dataframe.
-    # It's almost likely to the dict param info except the type should be str instead of real python type
-    # DATAFRAME_PARAM_INFO_EXAMPLE = {
-    #     'identity':         (['str'], [], False),
-    #     'period':           (['datetime'], [], True)
-    # }
 
     def __init__(self, df_param_info: dict = None, dict_param_info: dict = None):
         self.__df_param_info = df_param_info
@@ -148,6 +154,10 @@ class ParameterChecker:
         return True
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                 UniversalDataTable
+# ----------------------------------------------------------------------------------------------------------------------
+
 class UniversalDataTable:
     DEFAULT_SINCE_DATE = text2date('1900-01-01')
 
@@ -198,7 +208,8 @@ class UniversalDataTable:
         until = time_serial[1] if time_serial is not None and \
                                   isinstance(time_serial, (list, tuple)) and len(time_serial) > 1 else None
         result = table.query(identify, since, until, extra, fields)
-        return result
+        df = pd.DataFrame(result)
+        return df
 
     def merge(self, uri: str, identify: str, df: pd.DataFrame):
         table = self.data_table(uri, identify, (None, None), {})
@@ -245,6 +256,8 @@ class UniversalDataTable:
                                                        self.__identity_field, self.__datetime_field)
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                UniversalDataCenter
 # ----------------------------------------------------------------------------------------------------------------------
 
 class UniversalDataCenter:
@@ -397,7 +410,7 @@ class UniversalDataCenter:
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------------------------------- Test --------------------------------------------------------
+#                                                         Test
 # ----------------------------------------------------------------------------------------------------------------------
 
 def __build_data_center() -> UniversalDataCenter:
