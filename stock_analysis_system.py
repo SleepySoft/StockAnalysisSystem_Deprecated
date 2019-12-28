@@ -21,6 +21,7 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
         self.__strategy_plugin = None
 
         self.__data_hub_entry = None
+        self.__strategy_entry = None
         self.__database_entry = None
 
     def check_initialize(self) -> bool:
@@ -28,22 +29,23 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
             return True
 
         import DataHub.DataHubEntry as DataHubEntry
+        import Strategy.StrategyEntry as StrategyEntry
         import Database.DatabaseEntry as DatabaseEntry
         import Utiltity.plugin_manager as plugin_manager
 
         root_path = path.dirname(path.abspath(__file__))
 
+        self.__strategy_plugin = plugin_manager.PluginManager(path.join(root_path, 'Analyzer'))
         self.__collector_plugin = plugin_manager.PluginManager(path.join(root_path, 'Collector'))
-        self.__strategy_plugin = plugin_manager.PluginManager(path.join(root_path, 'Collector'))
 
-        self.__collector_plugin.refresh()
         self.__strategy_plugin.refresh()
+        self.__collector_plugin.refresh()
 
         root_path = path.dirname(path.abspath(__file__))
 
         self.__database_entry = DatabaseEntry.DatabaseEntry(root_path + '/Data/')
+        self.__strategy_entry = StrategyEntry.StrategyEntry(self.__strategy_plugin)
         self.__data_hub_entry = DataHubEntry.DataHubEntry(self.__database_entry, self.__collector_plugin)
-
         self.__inited = True
 
         return True

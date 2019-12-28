@@ -26,7 +26,7 @@ def plugin_prob() -> dict:
     return {
         'plugin_name': 'dummy_plugin_for_test',
         'plugin_version': '0.0.0.1',
-        'tags': ['test', 'dummy']
+        'tags': ['test', 'dummy', 'collector']
     }
 
 
