@@ -9,6 +9,7 @@ try:
     from Utiltity.common import *
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
+    from DataHub.DataHubEntry import DataHubEntry
 except Exception as e:
     sys.path.append(root_path)
 
@@ -16,6 +17,7 @@ except Exception as e:
     from Utiltity.common import *
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
+    from DataHub.DataHubEntry import DataHubEntry
 finally:
     pass
 
@@ -44,15 +46,23 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def score(securities: [str]) -> [(str, AnalysisResult)]:
+def manual() -> dict:
+    return {
+        'score': (),
+        'inclusive': (),
+        'exclusive': (),
+    }
+
+
+def score(securities: [str], data_hub: DataHubEntry) -> [AnalysisResult]:
     pass
 
 
-def inclusive(securities: [str]) -> [(str, AnalysisResult)]:
+def inclusive(securities: [str], data_hub: DataHubEntry) -> ([str], [AnalysisResult]):
     pass
 
 
-def exclusive(securities: [str]) -> [(str, AnalysisResult)]:
+def exclusive(securities: [str], data_hub: DataHubEntry) -> ([str], [AnalysisResult]):
     pass
 
 
