@@ -2,33 +2,27 @@ import logging
 import traceback
 
 from os import sys, path
-from datetime import datetime
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 try:
     import Utiltity.common as common
+    from DataHub.DataHubEntry import DataHubEntry
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
-    from DataHub.DataUtility import DataUtility
-    from DataHub.UniversalDataCenter import ParameterChecker
-    from DataHub.UniversalDataCenter import UniversalDataTable
-    from DataHub.UniversalDataCenter import UniversalDataCenter
 except Exception as e:
     sys.path.append(root_path)
 
     import Utiltity.common as common
+    from DataHub.DataHubEntry import DataHubEntry
     from Database.DatabaseEntry import DatabaseEntry
     from Utiltity.plugin_manager import PluginManager
-    from DataHub.DataUtility import DataUtility
-    from DataHub.UniversalDataCenter import ParameterChecker
-    from DataHub.UniversalDataCenter import UniversalDataTable
-    from DataHub.UniversalDataCenter import UniversalDataCenter
 finally:
     logger = logging.getLogger('')
 
 
 class StrategyEntry:
-    def __init__(self, strategy_plugin: PluginManager):
+    def __init__(self, strategy_plugin: PluginManager, data_hub: DataHubEntry):
+        self.__data_hub = data_hub
         self.__strategy_plugin = strategy_plugin
 
     def get_plugin_manager(self) -> PluginManager:
@@ -36,21 +30,44 @@ class StrategyEntry:
 
     # ------------------------------------------------------------------------------------------------------------------
 
-    def run_strategy(self, uri: str):
-        plugins = self.get_plugin_manager().find_module_has_capacity(uri)
-        for plugin in plugins:
-            df = self.get_plugin_manager().execute_module_function(plugin, 'query', {})
-            if df is not None and isinstance(df, pd.DataFrame) and len(df) > 0:
-                return df
-        return None
+    def strategy_prob(self) -> [dict]:
+        return self.get_plugin_manager().execute_module_function(
+            self.get_plugin_manager().all_modules(), 'plugin_prob', {})
+
+    def run_strategy(self, securities: [str], methods: [str]):
+        return self.get_plugin_manager().execute_module_function(
+            self.get_plugin_manager().all_modules(), 'plugin_prob', {
+                'securities': securities,
+                'methods': methods,
+                'data_hub': self.__data_hub
+            })
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                         Test
 # ----------------------------------------------------------------------------------------------------------------------
 
+def __prepare_instance() -> StrategyEntry:
+    plugin_mgr = PluginManager(path.join(root_path, 'Analyzer'))
+    plugin_mgr.refresh()
+    return StrategyEntry(plugin_mgr, None)
+
+
+def test_analyzer_prob():
+    se = __prepare_instance()
+    probs = se.strategy_prob()
+    print(probs)
+
+
+def test_score():
+    se = __prepare_instance()
+    se.run_strategy(
+        [''],
+        ['5d19927a-2ab1-11ea-aee4-eb8a702e7495', 'bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'])
+
+
 def test_entry():
-    pass
+    test_analyzer_prob()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

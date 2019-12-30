@@ -17,48 +17,28 @@ finally:
     pass
 
 
+def methods_from_prob(prob: dict) -> []:
+    methods = []
+    method_dict = prob.get('prob', {})
+    for capacity, method_list in method_dict:
+        for method in method_list:
+            methods.append(method[0])
+    return methods
+
+
 class AnalysisResult:
 
-    RESULT_TYPE = int
-    RESULT_NONE = 0
-    RESULT_TRUE = 1
-    RESULT_FALSE = 2
-    RESULT_SCORE = 3
-    RESULT_UNSUPPORTED = 4
+    RESULT_NONE = None
+    RESULT_TRUE = True
+    RESULT_FALSE = False
+    RESULT_SCORE = int
 
-    def __init__(self, securities: str = '', result: RESULT_TYPE = RESULT_NONE):
-        self.__score = 0
-        self.__reason = ''
-        self.__result = result
-        self.__securities = securities
-
-    # ---------------------------------------------
-
-    def set_score(self, score: int):
-        self.__score = score
-
-    def set_reason(self, reason: str):
-        self.__reason = reason
-
-    def set_result(self, result: RESULT_TYPE):
-        self.__result = result
-
-    def set_securities(self, securities: str):
-        self.__securities = securities
-
-    # ---------------------------------------------
-
-    def get_score(self) -> int:
-        return self.__score
-
-    def get_reason(self) -> str:
-        return self.__reason
-
-    def get_result(self) -> RESULT_TYPE:
-        return self.__result
-
-    def get_securities(self) -> str:
-        return self.__securities
+    def __init__(self, method: str, method_type: str, securities: str, result: any, reason: str = ''):
+        self.method = method
+        self.method_type = method_type
+        self.securities = securities
+        self.result = result
+        self.reason = reason
 
     # ------------------------------------------------------------------------------------------------------------------
 

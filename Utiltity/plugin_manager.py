@@ -47,6 +47,9 @@ class PluginManager:
             plugin_list.append((file_name, plugin))
         self.__plugins = plugin_list
 
+    def all_modules(self) -> list:
+        return [plugin for file_name, plugin in self.__plugins]
+
     def find_module_has_capacity(self, capacity: str) -> [object]:
         """
         Finds the module that supports the specified feature.
@@ -92,7 +95,7 @@ class PluginManager:
         :return: The object that the invoking function returns, it will be a list if the modules param is a list.
                  Includes None return.
         """
-        if isinstance(modules, object):
+        if not isinstance(modules, (list, tuple)):
             modules = [modules]
         result_list = []
         for module in modules:
