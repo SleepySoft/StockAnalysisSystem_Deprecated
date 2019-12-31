@@ -65,7 +65,7 @@ def analysis(securities: [str], methods: [str], data_hub: DataHubEntry) -> [Anal
     nop(data_hub)
     result = []
     for s in securities:
-        end_char = s.split('.')[0]
+        end_char = s.split('.')[0][-1:]
         if '5d19927a-2ab1-11ea-aee4-eb8a702e7495' in methods:
             score = int(end_char)
             result.append(AnalysisResult('5d19927a-2ab1-11ea-aee4-eb8a702e7495', 'score',
@@ -80,7 +80,7 @@ def analysis(securities: [str], methods: [str], data_hub: DataHubEntry) -> [Anal
                                          s, passed, '只有代码末位是1-5的能通过此测试'))
         if 'd0b619ba-2ab1-11ea-ac32-43e650aafd4f' in methods:
             passed = end_char in ['5', '6', '7', '8', '9']
-            result.append(AnalysisResult('6b23435c-2ab1-11ea-99a8-3f957097f4c9', 'inclusive',
+            result.append(AnalysisResult('d0b619ba-2ab1-11ea-ac32-43e650aafd4f', 'inclusive',
                                          s, passed, '只有代码末位是5-9的能通过此测试'))
         if '78ffae34-2ab1-11ea-88ff-634c407b44d3' in methods:
             blocked = s[0] in ['1', '2', '3', '4', '5']
