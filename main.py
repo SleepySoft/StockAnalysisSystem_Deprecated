@@ -60,6 +60,10 @@ def update_local(update_list: [str]):
     print('Update Finance Data for All A-SHARE Stock Done. Time Spending: ' + str(time.time() - start_total) + 's')
 
 
+def run_strategy():
+    pass
+
+
 def run_console():
     update_local([
         'Market.SecuritiesInfo',
@@ -71,6 +75,7 @@ def run_console():
         'Finance.IncomeStatement',
         'Finance.CashFlowStatement',
     ])
+    run_strategy()
 
     exit(0)
 
