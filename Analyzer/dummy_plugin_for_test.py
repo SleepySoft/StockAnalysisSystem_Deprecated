@@ -10,6 +10,7 @@ try:
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
     from DataHub.DataHubEntry import DataHubEntry
+    from Database.DatabaseEntry import DatabaseEntry
 except Exception as e:
     sys.path.append(root_path)
 
@@ -18,6 +19,7 @@ except Exception as e:
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
     from DataHub.DataHubEntry import DataHubEntry
+    from Database.DatabaseEntry import DatabaseEntry
 finally:
     pass
 
@@ -61,8 +63,9 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def analysis(securities: [str], methods: [str], data_hub: DataHubEntry) -> [AnalysisResult]:
+def analysis(securities: [str], methods: [str], data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
     nop(data_hub)
+    nop(database)
     result = []
     for s in securities:
         end_char = s.split('.')[0][-1:]

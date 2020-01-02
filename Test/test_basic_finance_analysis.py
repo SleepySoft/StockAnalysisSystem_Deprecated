@@ -5,62 +5,38 @@ try:
     import stock_analysis_system
     from Utiltity.common import *
     from Utiltity.time_utility import *
-    from Collector.CollectorUtility import *
 except Exception as e:
     sys.path.append(root_path)
 
     import stock_analysis_system
     from Utiltity.common import *
     from Utiltity.time_utility import *
-    from Collector.CollectorUtility import *
 finally:
     pass
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def dump_test_data() -> bool:
-    ret = True
-    sas = stock_analysis_system.StockAnalysisSystem()
-    data_hub = sas.get_data_hub_entry()
-    data_center = data_hub.get_data_center()
-
-    df = data_center.query_from_plugin('Market.SecuritiesInfo', '', dump_flag=True)
-    if df is None:
-        ret = False
-        print('Dump Market.SecuritiesInfo Failed.')
-
-    df = data_center.query_from_plugin('Market.TradeCalender', 'A-SHARE',
-                                       (text2date('1900-01-01'), today()), dump_flag=True)
-    if df is None:
-        ret = False
-        print('Dump Market.TradeCalender Failed.')
-
-    return ret
-
 
 def test_entry() -> bool:
     ret = True
     sas = stock_analysis_system.StockAnalysisSystem()
+
     data_hub = sas.get_data_hub_entry()
-    data_center = data_hub.get_data_center()
+    se = sas.get_strategy_entry()
 
-    df = data_center.query_from_plugin('Market.SecuritiesInfo', '', test_flag=True)
-    if df is None:
-        ret = False
-        print('Test Market.SecuritiesInfo Failed.')
+    stock_list = data_hub.get_data_utility().get_stock_list()
+    stock_ids = [_id for _id, _name in stock_list]
 
-    df = data_center.query_from_plugin('Market.TradeCalender', 'A-SHARE',
-                                       (text2date('1900-01-01'), today()), test_flag=True)
-    if df is None:
-        ret = False
-        print('Test Market.SecuritiesInfo Failed.')
+    result = se.run_strategy(stock_ids,
+                             ['7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09'])
 
     return ret
 
 
 def main():
     test_entry()
+    print('All Test Passed.')
 
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -29,7 +29,9 @@ class XListTable:
         assert table != ''
         self.__table = table
         self.__sql_db = sql_db
-        self.__local_data = pd.DataFrame(columns=XListTable.FIELD)
+        self.__local_data = None
+
+        self.reload()
 
     def clear(self):
         self.__local_data = pd.DataFrame(columns=XListTable.FIELD)
@@ -39,6 +41,8 @@ class XListTable:
 
     def reload(self):
         self.__local_data = self.__sql_db.DataFrameFromDB(self.__table, XListTable.FIELD, '')
+        if self.__local_data is None:
+            self.__local_data = pd.DataFrame(columns=XListTable.FIELD)
 
     def upsert_to_list(self, name: str, reason: str, comments: str = ''):
         self.remove_from_list(name)

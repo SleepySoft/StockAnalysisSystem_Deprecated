@@ -33,11 +33,11 @@ finally:
 class DatabaseEntry:
     def __init__(self, data_path: str = None):
         if data_path is None or not isinstance(data_path, str):
-            data_path = root_path + '/Data/'
+            data_path = path.join(root_path, 'Data')
 
         self.__no_sql_tables = {}
 
-        self.__sAsUtility = SqlAccess(data_path + 'sAsUtility.db')
+        self.__sAsUtility = SqlAccess(path.join(data_path, 'sAsUtility.db'))
         self.__mongo_db_client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
 
         import Database.AliasTable as AliasTable

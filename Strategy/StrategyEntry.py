@@ -21,8 +21,9 @@ finally:
 
 
 class StrategyEntry:
-    def __init__(self, strategy_plugin: PluginManager, data_hub: DataHubEntry):
+    def __init__(self, strategy_plugin: PluginManager, data_hub: DataHubEntry, database: DatabaseEntry):
         self.__data_hub = data_hub
+        self.__database = database
         self.__strategy_plugin = strategy_plugin
 
     def get_plugin_manager(self) -> PluginManager:
@@ -39,7 +40,8 @@ class StrategyEntry:
             self.get_plugin_manager().all_modules(), 'analysis', {
                 'securities': securities,
                 'methods': methods,
-                'data_hub': self.__data_hub
+                'data_hub': self.__data_hub,
+                'database': self.__database,
             })
 
 
@@ -50,7 +52,7 @@ class StrategyEntry:
 def __prepare_instance() -> StrategyEntry:
     plugin_mgr = PluginManager(path.join(root_path, 'Analyzer'))
     plugin_mgr.refresh()
-    return StrategyEntry(plugin_mgr, None)
+    return StrategyEntry(plugin_mgr, None, None)
 
 
 def test_analyzer_prob():

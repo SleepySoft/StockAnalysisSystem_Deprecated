@@ -44,8 +44,9 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
         root_path = path.dirname(path.abspath(__file__))
 
         self.__database_entry = DatabaseEntry.DatabaseEntry(path.join(root_path, 'Data'))
-        self.__strategy_entry = StrategyEntry.StrategyEntry(self.__strategy_plugin)
         self.__data_hub_entry = DataHubEntry.DataHubEntry(self.__database_entry, self.__collector_plugin)
+        self.__strategy_entry = StrategyEntry.StrategyEntry(self.__strategy_plugin,
+                                                            self.__data_hub_entry, self.__database_entry)
         self.__inited = True
 
         return True
@@ -55,6 +56,9 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
 
     def get_data_hub_entry(self):
         return self.__data_hub_entry if self.check_initialize() else None
+
+    def get_strategy_entry(self):
+        return self.__strategy_entry if self.check_initialize() else None
 
     # ------------------------------------ private ------------------------------------
 
