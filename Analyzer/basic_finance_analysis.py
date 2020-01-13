@@ -61,27 +61,37 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def analysis_black_list(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> AnalysisResult:
+def analysis_black_list(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    result = []
     black_list = database.get_black_table().get_name_list()
-    exclude = securities in black_list
-    reason = 'In black list' if exclude else 'Not in black list'
-    return AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason)
+    for s in securities:
+        exclude = s in black_list
+        reason = 'In black list' if exclude else 'Not in black list'
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+    return result
 
 
-def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> AnalysisResult:
+def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    result = []
     df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
-    exclude = False
-    reason = 'Less than 3 years' if exclude else 'Not less than 3 years'
-    return AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason)
+    for s in securities:
+        df_slice = df[df['stock_identity'] == s]
+        if len(df_slice) > 0:
+            list_date = df_slice['list_date']
+            exclude = list_date.year - now().year < 3
+        else:
+            exclude = True
+        reason = 'Less than 3 years' if exclude else 'More than 3 years'
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+    return result
 
 
 def analysis(securities: [str], methods: [str], data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
     result = []
-    for s in securities:
-        if '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09' in methods:
-            result.append(analysis_black_list(s, data_hub, database))
-        if 'e639a8f1-f2f5-4d48-a348-ad12508b0dbb' in methods:
-            result.append(analysis_less_than_3_years(s, data_hub, database))
+    if '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09' in methods:
+        result.append(analysis_black_list(securities, data_hub, database))
+    if 'e639a8f1-f2f5-4d48-a348-ad12508b0dbb' in methods:
+        result.append(analysis_less_than_3_years(securities, data_hub, database))
     return result
 
 
