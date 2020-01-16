@@ -100,9 +100,10 @@ class PluginManager:
         result_list = []
         for module in modules:
             result_obj = self.__safe_execute(module, function, parameters)
-            if result_obj is not None and end_if_success:
-                return result_obj
-            result_list.append(result_obj)
+            if result_obj is not None:
+                result_list.append(result_obj)
+                if end_if_success:
+                    break
         return result_list
 
     # --------------------------------------- Execute ---------------------------------------

@@ -18,13 +18,27 @@ finally:
 
 
 def methods_from_prob(prob: dict) -> []:
-    methods = []
-    method_dict = prob.get('prob', {})
-    for capacity, method_list in method_dict:
-        for method in method_list:
-            methods.append(method[0])
-    return methods
+    return methods_from_method_list(prob.get('methods', []))
 
+
+def methods_from_method_list(method_list: list) -> []:
+    return [method for method, _, _, _ in method_list]
+
+
+def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, database,
+                               method_list: list) -> []:
+    result_list = []
+    for query_method in methods:
+        for hash_id, _, _, function_entry in method_list:
+            if hash_id == query_method:
+                result = function_entry(securities, data_hub, database)
+                if result is not None or len(result) > 0:
+                    result_list.append((query_method, result))
+                break
+    return result_list
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 class AnalysisResult:
 
@@ -33,8 +47,8 @@ class AnalysisResult:
     SCORE_PASS = SCORE_MAX
     SCORE_FAIL = SCORE_MIN
 
-    def __init__(self, method: str, securities: str, score: int or bool, reason: str = ''):
-        self.method = method
+    def __init__(self, securities: str, score: int or bool, reason: str = ''):
+        self.method = ''
         self.securities = securities
         if isinstance(score, bool):
             self.score = AnalysisResult.SCORE_PASS if score else AnalysisResult.SCORE_FAIL
@@ -44,10 +58,40 @@ class AnalysisResult:
             self.score = max(self.score, AnalysisResult.SCORE_MIN)
         self.reason = reason
 
-    # ------------------------------------------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------------------------------
 
 
+"""
+The results should look like:
 
+method1           method2           method3           ...           methodM
+m1_result1        m2_result1        m3_result1                      mM_result1
+m1_result2        m2_result2        m3_result2                      mM_result2
+m1_result3        m2_result3        m3_result3                      mM_result3
+.                 .                 .                               .
+.                 .                 .                               .
+.                 .                 .                               .
+m1_resultN        m2_resultN        m3_resultN                      mM_resultN
+"""
+
+
+def get_securities_in_result(results: [[AnalysisResult]]) -> [str]:
+    securities = []
+    for method_column in results:
+        for result in method_column:
+            if str_available(result.securities) and result.securities not in securities:
+                securities.append(result.securities)
+    return securities
+
+
+def pick_up_pass_securities(results: [[AnalysisResult]], score_threshold: int) -> [str]:
+    securities = get_securities_in_result(results)
+    for method_column in results:
+        for result in method_column:
+            if result.score < score_threshold and result.securities in securities:
+                securities.remove(result.securities)
+    return securities
 
 
 

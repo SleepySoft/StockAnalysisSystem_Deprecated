@@ -35,7 +35,7 @@ class StrategyEntry:
         return self.get_plugin_manager().execute_module_function(
             self.get_plugin_manager().all_modules(), 'plugin_prob', {})
 
-    def run_strategy(self, securities: [str], methods: [str]):
+    def run_strategy(self, securities: [str], methods: [str]) -> dict:
         result = self.get_plugin_manager().execute_module_function(
             self.get_plugin_manager().all_modules(), 'analysis', {
                 'securities': securities,
@@ -43,8 +43,15 @@ class StrategyEntry:
                 'data_hub': self.__data_hub,
                 'database': self.__database,
             }, False)
+
         # Flatten the nest result list
-        return [item for sublist in result for item in sublist]
+        flat_list = [item for sublist in result for item in sublist]
+
+        # Convert list to dict
+        result_table = {}
+        for hash_id, results in flat_list:
+            result_table[hash_id] = results
+        return result_table
 
 
 # ----------------------------------------------------------------------------------------------------------------------

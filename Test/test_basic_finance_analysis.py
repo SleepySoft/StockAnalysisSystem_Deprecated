@@ -5,12 +5,14 @@ try:
     import stock_analysis_system
     from Utiltity.common import *
     from Utiltity.time_utility import *
+    from Analyzer.AnalyzerUtility import *
 except Exception as e:
     sys.path.append(root_path)
 
     import stock_analysis_system
     from Utiltity.common import *
     from Utiltity.time_utility import *
+    from Analyzer.AnalyzerUtility import *
 finally:
     pass
 
@@ -28,10 +30,15 @@ def test_entry() -> bool:
     stock_list = data_hub.get_data_utility().get_stock_list()
     stock_ids = [_id for _id, _name in stock_list]
 
-    result = se.run_strategy(stock_ids,
-                             ['7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
-                              'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
-                              'f39f14d6-b417-4a6e-bd2c-74824a154fc0'])
+    result = se.run_strategy(stock_ids, [
+        # '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
+        # 'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
+        # 'f39f14d6-b417-4a6e-bd2c-74824a154fc0',
+        '3b01999c-3837-11ea-b851-27d2aa2d4e7d'
+    ])
+
+    pass_securities = pick_up_pass_securities(result, 50)
+    print(pass_securities)
 
     return ret
 
