@@ -70,7 +70,7 @@ def analysis_black_list(securities: str, data_hub: DataHubEntry, database: Datab
     for s in securities:
         exclude = s in black_list
         reason = 'In black list' if exclude else 'Not in black list'
-        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', securities, not exclude, reason))
     return result
 
 
@@ -83,7 +83,7 @@ def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database
         listing_date = get_dataframe_slice_item(df_slice, 'listing_date', 0, now())
         exclude = now().year - listing_date.year < 3
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', securities, not exclude, reason))
     return result
 
 
@@ -96,7 +96,7 @@ def analysis_location_limitation(securities: str, data_hub: DataHubEntry, databa
         area = get_dataframe_slice_item(df_slice, 'area', 0, '')
         exclude = area in ['黑龙江', '辽宁', '吉林']
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', securities, not exclude, reason))
     return result
 
 

@@ -28,16 +28,20 @@ def methods_from_prob(prob: dict) -> []:
 
 class AnalysisResult:
 
-    RESULT_NONE = None
-    RESULT_TRUE = True
-    RESULT_FALSE = False
-    RESULT_SCORE = int
+    SCORE_MIN = 0
+    SCORE_MAX = 100
+    SCORE_PASS = SCORE_MAX
+    SCORE_FAIL = SCORE_MIN
 
-    def __init__(self, method: str, method_type: str, securities: str, result: any, reason: str = ''):
+    def __init__(self, method: str, securities: str, score: int or bool, reason: str = ''):
         self.method = method
-        self.method_type = method_type
         self.securities = securities
-        self.result = result
+        if isinstance(score, bool):
+            self.score = AnalysisResult.SCORE_PASS if score else AnalysisResult.SCORE_FAIL
+        elif isinstance(score, (int, float)):
+            self.score = score
+            self.score = min(self.score, AnalysisResult.SCORE_MAX)
+            self.score = max(self.score, AnalysisResult.SCORE_MIN)
         self.reason = reason
 
     # ------------------------------------------------------------------------------------------------------------------
