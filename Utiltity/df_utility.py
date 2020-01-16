@@ -8,6 +8,18 @@ from os import sys, path
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
 
 
+def get_series_item(series: pd.Series, order: int, default: any = None) -> any:
+    slice_list = series.tolist()
+    return slice_list[order] if order < len(slice_list) else default
+
+
+def get_dataframe_slice_item(df_slice, field: str, order: int, default: any = None) -> any:
+    if len(df_slice) == 0 or field not in df_slice.columns:
+        return default
+    field_series = df_slice[field]
+    return get_series_item(field_series, order, default)
+
+
 def check_date_continuity(df: pd.DataFrame, field: str) -> tuple:
     """
     Check the continuity of a date format column in a DataFrame
@@ -36,7 +48,7 @@ def concat_dataframe_row_by_index(dfs: [pd.DataFrame]) -> pd.DataFrame:
 
 
 def concat_dataframe_by_row(dfs: [pd.DataFrame], unique_column: str = None) -> pd.DataFrame:
-    df = pd.concat(dfs, axis=0, ignore_index=True, sort=False)
+    df = pd.concat(dfs, axis=0, ignore_index=True)
     df.reindex()
 
     # Delete duplicate column
@@ -140,8 +152,8 @@ def DataFrameColumnCopy(df_from: pd.DataFrame, df_to: pd.DataFrame, columns: [st
 
 
 def test_check_date_continuity():
-    df = pd.DataFrame.from_csv(root_path + '/TestData/trade_calender.csv')
-    continuity, min_date, max_date = check_date_continuity(df, 'TradeDate')
+    df = pd.DataFrame.from_csv(root_path + '/TestData/Market_TradeCalender.csv')
+    continuity, min_date, max_date = check_date_continuity(df, 'cal_date')
     print('continuity = ' + str(continuity))
     print('min_date = ' + str(min_date))
     print('max_date = ' + str(max_date))
@@ -275,11 +287,11 @@ def test_concat_dataframe_by_row_with_duplicate_column():
 
 
 def test_entry():
-    # test_check_date_continuity()
-    # test_concat_dataframe_by_index()
-    # test_clip_dataframe()
-    # test_slice_dataframe_by_datetime()
-    # test_concat_dataframe_by_row()
+    test_check_date_continuity()
+    test_concat_dataframe_by_index()
+    test_clip_dataframe()
+    test_slice_dataframe_by_datetime()
+    test_concat_dataframe_by_row()
     test_concat_dataframe_by_row_with_duplicate_column()
 
 

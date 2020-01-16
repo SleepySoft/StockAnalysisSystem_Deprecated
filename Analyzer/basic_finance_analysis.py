@@ -7,6 +7,7 @@ root_path = path.dirname(path.dirname(path.abspath(__file__)))
 try:
     import config
     from Utiltity.common import *
+    from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
     from DataHub.DataHubEntry import DataHubEntry
@@ -16,6 +17,7 @@ except Exception as e:
 
     import config
     from Utiltity.common import *
+    from Utiltity.df_utility import *
     from Utiltity.time_utility import *
     from Analyzer.AnalyzerUtility import *
     from DataHub.DataHubEntry import DataHubEntry
@@ -62,6 +64,7 @@ def plugin_capacities() -> list:
 # ----------------------------------------------------------------------------------------------------------------------
 
 def analysis_black_list(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    nop(data_hub)
     result = []
     black_list = database.get_black_table().get_name_list()
     for s in securities:
@@ -72,15 +75,26 @@ def analysis_black_list(securities: str, data_hub: DataHubEntry, database: Datab
 
 
 def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    nop(database)
     result = []
     df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
     for s in securities:
         df_slice = df[df['stock_identity'] == s]
-        if len(df_slice) > 0:
-            list_date = df_slice['list_date']
-            exclude = list_date.year - now().year < 3
-        else:
-            exclude = True
+        listing_date = get_dataframe_slice_item(df_slice, 'listing_date', 0, now())
+        exclude = now().year - listing_date.year < 3
+        reason = 'Less than 3 years' if exclude else 'More than 3 years'
+        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
+    return result
+
+
+def analysis_location_limitation(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    nop(database)
+    result = []
+    df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
+    for s in securities:
+        df_slice = df[df['stock_identity'] == s]
+        area = get_dataframe_slice_item(df_slice, 'area', 0, '')
+        exclude = area in ['黑龙江', '辽宁', '吉林']
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
         result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', 'exclusive', securities, exclude, reason))
     return result
@@ -92,6 +106,8 @@ def analysis(securities: [str], methods: [str], data_hub: DataHubEntry, database
         result.append(analysis_black_list(securities, data_hub, database))
     if 'e639a8f1-f2f5-4d48-a348-ad12508b0dbb' in methods:
         result.append(analysis_less_than_3_years(securities, data_hub, database))
+    if 'f39f14d6-b417-4a6e-bd2c-74824a154fc0' in methods:
+        result.append(analysis_location_limitation(securities, data_hub, database))
     return result
 
 

@@ -29,7 +29,9 @@ def test_entry() -> bool:
     stock_ids = [_id for _id, _name in stock_list]
 
     result = se.run_strategy(stock_ids,
-                             ['7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09'])
+                             ['7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
+                              'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
+                              'f39f14d6-b417-4a6e-bd2c-74824a154fc0'])
 
     return ret
 
