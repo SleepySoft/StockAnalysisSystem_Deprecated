@@ -238,7 +238,7 @@ class UniversalDataTable:
 
     def range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
         table = self.data_table(uri, identify, (None, None), {})
-        return (table.min_of(self.datetime_field()), table.max_of(self.datetime_field())) \
+        return (table.min_of(self.datetime_field()), table.max_of(self.datetime_field(), identify)) \
             if str_available(self.datetime_field()) else (None, None)
 
     def ref_range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
@@ -320,7 +320,8 @@ class UniversalDataCenter:
         argv = self.pack_query_params(uri, identify, time_serial, **extra)
         plugins = self.get_plugin_manager().find_module_has_capacity(uri)
         for plugin in plugins:
-            df = self.get_plugin_manager().execute_module_function(plugin, 'query', argv)
+            result = self.get_plugin_manager().execute_module_function(plugin, 'query', argv)
+            df = result[0] if len(result) > 0 else None
             if df is not None and isinstance(df, pd.DataFrame) and len(df) > 0:
                 return df
         return None
@@ -331,6 +332,10 @@ class UniversalDataCenter:
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
             return False
+
+        update_tags = uri.split('.')
+        if str_available(identify):
+            update_tags.append(identify.replace('.', '_'))
 
         # ----------------- Decide update time range -----------------
         since, until = normalize_time_serial(time_serial, None, None)
@@ -346,7 +351,7 @@ class UniversalDataCenter:
             if update_since is not None:
                 since = update_since
             else:
-                last_update = self.get_update_table().get_last_update_time(uri.split('.'))
+                last_update = self.get_update_table().get_last_update_time(update_tags)
                 since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
         if until is None:
             if update_until is not None:
@@ -371,7 +376,7 @@ class UniversalDataCenter:
 
         # ------------------------- Merge -------------------------
         table.merge(uri, identify, result)
-        self.get_update_table().update_latest_update_time(uri.split('.'))
+        self.get_update_table().update_latest_update_time(update_tags)
 
         return True
 

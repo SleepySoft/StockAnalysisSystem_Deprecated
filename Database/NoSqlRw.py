@@ -415,18 +415,22 @@ class ItkvTable:
         result = collection.find(spec, key_select)
         return list(result)
 
-    def min_of(self, field: str) -> any:
+    def min_of(self, field: str, identity: str = None) -> any:
         collection = self.__get_collection()
         if collection is None:
             return None
-        result = list(collection.find({field: {'$exists': True}}).sort([(field, +1)]).limit(1))
+        spec = self.__gen_find_spec(identity)
+        spec[field] = {'$exists': True}
+        result = list(collection.find(spec).sort([(field, +1)]).limit(1))
         return result[0].get(field, None) if result is not None and len(result) > 0 else None
 
-    def max_of(self, field: str) -> any:
+    def max_of(self, field: str, identity: str = None) -> any:
         collection = self.__get_collection()
         if collection is None:
             return None
-        result = list(collection.find({field: {'$exists': True}}).sort([(field, -1)]).limit(1))
+        spec = self.__gen_find_spec(identity)
+        spec[field] = {'$exists': True}
+        result = list(collection.find(spec).sort([(field, -1)]).limit(1))
         return result[0].get(field, None) if result is not None and len(result) > 0 else None
 
     def get_all_keys(self):

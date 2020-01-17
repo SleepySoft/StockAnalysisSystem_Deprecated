@@ -66,16 +66,16 @@ def run_strategy():
 
 def run_console():
     update_local([
-        'Market.SecuritiesInfo',
-        'Market.NamingHistory',
-        'Market.TradeCalender',
+        # 'Market.SecuritiesInfo',
+        # 'Market.NamingHistory',
+        # 'Market.TradeCalender',
 
         'Finance.Audit',
-        'Finance.BalanceSheet',
-        'Finance.IncomeStatement',
-        'Finance.CashFlowStatement',
+        # 'Finance.BalanceSheet',
+        # 'Finance.IncomeStatement',
+        # 'Finance.CashFlowStatement',
     ])
-    run_strategy()
+    # run_strategy()
 
     exit(0)
 
@@ -84,8 +84,8 @@ def main():
     sas = stock_analysis_system.StockAnalysisSystem()
     sas.check_initialize()
 
-    # run_console()
-    run_ui()
+    run_console()
+    # run_ui()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

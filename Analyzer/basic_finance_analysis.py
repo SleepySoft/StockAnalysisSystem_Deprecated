@@ -35,7 +35,7 @@ def analysis_black_list(securities: str, data_hub: DataHubEntry, database: Datab
     for s in securities:
         exclude = s in black_list
         reason = 'In black list' if exclude else 'Not in black list'
-        result.append(AnalysisResult('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', s, not exclude, reason))
+        result.append(AnalysisResult(s, not exclude, reason))
     return result
 
 
@@ -48,7 +48,7 @@ def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database
         listing_date = get_dataframe_slice_item(df_slice, 'listing_date', 0, now())
         exclude = now().year - listing_date.year < 3
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult('e639a8f1-f2f5-4d48-a348-ad12508b0dbb', s, not exclude, reason))
+        result.append(AnalysisResult(s, not exclude, reason))
     return result
 
 
@@ -61,7 +61,7 @@ def analysis_location_limitation(securities: str, data_hub: DataHubEntry, databa
         area = get_dataframe_slice_item(df_slice, 'area', 0, '')
         exclude = area in ['黑龙江', '辽宁', '吉林']
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult('f39f14d6-b417-4a6e-bd2c-74824a154fc0', s, not exclude, reason))
+        result.append(AnalysisResult(s, not exclude, reason))
     return result
 
 
@@ -82,7 +82,7 @@ def analysis_finance_report_sign(securities: str, data_hub: DataHubEntry, databa
             exclude = False
 
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult('f39f14d6-b417-4a6e-bd2c-74824a154fc0', s, not exclude, reason))
+        result.append(AnalysisResult(s, not exclude, reason))
     return result
 
 

@@ -31,9 +31,12 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
     for query_method in methods:
         for hash_id, _, _, function_entry in method_list:
             if hash_id == query_method:
-                result = function_entry(securities, data_hub, database)
-                if result is not None or len(result) > 0:
-                    result_list.append((query_method, result))
+                if function_entry is None:
+                    print('Method ' + hash_id + ' not implemented yet.')
+                else:
+                    result = function_entry(securities, data_hub, database)
+                    if result is not None or len(result) > 0:
+                        result_list.append((query_method, result))
                 break
     return result_list
 
@@ -76,21 +79,21 @@ m1_resultN        m2_resultN        m3_resultN                      mM_resultN
 """
 
 
-def get_securities_in_result(results: [[AnalysisResult]]) -> [str]:
+def get_securities_in_result(result: dict) -> [str]:
     securities = []
-    for method_column in results:
-        for result in method_column:
-            if str_available(result.securities) and result.securities not in securities:
-                securities.append(result.securities)
+    for method, results in result.items():
+        for r in results:
+            if str_available(r.securities) and r.securities not in securities:
+                securities.append(r.securities)
     return securities
 
 
-def pick_up_pass_securities(results: [[AnalysisResult]], score_threshold: int) -> [str]:
-    securities = get_securities_in_result(results)
-    for method_column in results:
-        for result in method_column:
-            if result.score < score_threshold and result.securities in securities:
-                securities.remove(result.securities)
+def pick_up_pass_securities(result: dict, score_threshold: int) -> [str]:
+    securities = get_securities_in_result(result)
+    for method, results in result.items():
+        for r in results:
+            if r.score < score_threshold and r.securities in securities:
+                securities.remove(r.securities)
     return securities
 
 
