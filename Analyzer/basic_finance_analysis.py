@@ -81,6 +81,19 @@ def analysis_finance_report_sign(securities: str, data_hub: DataHubEntry, databa
         else:
             exclude = False
 
+        reason = '存在非标意见' if exclude else '标准意见'
+        result.append(AnalysisResult(s, not exclude, reason))
+    return result
+
+
+def analysis_exclude_industries(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    nop(database)
+    result = []
+    df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
+    for s in securities:
+        df_slice = df[df['stock_identity'] == s]
+        area = get_dataframe_slice_item(df_slice, 'industry', 0, '')
+        exclude = area in ['种植业', '渔业', '林业', '畜禽养殖', '农业综合']
         reason = 'Less than 3 years' if exclude else 'More than 3 years'
         result.append(AnalysisResult(s, not exclude, reason))
     return result
@@ -101,10 +114,10 @@ METHOD_LIST = [
     ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',    '排除农林牧渔相关行业',     None),
     ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',    '排除连续亏损的公司',       None),
     ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',    '排除商誉过高的公司',       None),
-    # ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '', ''),
-    # ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '', ''),
-    # ('4ccedeea-b731-4b97-9681-d804838e351b', '', ''),
-    # ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', ''),
+    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '', '', None),
+    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '', '', None),
+    ('4ccedeea-b731-4b97-9681-d804838e351b', '', '', None),
+    ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', '', None),
 ]
 
 

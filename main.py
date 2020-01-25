@@ -66,14 +66,14 @@ def run_strategy():
 
 def run_console():
     update_local([
-        # 'Market.SecuritiesInfo',
-        # 'Market.NamingHistory',
-        # 'Market.TradeCalender',
+        'Market.SecuritiesInfo',
+        'Market.NamingHistory',
+        'Market.TradeCalender',
 
         'Finance.Audit',
-        # 'Finance.BalanceSheet',
-        # 'Finance.IncomeStatement',
-        # 'Finance.CashFlowStatement',
+        'Finance.BalanceSheet',
+        'Finance.IncomeStatement',
+        'Finance.CashFlowStatement',
     ])
     # run_strategy()
 

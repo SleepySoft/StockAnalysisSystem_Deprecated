@@ -77,6 +77,10 @@ def datetime2text(time: datetime.datetime) -> str:
     return time.strftime('%Y-%m-%d %H:%M:%S')
 
 
+def default_since() -> datetime.datetime:
+    return text2date('1900-01-01')
+
+
 def normalize_time_serial(time_serial: tuple or list,
                           since_default: datetime.datetime = None,
                           until_default: datetime.datetime = None) -> (datetime.datetime, datetime.datetime):
