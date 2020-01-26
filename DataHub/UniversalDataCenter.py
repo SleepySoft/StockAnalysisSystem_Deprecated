@@ -238,7 +238,7 @@ class UniversalDataTable:
 
     def range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
         table = self.data_table(uri, identify, (None, None), {})
-        return (table.min_of(self.datetime_field()), table.max_of(self.datetime_field(), identify)) \
+        return (table.min_of(self.datetime_field(), identify), table.max_of(self.datetime_field(), identify)) \
             if str_available(self.datetime_field()) else (None, None)
 
     def ref_range(self, uri: str, identify: str) -> (datetime.datetime, datetime.datetime):
@@ -327,7 +327,7 @@ class UniversalDataCenter:
         return None
 
     def update_local_data(self, uri: str, identify: str or [str] = None,
-                          time_serial: tuple = None, **extra) -> bool:
+                          time_serial: tuple = None, force: bool = False, **extra) -> bool:
         table, checker = self.get_data_table(uri)
         if table is None:
             self.log_error('Cannot find data table for : ' + uri)
@@ -338,8 +338,11 @@ class UniversalDataCenter:
             update_tags.append(identify.replace('.', '_'))
 
         # ----------------- Decide update time range -----------------
-        since, until = normalize_time_serial(time_serial, None, None)
-        update_since, update_until = table.update_range(uri, identify)
+        if force:
+            since, until = default_since(), now()
+        else:
+            since, until = normalize_time_serial(time_serial, None, None)
+            update_since, update_until = table.update_range(uri, identify)
 
         # Guess the update date time range
         # If the parameter user specified. Just use user specified.
@@ -352,7 +355,7 @@ class UniversalDataCenter:
                 since = update_since
             else:
                 last_update = self.get_update_table().get_last_update_time(update_tags)
-                since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
+                since = last_update if last_update is not None and not force else UniversalDataTable.DEFAULT_SINCE_DATE
         if until is None:
             if update_until is not None:
                 until = update_until

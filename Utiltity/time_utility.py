@@ -27,6 +27,13 @@ def days_ago(days: int) -> datetime.datetime:
     return text2date(date_text)
 
 
+def years_ago(years: int) -> datetime.datetime:
+    now_date = datetime.datetime.today()
+    now_date -= datetime.timedelta(days=years*365)
+    date_text = now_date.strftime('%Y-%m-%d')
+    return text2date(date_text)
+
+
 def tomorrow_of(time: datetime.datetime):
     return time + datetime.timedelta(days=1)
 
