@@ -49,17 +49,27 @@ class AnalysisResult:
     SCORE_MAX = 100
     SCORE_PASS = SCORE_MAX
     SCORE_FAIL = SCORE_MIN
+    SCORE_NOT_APPLIED = None
 
-    def __init__(self, securities: str, score: int or bool, reason: str = ''):
+    def __init__(self, securities: str, score: int or bool, reason: str or [str] = ''):
         self.method = ''
         self.securities = securities
+
         if isinstance(score, bool):
             self.score = AnalysisResult.SCORE_PASS if score else AnalysisResult.SCORE_FAIL
         elif isinstance(score, (int, float)):
             self.score = score
             self.score = min(self.score, AnalysisResult.SCORE_MAX)
             self.score = max(self.score, AnalysisResult.SCORE_MIN)
-        self.reason = reason
+        else:
+            self.score = score
+
+        if reason is None:
+            self.reason = ''
+        elif isinstance(reason, (list, tuple)):
+            self.reason = '\n'.join(reason)
+        else:
+            self.reason = reason
 
 
 # ------------------------------------------------------------------------------------------------------------------

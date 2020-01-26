@@ -80,10 +80,10 @@ def run_console():
         # 'Market.NamingHistory',
         # 'Market.TradeCalender',
 
-        'Finance.Audit',
-        'Finance.BalanceSheet',
+        # 'Finance.Audit',
+        # 'Finance.BalanceSheet',
         'Finance.IncomeStatement',
-        'Finance.CashFlowStatement',
+        # 'Finance.CashFlowStatement',
     ], True)
     # run_strategy()
 

@@ -26,7 +26,7 @@ finally:
     pass
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------ 01 - 05 -------------------------------------------------------
 
 def analysis_black_list(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
     nop(data_hub)
@@ -103,7 +103,7 @@ def analysis_finance_report_sign(securities: str, data_hub: DataHubEntry, databa
             score = 100
 
         reason = '标准无保留意见' if score == 100 else '存在非标意见'
-        result.append(AnalysisResult(s, not score, reason))
+        result.append(AnalysisResult(s, score, reason))
     return result
 
 
@@ -120,8 +120,56 @@ def analysis_exclude_industries(securities: str, data_hub: DataHubEntry, databas
     return result
 
 
+# ------------------------------------------------------ 05 - 10 -------------------------------------------------------
+
 def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
-    pass
+    nop(database)
+    result = []
+    for s in securities:
+        df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
+        df.fillna(0.0, inplace=True)
+        df_in_3_years = df[df['period'] > years_ago(3)]
+        df_in_3_years.sort_values('period', ascending=True)
+
+        # 利润总额
+        total_profit = df_in_3_years['total_profit']
+        # 营业利润
+        operating_profit = df_in_3_years['operate_profit']
+
+        score = 100
+        reason = []
+        for profit in total_profit.to_list():
+            if profit < 0:
+                score = 0
+                reason.append('Total profit is less than 0.')
+                break
+        for profit in operating_profit.to_list():
+            if profit < 0:
+                score = 0
+                reason.append('Operating profit is less than 0.')
+        if len(reason) == 0:
+            reason.append('Total profit and Operating profit is OK.')
+        result.append(AnalysisResult(s, score, reason))
+    return result
+
+
+def analysis_profit_structure(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+    nop(database)
+    result = []
+    for s in securities:
+        df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
+        df.fillna(0.0, inplace=True)
+        df_in_3_years = df[df['period'] > years_ago(3)]
+        df_in_3_years.sort_values('period', ascending=True)
+
+        # for index, row in df.iterrows():
+        #     # 利润总额
+        #     total_profit = df_in_3_years['total_profit']
+        #     # 营业利润
+        #     operating_profit = df_in_3_years['operate_profit']
+
+        # result.append(AnalysisResult(s, score, reason))
+    return result
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -133,10 +181,10 @@ METHOD_LIST = [
     ('3b01999c-3837-11ea-b851-27d2aa2d4e7d', '财报非标',    '排除财报非标的公司',         analysis_finance_report_sign),
     ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',    '排除农林牧渔相关行业',       analysis_exclude_industries),
 
-    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',    '排除连续亏损的公司',         None),
-    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',    '排除商誉过高的公司',         None),
-    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',  '排除主营业务占比过低的公司', None),
+    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',    '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
+    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',  '排除主营业务或营业利润占比过低的公司', None),
     ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',    '排除存贷双高的公司',         None),
+    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',    '排除商誉过高的公司',         None),
     ('4ccedeea-b731-4b97-9681-d804838e351b', '', '', None),
     ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', '', None),
 ]

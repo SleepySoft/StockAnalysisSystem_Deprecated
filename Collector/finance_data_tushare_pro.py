@@ -71,7 +71,7 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         elif uri == 'Finance.BalanceSheet':
             result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
         elif uri == 'Finance.IncomeStatement':
-            result = pro.balancesheet(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+            result = pro.income(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
         elif uri == 'Finance.CashFlowStatement':
             result = pro.cashflow(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
         else:
