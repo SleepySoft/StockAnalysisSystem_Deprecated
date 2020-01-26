@@ -34,8 +34,16 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
                 if function_entry is None:
                     print('Method ' + hash_id + ' not implemented yet.')
                 else:
-                    result = function_entry(securities, data_hub, database)
-                    if result is not None or len(result) > 0:
+                    try:
+                        result = function_entry(securities, data_hub, database)
+                    except Exception as e:
+                        print('Execute analyzer [' + hash_id + '] Error: ')
+                        print(e)
+                        print(traceback.format_exc())
+                        result = None
+                    finally:
+                        pass
+                    if result is not None and len(result) > 0:
                         result_list.append((query_method, result))
                 break
     return result_list
@@ -98,11 +106,15 @@ def get_securities_in_result(result: dict) -> [str]:
     return securities
 
 
-def pick_up_pass_securities(result: dict, score_threshold: int) -> [str]:
+def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_fail: bool = False) -> [str]:
     securities = get_securities_in_result(result)
     for method, results in result.items():
         for r in results:
-            if r.score < score_threshold and r.securities in securities:
+            if r.score == AnalysisResult.SCORE_NOT_APPLIED:
+                exclude = not_applied_as_fail
+            else:
+                exclude = (r.score < score_threshold)
+            if exclude and r.securities in securities:
                 securities.remove(r.securities)
     return securities
 

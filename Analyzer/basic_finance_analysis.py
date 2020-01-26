@@ -127,29 +127,44 @@ def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry, databas
     result = []
     for s in securities:
         df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
-        df.fillna(0.0, inplace=True)
-        df_in_3_years = df[df['period'] > years_ago(3)]
-        df_in_3_years.sort_values('period', ascending=True)
+        if df is None or len(df) == 0:
+            error_info = 'Cannot find Income Statement data for securities : ' + s
+            log_error(error_info)
+            result.append(AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+            continue
+        try:
+            df.fillna(0.0, inplace=True)
+            df_in_3_years = df[df['period'] > years_ago(3)]
+            df_in_3_years.sort_values('period', ascending=True)
 
-        # 利润总额
-        total_profit = df_in_3_years['total_profit']
-        # 营业利润
-        operating_profit = df_in_3_years['operate_profit']
+            # 利润总额
+            total_profit = df_in_3_years['total_profit']
+            # 营业利润
+            operating_profit = df_in_3_years['operate_profit']
 
-        score = 100
-        reason = []
-        for profit in total_profit.to_list():
-            if profit < 0:
-                score = 0
-                reason.append('Total profit is less than 0.')
-                break
-        for profit in operating_profit.to_list():
-            if profit < 0:
-                score = 0
-                reason.append('Operating profit is less than 0.')
-        if len(reason) == 0:
-            reason.append('Total profit and Operating profit is OK.')
-        result.append(AnalysisResult(s, score, reason))
+            score = 100
+            reason = []
+            for profit in total_profit.to_list():
+                if profit < 0:
+                    score = 0
+                    reason.append('Total profit is less than 0.')
+                    break
+            for profit in operating_profit.to_list():
+                if profit < 0:
+                    score = 0
+                    reason.append('Operating profit is less than 0.')
+            if len(reason) == 0:
+                reason.append('Total profit and Operating profit is OK.')
+            result.append(AnalysisResult(s, score, reason))
+        except Exception as e:
+            error_info = 'Error when analysing  : ' + s + '\n'
+            error_info += str(e)
+            log_error(error_info)
+            print(traceback.format_exc())
+            result.append(AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+            continue
+        finally:
+            pass
     return result
 
 
@@ -162,11 +177,15 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry, database:
         df_in_3_years = df[df['period'] > years_ago(3)]
         df_in_3_years.sort_values('period', ascending=True)
 
-        # for index, row in df.iterrows():
-        #     # 利润总额
-        #     total_profit = df_in_3_years['total_profit']
-        #     # 营业利润
-        #     operating_profit = df_in_3_years['operate_profit']
+        for index, row in df.iterrows():
+            # 营业收入
+            operating_profit = row['revenue']
+            # 营业总收入
+            total_revenue = row['total_revenue']
+            # 其他业务收入
+            other_revenue = row['oth_b_income']
+
+            print('总%s - 营%s - 它%s' % (total_revenue, operating_profit, other_revenue))
 
         # result.append(AnalysisResult(s, score, reason))
     return result
