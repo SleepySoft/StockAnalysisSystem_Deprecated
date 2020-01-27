@@ -83,3 +83,9 @@ def validate(**kwargs) -> bool:
     nop(kwargs)
     return True
 
+
+def fields() -> dict:
+    return {
+
+    }
+

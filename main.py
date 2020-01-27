@@ -66,7 +66,15 @@ def update_special():
     data_center = data_hub.get_data_center()
     data_utility = data_hub.get_data_utility()
 
-    data_center.update_local_data('Finance.Audit', '000021.SZSE', force=True)
+    df1 = data_center.query_from_plugin('Finance.Audit', '000021.SZSE', force=True)
+    df2 = data_center.query_from_plugin('Finance.BalanceSheet', '000021.SZSE', force=True)
+    df3 = data_center.query_from_plugin('Finance.IncomeStatement', '000021.SZSE', force=True)
+    df4 = data_center.query_from_plugin('Finance.CashFlowStatement', '000021.SZSE', force=True)
+
+    print(df1)
+    print(df2)
+    print(df3)
+    print(df4)
 
 
 def run_strategy():
@@ -74,17 +82,17 @@ def run_strategy():
 
 
 def run_console():
-    # update_special()
-    update_local([
-        # 'Market.SecuritiesInfo',
-        # 'Market.NamingHistory',
-        # 'Market.TradeCalender',
-
-        # 'Finance.Audit',
-        # 'Finance.BalanceSheet',
-        'Finance.IncomeStatement',
-        # 'Finance.CashFlowStatement',
-    ], True)
+    update_special()
+    # update_local([
+    #     'Market.SecuritiesInfo',
+    #     'Market.NamingHistory',
+    #     'Market.TradeCalender',
+    #
+    #     'Finance.Audit',
+    #     'Finance.BalanceSheet',
+    #     'Finance.IncomeStatement',
+    #     'Finance.CashFlowStatement',
+    # ], True)
     # run_strategy()
 
     exit(0)
