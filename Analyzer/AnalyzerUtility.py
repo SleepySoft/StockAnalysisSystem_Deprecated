@@ -119,7 +119,21 @@ def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_f
     return securities
 
 
+def check_append_report_when_data_missing(df: pd.DataFrame, securities: str, uri: str, result: list):
+    if df is None or len(df) == 0:
+        error_info = 'Cannot find ' + uri + ' data for securities : ' + securities
+        log_error(error_info)
+        result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+        return True
+    return False
 
+
+def gen_report_when_analyzing_error(securities: str, exception: Exception):
+    error_info = 'Error when analysing  : ' + securities + '\n'
+    error_info += str(exception)
+    log_error(error_info)
+    print(traceback.format_exc())
+    return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
 
 
 
