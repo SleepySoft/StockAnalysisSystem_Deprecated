@@ -14,7 +14,7 @@ def run_ui():
     app.exec_()
 
 
-def update_local(update_list: [str], force: bool=False):
+def update_local(update_list: [str], force: bool = False):
     sas = stock_analysis_system.StockAnalysisSystem()
     data_hub = sas.get_data_hub_entry()
     data_center = data_hub.get_data_center()
@@ -55,7 +55,7 @@ def update_local(update_list: [str], force: bool=False):
 
         # For the sake of:
         # 抱歉，您每分钟最多访问该接口80次，权限的具体详情访问：https://tushare.pro/document/1?doc_id=108
-        time.sleep(1)
+        # time.sleep(1)
 
     print('Update Finance Data for All A-SHARE Stock Done. Time Spending: ' + str(time.time() - start_total) + 's')
 
@@ -82,17 +82,17 @@ def run_strategy():
 
 
 def run_console():
-    update_special()
-    # update_local([
-    #     'Market.SecuritiesInfo',
-    #     'Market.NamingHistory',
-    #     'Market.TradeCalender',
-    #
-    #     'Finance.Audit',
-    #     'Finance.BalanceSheet',
-    #     'Finance.IncomeStatement',
-    #     'Finance.CashFlowStatement',
-    # ], True)
+    # update_special()
+    update_local([
+        'Market.SecuritiesInfo',
+        'Market.NamingHistory',
+        'Market.TradeCalender',
+
+        'Finance.Audit',
+        'Finance.BalanceSheet',
+        'Finance.IncomeStatement',
+        'Finance.CashFlowStatement',
+    ], False)
     # run_strategy()
 
     exit(0)

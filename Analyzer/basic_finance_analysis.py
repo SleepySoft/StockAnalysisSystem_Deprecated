@@ -127,7 +127,9 @@ def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry, databas
     result = []
     for s in securities:
         df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
-        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement', result):
+        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement',
+                                                 ['period', 'total_profit', 'operate_profit'],
+                                                 result):
             continue
         try:
             df.fillna(0.0, inplace=True)
@@ -166,8 +168,12 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry, database:
     result = []
     for s in securities:
         df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
-        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement', result):
+        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement',
+                                                 ['period', 'revenue', 'total_revenue', 'oth_b_income'],
+                                                 result):
             continue
+        if 'oth_b_income' not in df.columns:
+            result.append(gen_report_when_analyzing_error(s, e))
         try:
             df.fillna(0.0, inplace=True)
             df_in_3_years = df[df['period'] > years_ago(3)]
@@ -204,7 +210,8 @@ METHOD_LIST = [
     ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',    '排除农林牧渔相关行业',       analysis_exclude_industries),
 
     ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',    '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
-    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',  '排除主营业务或营业利润占比过低的公司', None),
+    # oth_b_income field missing for lots of securities. This analyzer may not work.
+    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',  '排除主营业务或营业利润占比过低的公司', analysis_profit_structure),
     ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',    '排除存贷双高的公司',         None),
     ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',    '排除商誉过高的公司',         None),
     ('4ccedeea-b731-4b97-9681-d804838e351b', '', '', None),

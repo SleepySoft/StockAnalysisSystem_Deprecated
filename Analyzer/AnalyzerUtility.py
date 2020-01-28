@@ -119,12 +119,21 @@ def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_f
     return securities
 
 
-def check_append_report_when_data_missing(df: pd.DataFrame, securities: str, uri: str, result: list):
+def check_append_report_when_data_missing(df: pd.DataFrame, securities: str,
+                                          uri: str, fields: str or [str], result: list):
     if df is None or len(df) == 0:
-        error_info = 'Cannot find ' + uri + ' data for securities : ' + securities
+        error_info = uri + ': Cannot find data for securities : ' + securities
         log_error(error_info)
         result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
         return True
+    if not isinstance(fields, (list, tuple)):
+        fields = [fields]
+    for field in fields:
+        if field not in df.columns:
+            error_info = uri + ': Field ' + field + ' missing for securities : ' + securities
+            log_error(error_info)
+            result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+            return True
     return False
 
 
