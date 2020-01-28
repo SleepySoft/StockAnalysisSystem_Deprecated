@@ -1,13 +1,15 @@
-import threading
-from datetime import time, datetime
-
+import string
 import logging
+import sys
+
 import requests
 import traceback
+import threading
 import numpy as np
 import pandas as pd
 from io import BytesIO
 from bs4 import BeautifulSoup
+from datetime import time, datetime
 
 
 # -----------------------------------------------------------------------------------------------------
@@ -318,4 +320,85 @@ def normalize_stock_identity(stock_code: str) -> str:
     if stock_code.endswith('.SSE') or stock_code.endswith('.SZSE'):
         return stock_code
     return stock_code_to_stock_identity(stock_code)
+
+
+def index_to_excel_column_name(index: int) -> str:
+    index = int(index)
+    column_index = ''
+    while index > 0:
+        remainder = (index - 1) % 26 + 1
+        column_index += string.ascii_uppercase[remainder - 1]
+        index -= remainder
+        index //= 26
+    return column_index[::-1]
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def test_index_to_excel_column_name():
+    assert index_to_excel_column_name(1) == 'A'
+    assert index_to_excel_column_name(2) == 'B'
+    assert index_to_excel_column_name(25) == 'Y'
+    assert index_to_excel_column_name(26) == 'Z'
+
+    assert index_to_excel_column_name(27) == 'AA'
+    assert index_to_excel_column_name(52) == 'AZ'
+    assert index_to_excel_column_name(53) == 'BA'
+    assert index_to_excel_column_name(78) == 'BZ'
+    assert index_to_excel_column_name(702) == 'ZZ'
+
+    assert index_to_excel_column_name(703) == 'AAA'
+
+    for i in range(1, 10000):
+        print(str(i) + ' -> ' + index_to_excel_column_name(i))
+
+
+def test_entry():
+    test_index_to_excel_column_name()
+
+
+def main():
+    test_entry()
+    print('All Test Passed.')
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def exception_hook(type, value, tback):
+    # log the exception here
+    print('Exception hook triggered.')
+    print(type)
+    print(value)
+    print(tback)
+    # then call the default handler
+    sys.__excepthook__(type, value, tback)
+
+
+if __name__ == "__main__":
+    sys.excepthook = exception_hook
+    try:
+        main()
+    except Exception as e:
+        print('Error =>', e)
+        print('Error =>', traceback.format_exc())
+        exit()
+    finally:
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

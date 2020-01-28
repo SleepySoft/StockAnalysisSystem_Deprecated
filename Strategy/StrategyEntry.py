@@ -75,10 +75,10 @@ def test_score():
     result = se.run_strategy(
         ['600001.SSZ', '70000004.SESZ'],
         ['5d19927a-2ab1-11ea-aee4-eb8a702e7495', 'bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'])
-    assert result['5d19927a-2ab1-11ea-aee4-eb8a702e7495'][0].score == 1
-    assert result['5d19927a-2ab1-11ea-aee4-eb8a702e7495'][1].score == 4
-    assert result['bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'][0].score == 9
-    assert result['bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'][1].score == 6
+    assert result['5d19927a-2ab1-11ea-aee4-eb8a702e7495'][0].score == 10
+    assert result['5d19927a-2ab1-11ea-aee4-eb8a702e7495'][1].score == 40
+    assert result['bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'][0].score == 90
+    assert result['bc74b6fa-2ab1-11ea-8b94-03e35eea3ca4'][1].score == 60
 
 
 def test_inclusive():

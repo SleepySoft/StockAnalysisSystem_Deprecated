@@ -1,3 +1,4 @@
+import openpyxl
 import datetime
 import pandas as pd
 from os import sys, path
@@ -145,7 +146,38 @@ def gen_report_when_analyzing_error(securities: str, exception: Exception):
     return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
 
 
+def generate_analysis_report(result: dict, file_path: str):
+    wb = openpyxl.Workbook()
+    ws_score = wb.active
+    ws_score.title = 'Score'
+    ws_comments = wb.create_sheet('Comments')
 
+    ws_score['A1'] = 'Securities\\Analyzer'
+    ws_comments['A1'] = 'Securities\\Analyzer'
+
+    column = 1
+    for analyzer_uuid, analysis_result in result.items():
+        if column == 1:
+            row = 2
+            col = index_to_excel_column_name(column)
+            for r in analysis_result:
+                ws_score[col + str(row)] = r.securities
+                ws_comments[col + str(row)] = r.securities
+                row += 1
+            column = 2
+
+        row = 1
+        col = index_to_excel_column_name(column)
+        ws_score[col + str(row)] = analyzer_uuid
+        ws_comments[col + str(row)] = analyzer_uuid
+
+        row = 2
+        for r in analysis_result:
+            ws_score[col + str(row)] = r.score
+            ws_comments[col + str(row)] = r.reason
+            row += 1
+        column += 1
+    wb.save(file_path)
 
 
 
