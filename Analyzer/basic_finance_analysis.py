@@ -203,18 +203,18 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry, database:
 # ----------------------------------------------------------------------------------------------------------------------
 
 METHOD_LIST = [
-    ('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', '黑名单',      '排除黑名单中的股票',         analysis_black_list),
-    ('e639a8f1-f2f5-4d48-a348-ad12508b0dbb', '不足三年',    '排除上市不足三年的公司',     analysis_less_than_3_years),
-    ('f39f14d6-b417-4a6e-bd2c-74824a154fc0', '地域限制',    '排除特定地域的公司',         analysis_location_limitation),
-    ('3b01999c-3837-11ea-b851-27d2aa2d4e7d', '财报非标',    '排除财报非标的公司',         analysis_finance_report_sign),
-    ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',    '排除农林牧渔相关行业',       analysis_exclude_industries),
+    ('7a2c2ce7-9060-4c1c-bca7-71ca12e92b09', '黑名单',       '排除黑名单中的股票',         analysis_black_list),
+    ('e639a8f1-f2f5-4d48-a348-ad12508b0dbb', '不足三年',     '排除上市不足三年的公司',     analysis_less_than_3_years),
+    ('f39f14d6-b417-4a6e-bd2c-74824a154fc0', '地域限制',     '排除特定地域的公司',         analysis_location_limitation),
+    ('3b01999c-3837-11ea-b851-27d2aa2d4e7d', '财报非标',     '排除财报非标的公司',         analysis_finance_report_sign),
+    ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',     '排除农林牧渔相关行业',       analysis_exclude_industries),
 
-    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',    '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
+    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',     '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
     # oth_b_income field missing for lots of securities. This analyzer may not work.
-    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',  '排除主营业务或营业利润占比过低的公司', analysis_profit_structure),
-    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',    '排除存贷双高的公司',         None),
-    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',    '排除商誉过高的公司',         None),
-    ('4ccedeea-b731-4b97-9681-d804838e351b', '', '', None),
+    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',   '排除主营业务或营业利润占比过低的公司（数据缺失）', analysis_profit_structure),
+    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',     '排除存贷双高的公司',         None),
+    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',     '排除商誉过高的公司',         None),
+    ('4ccedeea-b731-4b97-9681-d804838e351b', '股权质押过高', '', None),
     ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', '', None),
 ]
 
