@@ -155,9 +155,20 @@ def generate_analysis_report(result: dict, file_path: str):
     ws_score['A1'] = 'Securities\\Analyzer'
     ws_comments['A1'] = 'Securities\\Analyzer'
 
+    fill_pass = openpyxl.styles .PatternFill(patternType="solid", start_color="00FF00")
+    fill_fail = openpyxl.styles .PatternFill(patternType="solid", start_color="FF0000")
+    fill_none = openpyxl.styles .PatternFill(patternType="solid", start_color="0C0C0C")
+
+    ROW_OFFSET = 2
+
     column = 1
     for analyzer_uuid, analysis_result in result.items():
+        # Write securities column
         if column == 1:
+            # The first run. Init the total score list here.
+            # Flaw: The first column of result should be the full one. Otherwise the index may out of range.
+            total_score = [100 for i in range(0, len(analysis_result))]      # 100: Pass; 0: Fail; 50: Pass with None
+
             row = 2
             col = index_to_excel_column_name(column)
             for r in analysis_result:
@@ -166,17 +177,56 @@ def generate_analysis_report(result: dict, file_path: str):
                 row += 1
             column = 2
 
+        # Write analyzer name
         row = 1
         col = index_to_excel_column_name(column)
         ws_score[col + str(row)] = analyzer_uuid
         ws_comments[col + str(row)] = analyzer_uuid
 
-        row = 2
+        # Write scores
+        row = ROW_OFFSET
         for r in analysis_result:
-            ws_score[col + str(row)] = r.score
+            ws_score[col + str(row)] = r.score if r.score is not None else '-'
             ws_comments[col + str(row)] = r.reason
+            if r.score is None:
+                fill_style = fill_none
+                total_score[row - ROW_OFFSET] = 50 if total_score[row - ROW_OFFSET] != 0 else 0
+            elif r.score < 50:
+                fill_style = fill_fail
+                total_score[row - ROW_OFFSET] = 0
+            else:
+                fill_style = fill_pass
+            ws_score[col + str(row)].fill = fill_style
+            ws_comments[col + str(row)].fill = fill_style
             row += 1
         column += 1
+
+    # Write total score
+    row = 1
+    col = index_to_excel_column_name(column)
+    for score in total_score:
+        if row == 1:
+            ws_score[col + str(row)] = 'Total Result'
+            row = 2
+        if score == 50:
+            fill_text = 'PASS'
+            fill_style = fill_none
+        elif score < 50:
+            fill_text = 'FAIL'
+            fill_style = fill_fail
+        else:
+            fill_text = 'PASS'
+            fill_style = fill_pass
+
+        ws_score[col + str(row)] = fill_text
+        ws_comments[col + str(row)] = fill_text
+
+        ws_score[col + str(row)].fill = fill_style
+        ws_comments[col + str(row)].fill = fill_style
+
+        row += 1
+
+    # Write file
     wb.save(file_path)
 
 
