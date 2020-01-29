@@ -225,7 +225,7 @@ def gen_report_when_analyzing_error(securities: str, exception: Exception):
     return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
 
 
-def generate_analysis_report(result: dict, file_path: str):
+def generate_analysis_report(result: dict, file_path: str, name_dict: dict = {}):
     wb = openpyxl.Workbook()
     ws_score = wb.active
     ws_score.title = 'Score'
@@ -260,8 +260,9 @@ def generate_analysis_report(result: dict, file_path: str):
         # Write analyzer name
         row = 1
         col = index_to_excel_column_name(column)
-        ws_score[col + str(row)] = analyzer_uuid
-        ws_comments[col + str(row)] = analyzer_uuid
+        analyzer_name = name_dict.get(analyzer_uuid, analyzer_uuid)
+        ws_score[col + str(row)] = analyzer_name
+        ws_comments[col + str(row)] = analyzer_name
 
         # Write scores
         row = ROW_OFFSET

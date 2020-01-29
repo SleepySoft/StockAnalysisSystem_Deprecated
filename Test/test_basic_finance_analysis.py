@@ -30,6 +30,8 @@ def test_entry() -> bool:
     stock_list = data_hub.get_data_utility().get_stock_list()
     stock_ids = [_id for _id, _name in stock_list]
 
+    clock = Clock()
+
     result = se.run_strategy(stock_ids, [
         '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
         'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
@@ -50,10 +52,15 @@ def test_entry() -> bool:
     #     'd905cdea-2ab1-11ea-9e79-ff65d4808d88',
     # ])
 
-    pass_securities = pick_up_pass_securities(result, 50)
-    print(pass_securities)
+    print('Analysis time spending: ' + str(clock.elapsed_s()) + ' s')
 
-    generate_analysis_report(result, 'analysis_report.xlsx')
+    passed_securities = pick_up_pass_securities(result, 50)
+    print('Passed securities' + str(passed_securities))
+
+    clock.reset()
+    name_dict = sas.get_strategy_entry().strategy_name_dict()
+    generate_analysis_report(result, 'analysis_report.xlsx', name_dict)
+    print('Generate report time spending: ' + str(clock.elapsed_s()) + ' s')
 
     return ret
 

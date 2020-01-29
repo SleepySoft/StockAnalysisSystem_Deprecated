@@ -32,8 +32,12 @@ class StrategyEntry:
     # ------------------------------------------------------------------------------------------------------------------
 
     def strategy_prob(self) -> [dict]:
-        return self.get_plugin_manager().execute_module_function(
-            self.get_plugin_manager().all_modules(), 'plugin_prob', {})
+        probs = self.get_plugin_manager().execute_module_function(
+            self.get_plugin_manager().all_modules(), 'plugin_prob', {}, False)
+        prob_dict = {}
+        for prob in probs:
+            prob_dict.update(prob)
+        return prob_dict
 
     def run_strategy(self, securities: [str], methods: [str]) -> dict:
         result = self.get_plugin_manager().execute_module_function(
@@ -52,6 +56,14 @@ class StrategyEntry:
         for hash_id, results in flat_list:
             result_table[hash_id] = results
         return result_table
+
+    def strategy_name_dict(self) -> dict:
+        name_dict = {}
+        prob = self.strategy_prob()
+        methods = prob.get('methods', [])
+        for method in methods:
+            name_dict[method[0]] = method[1]
+        return name_dict
 
 
 # ----------------------------------------------------------------------------------------------------------------------

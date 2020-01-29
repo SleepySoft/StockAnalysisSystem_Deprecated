@@ -1,4 +1,5 @@
 import datetime
+import time
 
 
 def now() -> datetime.datetime:
@@ -100,5 +101,40 @@ def normalize_time_serial(time_serial: tuple or list,
     if until is not None and not isinstance(until, datetime.datetime):
         until = text_auto_time(str(until))
     return since, until
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+class Clock:
+    def __init__(self):
+        self.__start = time.time()
+
+    def reset(self):
+        self.__start = time.time()
+
+    def elapsed(self) -> float:
+        return time.time() - self.__start
+
+    def elapsed_s(self) -> int:
+        return int(time.time() - self.__start)
+
+    def elapsed_ms(self) -> float:
+        return int((time.time() - self.__start) * 1000)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+class Delayer:
+    def __init__(self, delay_ms: int):
+        self.__delay = delay_ms
+        self.__clock = Clock()
+
+    def reset(self):
+        self.__clock.reset()
+
+    def delay(self):
+        elapsed = self.__clock.elapsed()
+        if elapsed < self.__delay / 1000:
+            time.sleep(self.__delay / 1000 - elapsed)
 
 
