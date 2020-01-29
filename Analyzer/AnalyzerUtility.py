@@ -26,28 +26,28 @@ def methods_from_method_list(method_list: list) -> []:
     return [method for method, _, _, _ in method_list]
 
 
-def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, database,
-                               method_list: list) -> []:
-    result_list = []
-    for query_method in methods:
-        for hash_id, _, _, function_entry in method_list:
-            if hash_id == query_method:
-                if function_entry is None:
-                    print('Method ' + hash_id + ' not implemented yet.')
-                else:
-                    try:
-                        result = function_entry(securities, data_hub, database)
-                    except Exception as e:
-                        print('Execute analyzer [' + hash_id + '] Error: ')
-                        print(e)
-                        print(traceback.format_exc())
-                        result = None
-                    finally:
-                        pass
-                    if result is not None and len(result) > 0:
-                        result_list.append((query_method, result))
-                break
-    return result_list
+# def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, database,
+#                                method_list: list) -> []:
+#     result_list = []
+#     for query_method in methods:
+#         for hash_id, _, _, function_entry in method_list:
+#             if hash_id == query_method:
+#                 if function_entry is None:
+#                     print('Method ' + hash_id + ' not implemented yet.')
+#                 else:
+#                     try:
+#                         result = function_entry(securities, data_hub, database)
+#                     except Exception as e:
+#                         print('Execute analyzer [' + hash_id + '] Error: ')
+#                         print(e)
+#                         print(traceback.format_exc())
+#                         result = None
+#                     finally:
+#                         pass
+#                     if result is not None and len(result) > 0:
+#                         result_list.append((query_method, result))
+#                 break
+#     return result_list
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -79,6 +79,69 @@ class AnalysisResult:
             self.reason = '\n'.join(reason)
         else:
             self.reason = reason
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+class AnalysisContext:
+    def __init__(self):
+        self.logger = None
+        self.cache = {}
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def function_entry_example(securities: str, data_hub, database, context: AnalysisContext) -> AnalysisResult:
+    """
+    The example of analyzer function entry.
+    :param securities: A single securities code, should be a str.
+    :param data_hub:  DataHubEntry type
+    :param database: DatabaseEntry type
+    :param context: AnalysisContext type, which can hold cache data for multiple analysis
+    :return: AnalysisResult
+    """
+    pass
+
+
+method_list_example = [
+    ('5c496d06-9961-4157-8d3e-a90683d6d32c', 'analyzer brief', 'analyzer details', function_entry_example),
+]
+
+
+def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, database,
+                               method_list: list, context: AnalysisContext) -> [(str, [])] or None:
+    result_list = []
+    for query_method in methods:
+        sub_list = []
+        context.cache.clear()
+        for hash_id, _, _, function_entry in method_list:
+            if hash_id != query_method:
+                continue
+            if function_entry is None:
+                print('Method ' + hash_id + ' not implemented yet.')
+                break
+            for s in securities:
+                try:
+                    result = function_entry(s, data_hub, database, context)
+                except Exception as e:
+                    error_info = 'Execute analyzer [' + hash_id + '] for [' + s + '] got exception.'
+                    print(error_info)
+                    print(e)
+                    print(traceback.format_exc())
+                    result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, error_info)
+                finally:
+                    pass
+                if result is None:
+                    result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, 'NONE')
+                sub_list.append(result)
+
+            # Fill result list for alignment
+            while len(sub_list) < len(securities):
+                sub_list.append(AnalysisResult(securities[len(sub_list)], AnalysisResult.SCORE_NOT_APPLIED, 'NONE'))
+            result_list.append((query_method, sub_list))
+
+            break
+    return result_list if len(result_list) > 0 else None
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -120,22 +183,38 @@ def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_f
     return securities
 
 
-def check_append_report_when_data_missing(df: pd.DataFrame, securities: str,
-                                          uri: str, fields: str or [str], result: list):
+# def check_append_report_when_data_missing(df: pd.DataFrame, securities: str,
+#                                           uri: str, fields: str or [str], result: list):
+#     if df is None or len(df) == 0:
+#         error_info = uri + ': Cannot find data for securities : ' + securities
+#         log_error(error_info)
+#         result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+#         return True
+#     if not isinstance(fields, (list, tuple)):
+#         fields = [fields]
+#     for field in fields:
+#         if field not in df.columns:
+#             error_info = uri + ': Field ' + field + ' missing for securities : ' + securities
+#             log_error(error_info)
+#             result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
+#             return True
+#     return False
+
+
+def check_gen_report_when_data_missing(df: pd.DataFrame, securities: str,
+                                       uri: str, fields: str or [str]) -> AnalysisResult or None:
     if df is None or len(df) == 0:
         error_info = uri + ': Cannot find data for securities : ' + securities
         log_error(error_info)
-        result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
-        return True
+        return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
     if not isinstance(fields, (list, tuple)):
         fields = [fields]
     for field in fields:
         if field not in df.columns:
             error_info = uri + ': Field ' + field + ' missing for securities : ' + securities
             log_error(error_info)
-            result.append(AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info))
-            return True
-    return False
+            return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
+    return None
 
 
 def gen_report_when_analyzing_error(securities: str, exception: Exception):
@@ -155,11 +234,12 @@ def generate_analysis_report(result: dict, file_path: str):
     ws_score['A1'] = 'Securities\\Analyzer'
     ws_comments['A1'] = 'Securities\\Analyzer'
 
-    fill_pass = openpyxl.styles .PatternFill(patternType="solid", start_color="00FF00")
-    fill_fail = openpyxl.styles .PatternFill(patternType="solid", start_color="FF0000")
-    fill_none = openpyxl.styles .PatternFill(patternType="solid", start_color="0C0C0C")
+    fill_pass = openpyxl.styles.PatternFill(patternType="solid", start_color="10EF10")
+    fill_fail = openpyxl.styles.PatternFill(patternType="solid", start_color="EF1010")
+    fill_none = openpyxl.styles.PatternFill(patternType="solid", start_color="808080")
 
     ROW_OFFSET = 2
+    total_score = []
 
     column = 1
     for analyzer_uuid, analysis_result in result.items():

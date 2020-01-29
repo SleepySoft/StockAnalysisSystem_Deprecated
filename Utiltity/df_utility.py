@@ -13,7 +13,7 @@ def get_series_item(series: pd.Series, order: int, default: any = None) -> any:
     return slice_list[order] if order < len(slice_list) else default
 
 
-def get_dataframe_slice_item(df_slice, field: str, order: int, default: any = None) -> any:
+def get_dataframe_slice_item(df_slice, field: str, order: int = 0, default: any = None) -> any:
     if len(df_slice) == 0 or field not in df_slice.columns:
         return default
     field_series = df_slice[field]

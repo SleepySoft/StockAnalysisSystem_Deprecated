@@ -97,10 +97,10 @@ def test_exclusive():
     result = se.run_strategy(
         ['500002.SSZ', '300009.SESZ'],
         ['78ffae34-2ab1-11ea-88ff-634c407b44d3', 'd905cdea-2ab1-11ea-9e79-ff65d4808d88'])
-    assert result['78ffae34-2ab1-11ea-88ff-634c407b44d3'][0].score == 100
-    assert result['78ffae34-2ab1-11ea-88ff-634c407b44d3'][1].score == 100
-    assert result['d905cdea-2ab1-11ea-9e79-ff65d4808d88'][0].score == 100
-    assert result['d905cdea-2ab1-11ea-9e79-ff65d4808d88'][1].score == 0
+    assert result['78ffae34-2ab1-11ea-88ff-634c407b44d3'][0].score == 0
+    assert result['78ffae34-2ab1-11ea-88ff-634c407b44d3'][1].score == 0
+    assert result['d905cdea-2ab1-11ea-9e79-ff65d4808d88'][0].score == 0
+    assert result['d905cdea-2ab1-11ea-9e79-ff65d4808d88'][1].score == 100
 
 
 def test_entry():

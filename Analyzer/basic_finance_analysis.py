@@ -28,176 +28,209 @@ finally:
 
 # ------------------------------------------------------ 01 - 05 -------------------------------------------------------
 
-def analysis_black_list(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_black_list(securities: str, data_hub: DataHubEntry,
+                        database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(data_hub)
-    result = []
-    black_list = database.get_black_table().get_name_list()
-    for s in securities:
-        exclude = s in black_list
-        reason = 'In black list' if exclude else 'Not in black list'
-        result.append(AnalysisResult(s, not exclude, reason))
-    return result
+
+    if context.cache.get('black_table', None) is None:
+        context.cache['black_table'] = database.get_black_table().get_name_table()
+    black_table = context.cache.get('black_table', None)
+
+    df_slice = black_table[black_table['name'] == securities]
+    exclude = len(df_slice) > 0
+    if exclude:
+        reason = get_dataframe_slice_item(df_slice, 'reason', 0, '')
+    else:
+        reason = '不在黑名单中'
+    return AnalysisResult(securities, not exclude, reason)
 
 
-def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_less_than_3_years(securities: str, data_hub: DataHubEntry,
+                               database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
-    for s in securities:
-        df_slice = df[df['stock_identity'] == s]
-        listing_date = get_dataframe_slice_item(df_slice, 'listing_date', 0, now())
-        exclude = now().year - listing_date.year < 3
-        reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult(s, not exclude, reason))
-    return result
+
+    if context.cache.get('securities_info', None) is None:
+        context.cache['securities_info'] = data_hub.get_data_center().query('Market.SecuritiesInfo')
+    df = context.cache.get('securities_info', None)
+
+    df_slice = df[df['stock_identity'] == securities]
+    listing_date = get_dataframe_slice_item(df_slice, 'listing_date', 0, now())
+    exclude = now().year - listing_date.year < 3
+    reason = '上市日期' + str(listing_date) + ('小于三年' if exclude else '大于三年')
+    return AnalysisResult(securities, not exclude, reason)
 
 
-def analysis_location_limitation(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_location_limitation(securities: str, data_hub: DataHubEntry,
+                                 database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    df = data_hub.get_data_center().query('Market.SecuritiesInfo', securities)
-    for s in securities:
-        df_slice = df[df['stock_identity'] == s]
-        area = get_dataframe_slice_item(df_slice, 'area', 0, '')
-        exclude = area in ['黑龙江', '辽宁', '吉林']
-        reason = 'Less than 3 years' if exclude else 'More than 3 years'
-        result.append(AnalysisResult(s, not exclude, reason))
-    return result
+
+    if context.cache.get('securities_info', None) is None:
+        context.cache['securities_info'] = data_hub.get_data_center().query('Market.SecuritiesInfo')
+    df = context.cache.get('securities_info', None)
+
+    df_slice = df[df['stock_identity'] == securities]
+    area = get_dataframe_slice_item(df_slice, 'area', 0, '')
+    exclude = area in ['黑龙江', '辽宁', '吉林']
+    reason = securities + '地域为' + area
+    return AnalysisResult(securities, not exclude, reason)
 
 
-def analysis_finance_report_sign(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_finance_report_sign(securities: str, data_hub: DataHubEntry,
+                                 database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    df = data_hub.get_data_center().query('Finance.Audit', None)
-    for s in securities:
-        if 'stock_identity' in df.columns:
-            df_slice = df[df['stock_identity'] == s]
-            df_slice.sort_values('period', ascending=True)
-            if len(df_slice) == 1:
-                print('Too less record: ' + s)
-            df_slice_in_3_years = df_slice[df_slice['period'] > years_ago(3)]
 
-            conclusion_all = df_slice['conclusion']
-            conclusion_all_list = conclusion_all.to_list()
+    if context.cache.get('finance_audit', None) is None:
+        context.cache['finance_audit'] = data_hub.get_data_center().query('Finance.Audit')
+    df = context.cache.get('finance_audit', None)
 
-            conclusion_3_years = df_slice_in_3_years['conclusion']
-            conclusion_3_years_list = conclusion_3_years.to_list()
+    error_report = check_gen_report_when_data_missing(df, securities, 'Finance.IncomeStatement',
+                                                      ['stock_identity', 'period', 'conclusion'])
+    if error_report is not None:
+        return error_report
 
-            ok_count = 0
-            nok_count = 0
-            for conclusion in conclusion_all_list:
-                if conclusion != '标准无保留意见':
-                    nok_count += 1
-                else:
-                    ok_count += 1
-            score = 100 * ok_count / (ok_count + nok_count) if (ok_count + nok_count) > 0 else 100
+    df_slice = df[df['stock_identity'] == securities]
+    df_slice_in_4_years = df_slice[df_slice['period'] > years_ago(4)]
 
-            for conclusion in conclusion_3_years_list:
-                if conclusion != '标准无保留意见':
-                    score = 0
-                    break
+    score = 100
+    reason = []
 
-            # agency = get_dataframe_slice_item(df_slice, 'agency', 0, '')
-            # sign = get_dataframe_slice_item(df_slice, 'sign', 0, '')
-        else:
-            score = 100
+    for index, row in df_slice_in_4_years.iterrows():
+        period = row['period']
+        conclusion = row['conclusion']
 
-        reason = '标准无保留意见' if score == 100 else '存在非标意见'
-        result.append(AnalysisResult(s, score, reason))
-    return result
+        if conclusion != '标准无保留意见':
+            score = 0
+            reason.append(date2text(period) + ' : ' + conclusion)
+    if len(reason) == 0:
+        reason.append('近四年均为标准无保留意见')
+
+    # df_slice.sort_values('period', ascending=True)
+    #
+    # if len(df_slice) == 1:
+    #     print('Too less record: ' + securities)
+    # df_slice_in_3_years = df_slice[df_slice['period'] > years_ago(3)]
+    #
+    # conclusion_all = df_slice['conclusion']
+    # conclusion_all_list = conclusion_all.to_list()
+    #
+    # conclusion_3_years = df_slice_in_3_years['conclusion']
+    # conclusion_3_years_list = conclusion_3_years.to_list()
+
+    # ok_count = 0
+    # nok_count = 0
+    # for conclusion in conclusion_all_list:
+    #     if conclusion != '标准无保留意见':
+    #         nok_count += 1
+    #     else:
+    #         ok_count += 1
+    # score = 100 * ok_count / (ok_count + nok_count) if (ok_count + nok_count) > 0 else 100
+    #
+    # for conclusion in conclusion_3_years_list:
+    #     if conclusion != '标准无保留意见':
+    #         score = 0
+    #         break
+
+    # agency = get_dataframe_slice_item(df_slice, 'agency', 0, '')
+    # sign = get_dataframe_slice_item(df_slice, 'sign', 0, '')
+
+    # reason = '标准无保留意见' if score == 100 else '存在非标意见'
+
+    return AnalysisResult(securities, score, reason)
 
 
-def analysis_exclude_industries(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_exclude_industries(securities: str, data_hub: DataHubEntry,
+                                database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    df = data_hub.get_data_center().query('Market.SecuritiesInfo', None)
-    for s in securities:
-        df_slice = df[df['stock_identity'] == s]
-        industry = get_dataframe_slice_item(df_slice, 'industry', 0, '')
-        exclude = industry in ['种植业', '渔业', '林业', '畜禽养殖', '农业综合']
-        reason = 'In exclude industry' if exclude else 'Not in exclude industry'
-        result.append(AnalysisResult(s, not exclude, reason))
-    return result
+
+    if context.cache.get('securities_info', None) is None:
+        context.cache['securities_info'] = data_hub.get_data_center().query('Market.SecuritiesInfo')
+    df = context.cache.get('securities_info', None)
+
+    df_slice = df[df['stock_identity'] == securities]
+    error_report = check_gen_report_when_data_missing(df_slice, securities, 'Finance.IncomeStatement',
+                                                      ['industry'])
+    if error_report is not None:
+        return error_report
+
+    industry = get_dataframe_slice_item(df_slice, 'industry', 0, '')
+    exclude = industry in ['种植业', '渔业', '林业', '畜禽养殖', '农业综合']
+    reason = '所在行业[' + str(industry) + (']属于农林牧渔' if exclude else ']不属于农林牧渔')
+    return AnalysisResult(securities, not exclude, reason)
 
 
 # ------------------------------------------------------ 05 - 10 -------------------------------------------------------
 
-def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry,
+                                database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    for s in securities:
-        df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
-        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement',
-                                                 ['period', 'total_profit', 'operate_profit'],
-                                                 result):
-            continue
-        try:
-            df.fillna(0.0, inplace=True)
-            df_in_3_years = df[df['period'] > years_ago(3)]
-            df_in_3_years.sort_values('period', ascending=True)
+    nop(context)
 
-            # 利润总额
-            total_profit = df_in_3_years['total_profit']
-            # 营业利润
-            operating_profit = df_in_3_years['operate_profit']
+    df = data_hub.get_data_center().query('Finance.IncomeStatement', securities)
+    error_report = check_gen_report_when_data_missing(df, securities, 'Finance.IncomeStatement',
+                                                      ['period', 'total_profit', 'operate_profit'])
+    if error_report is not None:
+        return error_report
 
-            score = 100
-            reason = []
-            for profit in total_profit.to_list():
-                if profit < 0:
-                    score = 0
-                    reason.append('Total profit is less than 0.')
-                    break
-            for profit in operating_profit.to_list():
-                if profit < 0:
-                    score = 0
-                    reason.append('Operating profit is less than 0.')
-            if len(reason) == 0:
-                reason.append('Total profit and Operating profit is OK.')
-            result.append(AnalysisResult(s, score, reason))
-        except Exception as e:
-            result.append(gen_report_when_analyzing_error(s, e))
-            continue
-        finally:
-            pass
-    return result
+    df.fillna(0.0, inplace=True)
+    df_in_4_years = df[df['period'] > years_ago(4)]
+    df_in_4_years.sort_values('period', ascending=True)
+
+    score = 100
+    reason = []
+    for index, row in df_in_4_years.iterrows():
+        period = row['period']
+        # 利润总额
+        total_profit = row['total_profit']
+        # 营业利润
+        operating_profit = row['operate_profit']
+
+        if total_profit < 0:
+            score = 0
+            reason.append(date2text(period) + '：利润总额 - ' + str(total_profit))
+        if operating_profit < 0:
+            score = 0
+            reason.append(date2text(period) + '：营业利润 - ' + str(operating_profit))
+    if len(reason) == 0:
+        reason.append('近四年不存在亏损')
+
+    return AnalysisResult(securities, score, reason)
 
 
-def analysis_profit_structure(securities: str, data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
+def analysis_profit_structure(securities: str, data_hub: DataHubEntry,
+                              database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
     nop(database)
-    result = []
-    for s in securities:
-        df = data_hub.get_data_center().query('Finance.IncomeStatement', s)
-        if check_append_report_when_data_missing(df, s, 'Finance.IncomeStatement',
-                                                 ['period', 'revenue', 'total_revenue', 'oth_b_income'],
-                                                 result):
-            continue
-        if 'oth_b_income' not in df.columns:
-            result.append(gen_report_when_analyzing_error(s, e))
-        try:
-            df.fillna(0.0, inplace=True)
-            df_in_3_years = df[df['period'] > years_ago(3)]
-            df_in_3_years.sort_values('period', ascending=True)
+    nop(context)
 
-            main_revenue_ratios = []
-            for index, row in df.iterrows():
-                # 营业收入
-                operating_profit = row['revenue']
-                # 营业总收入(为什么和营业收入是一样的)
-                total_revenue = row['total_revenue']
-                # 其他业务收入
-                other_revenue = row['oth_b_income']
+    df = data_hub.get_data_center().query('Finance.IncomeStatement', securities)
+    error_report = check_gen_report_when_data_missing(df, securities, 'Finance.IncomeStatement',
+                                                      ['period', 'revenue', 'total_revenue', 'oth_b_income'])
+    if error_report is not None:
+        return error_report
 
-                print('总%s - 营%s - 它%s' % (total_revenue, operating_profit, other_revenue))
-                main_revenue_ratios.append(float(operating_profit - other_revenue) / operating_profit)
-            print(main_revenue_ratios)
-            # result.append(AnalysisResult(s, score, reason))
-        except Exception as e:
-            result.append(gen_report_when_analyzing_error(s, e))
-            continue
-        finally:
-            pass
-    return result
+    df.fillna(0.0, inplace=True)
+    df_in_4_years = df[df['period'] > years_ago(4)]
+    df_in_4_years.sort_values('period', ascending=True)
+
+    score = 100
+    reason = []
+    for index, row in df_in_4_years.iterrows():
+        period = row['period']
+        # 营业收入
+        operating_profit = row['revenue']
+        # 营业总收入(为什么和营业收入是一样的)
+        total_revenue = row['total_revenue']
+        # 其他业务收入
+        other_revenue = row['oth_b_income']
+
+        print('总%s - 营%s - 它%s' % (total_revenue, operating_profit, other_revenue))
+        main_operating_profit_ratio = float(operating_profit - other_revenue) / operating_profit
+
+        if main_operating_profit_ratio > 50:
+            score = 0
+            reason.append(period + (': 主营业务收入：%s；营业总收入：%s；占比：%s' %
+                                    (operating_profit - other_revenue, operating_profit, main_operating_profit_ratio)))
+
+    return AnalysisResult(securities, score, reason)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -242,8 +275,7 @@ def plugin_capacities() -> list:
 # ----------------------------------------------------------------------------------------------------------------------
 
 def analysis(securities: [str], methods: [str], data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
-    return standard_dispatch_analysis(securities, methods, data_hub, database, METHOD_LIST)
-
+    return standard_dispatch_analysis(securities, methods, data_hub, database, METHOD_LIST, AnalysisContext())
 
 
 
