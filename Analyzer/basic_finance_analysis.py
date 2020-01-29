@@ -71,7 +71,7 @@ def analysis_location_limitation(securities: str, data_hub: DataHubEntry,
     df_slice = df[df['stock_identity'] == securities]
     area = get_dataframe_slice_item(df_slice, 'area', 0, '')
     exclude = area in ['黑龙江', '辽宁', '吉林']
-    reason = securities + '地域为' + area
+    reason = securities + '地域为' + str(area)
     return AnalysisResult(securities, not exclude, reason)
 
 
