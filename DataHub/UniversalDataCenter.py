@@ -159,7 +159,7 @@ class ParameterChecker:
 # ----------------------------------------------------------------------------------------------------------------------
 
 class UniversalDataTable:
-    DEFAULT_SINCE_DATE = text2date('1900-01-01')
+    DEFAULT_SINCE_DATE = default_since()
 
     def __init__(self,
                  uri: str, database_entry: DatabaseEntry,
@@ -333,37 +333,15 @@ class UniversalDataCenter:
             self.log_error('Cannot find data table for : ' + uri)
             return False
 
-        update_tags = uri.split('.')
-        if str_available(identify):
-            update_tags.append(identify.replace('.', '_'))
-
         # ----------------- Decide update time range -----------------
         if force:
             since, until = default_since(), now()
         else:
-            since, until = normalize_time_serial(time_serial, None, None)
-            update_since, update_until = table.update_range(uri, identify)
-
-        # Guess the update date time range
-        # If the parameter user specified. Just use user specified.
-        # If not, try to use the table update range to fill the missing one.
-        # If table update range is not specified:
-        #   - for since, use the default since date.
-        #   - for until, use today.
-        if since is None:
-            if update_since is not None:
-                since = update_since
-            else:
-                last_update = self.get_update_table().get_last_update_time(update_tags)
-                since = last_update if last_update is not None and not force else UniversalDataTable.DEFAULT_SINCE_DATE
-        if until is None:
-            if update_until is not None:
-                until = update_until
-            else:
-                until = today()
+            since, until = self.calc_update_range(uri, identify, time_serial)
         if since == until:
             # Does not need update.
             return True
+        print(uri + ' -> Update range : ' + date2text(since) + ' - ' + date2text(until))
 
         # ------------------------- Fetch -------------------------
         result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), **extra)
@@ -379,9 +357,49 @@ class UniversalDataCenter:
 
         # ------------------------- Merge -------------------------
         table.merge(uri, identify, result)
+
+        # ---------------------- Update Table ---------------------
+        update_tags = uri.split('.')
+        if str_available(identify):
+            update_tags.append(identify.replace('.', '_'))
         self.get_update_table().update_latest_update_time(update_tags)
 
         return True
+
+    def calc_update_range(self, uri: str, identify: str or [str] = None,
+                          time_serial: tuple = None) -> (datetime.datetime, datetime.datetime):
+        table, _ = self.get_data_table(uri)
+        if table is None:
+            self.log_error('Cannot find data table for : ' + uri)
+            return None, None
+
+        update_tags = uri.split('.')
+        if str_available(identify):
+            update_tags.append(identify.replace('.', '_'))
+
+        # ----------------- Decide update time range -----------------
+
+        since, until = normalize_time_serial(time_serial, None, None)
+        update_since, update_until = table.update_range(uri, identify)
+
+        # Guess the update date time range
+        # If the parameter user specified. Just use user specified.
+        # If not, try to use the table update range to fill the missing one.
+        # If table update range is not specified:
+        #   - for since, use the default since date.
+        #   - for until, use today.
+        if since is None:
+            if update_since is not None:
+                since = update_since
+            else:
+                last_update = self.get_update_table().get_last_update_time(update_tags)
+                since = last_update if last_update is not None else UniversalDataTable.DEFAULT_SINCE_DATE
+        if until is None:
+            if update_until is not None:
+                until = update_until
+            else:
+                until = today()
+        return since, until
 
     def pack_query_params(self, uri: str, identify: str or [str], time_serial: tuple, **extra) -> dict:
         table, _ = self.get_data_table(uri)

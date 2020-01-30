@@ -339,6 +339,19 @@ class EasyQTableWidget(QTableWidget):
     def GetCurrentIndex(self) -> int:
         return self.selectionModel().currentIndex().row() if self.selectionModel().hasSelection() else -1
 
+    def AddWidgetToCell(self, row: int, col: int, widgets: [QWidget]):
+        layout = QHBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        wrap_widget = QWidget()
+        wrap_widget.setLayout(layout)
+        wrap_widget.setContentsMargins(0, 0, 0, 0)
+        if not isinstance(widgets, (list, tuple)):
+            widgets = [widgets]
+        for widget in widgets:
+            layout.addWidget(widget)
+        self.setCellWidget(row, col, wrap_widget)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                    EasyQListSuite
