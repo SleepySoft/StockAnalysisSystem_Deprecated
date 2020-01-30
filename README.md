@@ -43,10 +43,13 @@ This program is designed for Chinese market and Chinese accounting policies (cur
   
 # 开发计划：
 1. 生成EXCEL格式的报告 -> 20200129: Done  
-2. 编写数据更新的管理界面  
+2. 编写数据更新的管理界面  -> 20200130: Done
+> 已加入显示更新进度功能
+> 硬编码过多，待重构数据结构解决
 3. 编写策略选择界面  
-4. 策略运行进度显示
-5. 策略参数可配置可保存  
+4. 界面集成
+5. 策略运行进度显示
+6. 策略参数可配置可保存  
 
 
 
