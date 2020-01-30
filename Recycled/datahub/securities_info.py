@@ -57,7 +57,7 @@ class SecuritiesInfo(DataUtility.DataUtility):
 
     # ------------------------------------------------- Extend Feature -------------------------------------------------
 
-    def get_stock_list(self, exchange: list or str = None) -> list:
+    def get_stock_list(self, exchange: list or str = None) -> [(str, str)]:
         df = self.__cached_data
         if exchange is not None and len(exchange) > 0:
             if isinstance(exchange, str):
@@ -71,7 +71,7 @@ class SecuritiesInfo(DataUtility.DataUtility):
         df = df[df['code'].str.contains(stock_code)]
         return df.name.tolist()
 
-    def get_stock_code(self, stock_name: str):
+    def get_stock_code(self, stock_name: str) -> [str]:
         df = self.__cached_data
         df = df[df['name'].str.contains(stock_name)]
         return df.code.tolist()

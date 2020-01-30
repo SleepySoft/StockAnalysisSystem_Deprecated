@@ -1,6 +1,7 @@
 import string
 import logging
 import sys
+import collections
 
 import requests
 import traceback
@@ -56,6 +57,66 @@ def log_info(*args):
 
 def log_error(*args):
     print(''.join([str(arg) for arg in args]))
+
+
+# ---------------------------------------------------- Progress Rate ---------------------------------------------------
+
+class ProgressRate:
+    INDEX_CURRENT_PROGRESS = 0
+    INDEX_TOTAL_PROGRESS = 1
+
+    def __init__(self):
+        self.__progress_table = collections.OrderedDict()
+
+    def reset(self):
+        self.__progress_table.clear()
+
+    def combine_with(self, progress_rate):
+        self.__progress_table.update(progress_rate.get_progress_table())
+
+    def has_progress(self, identity: str or [str]):
+        key = self.normalize_identity(identity)
+        return key in self.__progress_table.keys()
+
+    def get_progress_table(self) -> collections.OrderedDict:
+        return self.__progress_table
+
+    def get_progress_identities(self) -> []:
+        return list(self.__progress_table.keys())
+
+    def increase_progress(self, identity: str or [str], inc: int = 1):
+        key = self.normalize_identity(identity)
+        if key in self.__progress_table.keys():
+            current = self.__progress_table[key][ProgressRate.INDEX_CURRENT_PROGRESS]
+            if current is not None:
+                self.__progress_table[key][ProgressRate.INDEX_CURRENT_PROGRESS] = current + inc
+
+    def set_progress(self, identity: str or [str], current: int or None, total: int or None):
+        key = self.normalize_identity(identity)
+        if key not in self.__progress_table.keys():
+            self.__progress_table[key] = [0, 1]
+        if current is not None:
+            self.__progress_table[key][ProgressRate.INDEX_CURRENT_PROGRESS] = current
+        if total is not None:
+            self.__progress_table[key][ProgressRate.INDEX_TOTAL_PROGRESS] = total
+
+    def get_progress(self, identity: str) -> (int, int):
+        key = self.normalize_identity(identity)
+        return self.__progress_table.get(key, (0, 1))
+
+    def get_progress_rate(self, identity: str or [str]) -> float:
+        key = self.normalize_identity(identity)
+        if key in self.__progress_table.keys():
+            total = self.__progress_table[key][ProgressRate.INDEX_TOTAL_PROGRESS]
+            current = self.__progress_table[key][ProgressRate.INDEX_CURRENT_PROGRESS]
+        else:
+            total = 1
+            current = 0
+        current = min(current, total)
+        return 0.0 if total == 0 else current / total
+
+    def normalize_identity(self, identity: str or list) -> str:
+        return '.'.join(list(identity)) if isinstance(identity, (list, tuple)) else identity
 
 
 # ------------------------------------------------------ Singleton -----------------------------------------------------

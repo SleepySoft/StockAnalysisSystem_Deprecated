@@ -76,6 +76,11 @@ class DataUtility:
         # result = self.__data_center.query('Market.SecuritiesInfo', fields=['stock_identity', 'name'])
         # return [(line.get('stock_identity', ''), line.get('name', '')) for line in result]
 
+    def get_stock_identities(self) -> [str]:
+        if len(self.__stock_id_using_name_table) == 0:
+            self.refresh_securities_cache()
+        return [_id for _id, _name in self.__stock_id_using_name_table.items()]
+
     def names_to_stock_identity(self, names: [str]) -> [str]:
         if len(self.__stock_id_using_name_table) == 0:
             self.refresh_securities_cache()

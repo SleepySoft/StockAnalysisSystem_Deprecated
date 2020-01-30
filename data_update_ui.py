@@ -8,9 +8,14 @@ author:Sleepy
 @function:
 @modify:
 """
+import copy
 import traceback
+import threading
+
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QHeaderView
 
+from Utiltity.common import *
 from Utiltity.ui_utility import *
 from Utiltity.time_utility import *
 from DataHub.DataHubEntry import *
@@ -26,10 +31,10 @@ DEFAULT_INFO = """数据更新界面说明：
 
 
 class DataUpdateUi(QWidget):
-    TABLE_HEADER_URI = ['', 'URI', 'Local Data Since', 'Local Data Until',
-                        'Latest Update', 'Update Estimation', 'Sub Update', 'Update']
-    TABLE_HEADER_IDENTITY = ['', 'Identity', 'Local Data Since', 'Local Data Until',
-                             'Latest Update', 'Update Estimation', 'Update', 'Status']
+    TABLE_HEADER_URI = ['', 'URI', 'Local Data Since', 'Local Data Until', 'Latest Update',
+                        'Update Estimation', 'Sub Update', 'Update', 'Status']
+    TABLE_HEADER_IDENTITY = ['', 'Identity', 'Local Data Since', 'Local Data Until', 'Latest Update',
+                             'Update Estimation', 'Update', 'Status', '']
     # TODO: Auto detect
     HAS_DETAIL_LIST = ['Finance.Audit', 'Finance.BalanceSheet', 'Finance.IncomeStatement', 'Finance.CashFlowStatement']
 
@@ -39,10 +44,25 @@ class DataUpdateUi(QWidget):
         self.__data_center = self.__data_hub.get_data_center()
         self.__update_table = StockAnalysisSystem().get_database_entry().get_update_table()
 
+        # Page and level related
         self.__current_uri = ''
         self.__page = 0
         self.__item_per_page = 50
 
+        # Thread and task related
+        self.__lock = threading.Lock()
+        self.__task_thread = None
+        self.__update_pack = []     # [[uri, [identities] or None]]
+        self.__update_force = False
+        self.__progress_rate = ProgressRate()
+
+        # Timer for update status
+        self.__timer = QTimer()
+        self.__timer.setInterval(1000)
+        self.__timer.timeout.connect(self.on_timer)
+        self.__timer.start()
+
+        # UI related
         self.__info_panel = QLabel(DEFAULT_INFO)
 
         self.__table_main = EasyQTableWidget()
@@ -101,6 +121,67 @@ class DataUpdateUi(QWidget):
 
         self.__button_batch_auto_update = QPushButton('Auto Update Select')
         self.__button_batch_force_update = QPushButton('Force Update Select')
+
+    def on_detail_button(self, uri: str):
+        print('Detail of ' + uri)
+        self.__current_uri = uri
+        self.__page = 0
+        self.update_identity_level(uri, self.__page * self.__item_per_page, self.__item_per_page)
+
+    def on_auto_update_button(self, uri: str, identity: str):
+        print('Auto update ' + uri + ':' + str(identity))
+        self.__update_pack = [[uri, identity]]
+        self.__update_force = False
+        self.execute_update_task()
+
+    def on_force_update_button(self, uri: str, identity: str):
+        print('Force update ' + uri + ':' + str(identity))
+        self.__update_pack = [[uri, identity]]
+        self.__update_force = True
+        self.execute_update_task()
+
+    def on_page_control(self, control: str):
+        data_utility = self.__data_hub.get_data_utility()
+        stock_list = data_utility.get_stock_list()
+        max_page = len(stock_list) // self.__item_per_page
+
+        if control == '<<':
+            self.__page = 0
+        elif control == '<':
+            self.__page = max(self.__page - 1, 0)
+        elif control == '>':
+            self.__page = min(self.__page + 1, max_page)
+        elif control == '>>':
+            self.__page = max_page
+        elif control == '^':
+            self.__current_uri = ''
+            self.update_uri_level()
+        elif control == 'r':
+            self.update_table()
+
+        if control in ['<<', '<', '>', '>>', '^']:
+            if self.__current_uri != '':
+                self.update_table()
+
+    def on_timer(self):
+        for i in range(0, self.__table_main.rowCount()):
+            if self.__current_uri == '':
+                uri = self.__table_main.item(i, 1).text()
+                if self.__progress_rate.has_progress(uri):
+                    rate = self.__progress_rate.get_progress_rate(uri)
+                    self.__table_main.item(i, 8).setText('%.2f%%' % (rate * 100))
+                else:
+                    self.__table_main.item(i, 8).setText(str(''))
+            else:
+                uri = self.__current_uri
+                identity = self.__table_main.item(i, 1).text()
+                if self.__progress_rate.has_progress([uri, identity]):
+                    rate = self.__progress_rate.get_progress_rate([uri, identity])
+                    self.__table_main.item(i, 7).setText('%.2f%%' % (rate * 100))
+                else:
+                    self.__table_main.item(i, 7).setText('')
+
+    # --------------------------------------------------------------------------------------
 
     def update_table(self):
         if self.__current_uri == '':
@@ -215,43 +296,56 @@ class DataUpdateUi(QWidget):
             button_force.clicked.connect(partial(self.on_force_update_button, uri, stock_identity))
             self.__table_main.AddWidgetToCell(index, 6, [button_auto, button_force])
 
-    def on_detail_button(self, uri: str):
-        print('Detail of ' + uri)
-        self.__current_uri = uri
-        self.__page = 0
-        self.update_identity_level(uri, self.__page * self.__item_per_page, self.__item_per_page)
+    def work_around_for_update_pack(self):
+        for i in range(0, len(self.__update_pack)):
+            if self.__update_pack[i][0] == 'Market.TradeCalender':
+                self.__update_pack[i][1] = ['SSE']
+            elif self.__update_pack[i][0] in ['Finance.Audit', 'Finance.BalanceSheet',
+                                              'Finance.IncomeStatement', 'Finance.CashFlowStatement']:
+                if self.__update_pack[i][1] is None:
+                    data_utility = self.__data_hub.get_data_utility()
+                    stock_list = data_utility.get_stock_identities()
+                    self.__update_pack[i][1] = stock_list
 
-    def on_auto_update_button(self, uri: str, identity: str):
-        print('Auto update ' + uri + ':' + str(identity))
-        self.__data_center.update_local_data(uri, identity)
+    # --------------------------------- Thread ---------------------------------
 
-    def on_force_update_button(self, uri: str, identity: str):
-        print('Force update ' + uri + ':' + str(identity))
-        self.__data_center.update_local_data(uri, identity, force=True)
+    def execute_update_task(self):
+        self.work_around_for_update_pack()
+        if self.__task_thread is None:
+            self.__task_thread = threading.Thread(target=self.ui_task)
+            self.__task_thread.start()
+        else:
+            print('Task already running...')
 
-    def on_page_control(self, control: str):
-        data_utility = self.__data_hub.get_data_utility()
-        stock_list = data_utility.get_stock_list()
-        max_page = len(stock_list) // self.__item_per_page
+    def ui_task(self):
+        self.__lock.acquire()
+        task = copy.deepcopy(self.__update_pack)
+        force = self.__update_force
+        self.__lock.release()
 
-        if control == '<<':
-            self.__page = 0
-        elif control == '<':
-            self.__page = max(self.__page - 1, 0)
-        elif control == '>':
-            self.__page = min(self.__page + 1, max_page)
-        elif control == '>>':
-            self.__page = max_page
-        elif control == '^':
-            self.__current_uri = ''
-            self.update_uri_level()
-        elif control == 'r':
-            self.update_table()
+        print('Update task start.')
 
-        if control in ['<<', '<', '>', '>>', '^']:
-            if self.__current_uri != '':
-                self.update_table()
+        self.__progress_rate.reset()
+        for uri, identities in task:
+            if identities is not None:
+                self.__progress_rate.set_progress(uri, 0, len(identities))
+                for identity in identities:
+                    self.__progress_rate.set_progress([uri, identity], 0, 1)
+            else:
+                self.__progress_rate.set_progress(uri, 0, 1)
 
+        for uri, identities in task:
+            if identities is not None:
+                for identity in identities:
+                    self.__data_center.update_local_data(uri, identity, force=force)
+                    self.__progress_rate.increase_progress([uri, identity])
+                    self.__progress_rate.increase_progress(uri)
+            else:
+                self.__data_center.update_local_data(uri, force=force)
+                self.__progress_rate.increase_progress(uri)
+        self.__task_thread = None
+
+        print('Update task finished.')
 
 # ----------------------------------------------------------------------------------------------------------------------
 
