@@ -9,13 +9,20 @@ author:Sleepy
 @modify:
 """
 import traceback
-
-from PyQt5.QtWidgets import QLineEdit, QAbstractItemView, QFileDialog, QCheckBox, QHeaderView
+from PyQt5.QtWidgets import QHeaderView
 
 from Utiltity.ui_utility import *
 from Utiltity.time_utility import *
 from DataHub.DataHubEntry import *
 from stock_analysis_system import StockAnalysisSystem
+
+
+DEFAULT_INFO = """数据更新界面说明：
+1. 首先请配置好config.py里面的TS_TOKEN及NOSQL相关字段
+2. 如果从零开始，请先更新Market.SecuritiesInfo以获取股票列表，后续功能方可正常运作
+3. 由于采集本地数据范围需要从数据库中读取大量数据，故界面反应会较慢，后续会对此进行优化
+4. 在首页更新财务信息会对所有股票执行一次，故耗时非常长，请做好挂机准备（Update Select未实现）
+5. Force Update会拉取从1990年至今的数据，耗时非常长，请谨慎使用"""
 
 
 class DataUpdateUi(QWidget):
@@ -31,11 +38,23 @@ class DataUpdateUi(QWidget):
         self.__data_hub = StockAnalysisSystem().get_data_hub_entry()
         self.__data_center = self.__data_hub.get_data_center()
         self.__update_table = StockAnalysisSystem().get_database_entry().get_update_table()
-        self.__table_main = EasyQTableWidget()
 
         self.__current_uri = ''
         self.__page = 0
         self.__item_per_page = 50
+
+        self.__info_panel = QLabel(DEFAULT_INFO)
+
+        self.__table_main = EasyQTableWidget()
+        self.__button_head_page = QPushButton('<<')
+        self.__button_prev_page = QPushButton('<')
+        self.__button_next_page = QPushButton('>')
+        self.__button_tail_page = QPushButton('>>')
+        self.__button_upper_level = QPushButton('↑')
+
+        self.__button_refresh = QPushButton('Refresh')
+        self.__button_batch_auto_update = QPushButton('Auto Update Select')
+        self.__button_batch_force_update = QPushButton('Force Update Select')
 
         self.init_ui()
 
@@ -47,17 +66,47 @@ class DataUpdateUi(QWidget):
         self.update_uri_level()
 
     def __layout_control(self):
-        main_layout = QHBoxLayout()
+        main_layout = QVBoxLayout()
         self.setLayout(main_layout)
-
         self.setMinimumSize(600, 400)
         main_layout.addWidget(self.__table_main)
+
+        bottom_control_area = QHBoxLayout()
+        main_layout.addLayout(bottom_control_area)
+
+        bottom_right_area = QVBoxLayout()
+        bottom_control_area.addWidget(self.__info_panel, 99)
+        bottom_control_area.addLayout(bottom_right_area, 0)
+
+        line = horizon_layout([self.__button_head_page, self.__button_prev_page,
+                               self.__button_next_page, self.__button_tail_page,
+                               self.__button_upper_level, self.__button_refresh])
+        bottom_right_area.addLayout(line)
+
+        line = horizon_layout([self.__button_batch_auto_update, self.__button_batch_force_update])
+        bottom_right_area.addLayout(line)
 
     def __config_control(self):
         for _ in DataUpdateUi.TABLE_HEADER_URI:
             self.__table_main.insertColumn(0)
         self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_URI)
         self.__table_main.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.__button_head_page.clicked.connect(partial(self.on_page_control, '<<'))
+        self.__button_prev_page.clicked.connect(partial(self.on_page_control, '<'))
+        self.__button_next_page.clicked.connect(partial(self.on_page_control, '>'))
+        self.__button_tail_page.clicked.connect(partial(self.on_page_control, '>>'))
+        self.__button_upper_level.clicked.connect(partial(self.on_page_control, '^'))
+        self.__button_refresh.clicked.connect(partial(self.on_page_control, 'r'))
+
+        self.__button_batch_auto_update = QPushButton('Auto Update Select')
+        self.__button_batch_force_update = QPushButton('Force Update Select')
+
+    def update_table(self):
+        if self.__current_uri == '':
+            self.update_uri_level()
+        else:
+            self.update_identity_level(self.__current_uri, self.__page * self.__item_per_page, self.__item_per_page)
 
     def update_uri_level(self):
         self.__table_main.clear()
@@ -179,6 +228,29 @@ class DataUpdateUi(QWidget):
     def on_force_update_button(self, uri: str, identity: str):
         print('Force update ' + uri + ':' + str(identity))
         self.__data_center.update_local_data(uri, identity, force=True)
+
+    def on_page_control(self, control: str):
+        data_utility = self.__data_hub.get_data_utility()
+        stock_list = data_utility.get_stock_list()
+        max_page = len(stock_list) // self.__item_per_page
+
+        if control == '<<':
+            self.__page = 0
+        elif control == '<':
+            self.__page = max(self.__page - 1, 0)
+        elif control == '>':
+            self.__page = min(self.__page + 1, max_page)
+        elif control == '>>':
+            self.__page = max_page
+        elif control == '^':
+            self.__current_uri = ''
+            self.update_uri_level()
+        elif control == 'r':
+            self.update_table()
+
+        if control in ['<<', '<', '>', '>>', '^']:
+            if self.__current_uri != '':
+                self.update_table()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
