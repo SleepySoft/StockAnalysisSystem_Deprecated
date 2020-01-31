@@ -312,6 +312,12 @@ class WrapperQDialog(QDialog):
     def on_button_cancel(self):
         self.close()
 
+    def closeEvent(self, event):
+        if self.__wrapped_wnd.close():
+            event.accept()
+        else:
+            event.ignore()
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                   EasyQTableWidget

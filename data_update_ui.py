@@ -181,6 +181,16 @@ class DataUpdateUi(QWidget):
                 else:
                     self.__table_main.item(i, 7).setText('')
 
+    def closeEvent(self, event):
+        if self.__task_thread is not None:
+            QMessageBox.information(self,
+                                    QtCore.QCoreApplication.translate('', '无法关闭窗口'),
+                                    QtCore.QCoreApplication.translate('', '更新过程中无法关闭此窗口'),
+                                    QMessageBox.Close, QMessageBox.Close)
+            event.ignore()
+        else:
+            event.accept()
+
     # --------------------------------------------------------------------------------------
 
     def update_table(self):
@@ -346,6 +356,7 @@ class DataUpdateUi(QWidget):
         self.__task_thread = None
 
         print('Update task finished.')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
