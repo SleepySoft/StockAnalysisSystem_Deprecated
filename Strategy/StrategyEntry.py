@@ -35,13 +35,14 @@ class StrategyEntry:
         return self.get_plugin_manager().execute_module_function(
             self.get_plugin_manager().all_modules(), 'plugin_prob', {}, False)
 
-    def run_strategy(self, securities: [str], methods: [str]) -> dict:
+    def run_strategy(self, securities: [str], methods: [str], **extra) -> dict:
         result = self.get_plugin_manager().execute_module_function(
             self.get_plugin_manager().all_modules(), 'analysis', {
                 'securities': securities,
                 'methods': methods,
                 'data_hub': self.__data_hub,
                 'database': self.__database,
+                'extra': extra,
             }, False)
 
         # Flatten the nest result list

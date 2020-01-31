@@ -258,7 +258,13 @@ class DataUpdateUi(QWidget):
         self.execute_update_task()
 
     def on_timer(self):
-        pass
+        for i in range(0, self.__table_analyzer.rowCount()):
+            uuid = self.__table_analyzer.item(i, 3).text()
+            if self.__progress_rate.has_progress(uuid):
+                rate = self.__progress_rate.get_progress_rate(uuid)
+                self.__table_analyzer.item(i, 4).setText('%.2f%%' % (rate * 100))
+            else:
+                self.__table_analyzer.item(i, 4).setText(str(''))
 
     def closeEvent(self, event):
         if self.__task_thread is not None:
@@ -350,7 +356,7 @@ class DataUpdateUi(QWidget):
 
         # ------------- Run analyzer -------------
         clock = Clock()
-        result = self.__strategy_entry.run_strategy(stock_list, analyzer_list)
+        result = self.__strategy_entry.run_strategy(stock_list, analyzer_list, progress=self.__progress_rate)
         print('Analysis time spending: ' + str(clock.elapsed_s()) + ' s')
 
         # ----------- Generate report ------------

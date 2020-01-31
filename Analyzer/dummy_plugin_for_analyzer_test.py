@@ -120,8 +120,9 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def analysis(securities: [str], methods: [str], data_hub: DataHubEntry, database: DatabaseEntry) -> [AnalysisResult]:
-    return standard_dispatch_analysis(securities, methods, data_hub, database, METHOD_LIST, AnalysisContext())
+def analysis(securities: [str], methods: [str], data_hub: DataHubEntry,
+             database: DatabaseEntry, extra: dict) -> [AnalysisResult]:
+    return standard_dispatch_analysis(securities, methods, data_hub, database, extra, METHOD_LIST)
 
 
 

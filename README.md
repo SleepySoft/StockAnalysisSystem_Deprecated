@@ -47,7 +47,7 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 > 已加入显示更新进度功能  
 > 硬编码过多，待重构数据结构解决  
 3. 编写策略选择界面  -> 20200131: Done
-4. 策略运行进度显示
+4. 策略运行进度显示  -> 20200131: Done
 5. 界面集成
 6. 策略参数可配置可保存  
 

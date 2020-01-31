@@ -85,8 +85,10 @@ class AnalysisResult:
 
 class AnalysisContext:
     def __init__(self):
-        self.logger = None
         self.cache = {}
+        self.extra = {}
+        self.logger = None
+        self.progress = None
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -109,7 +111,13 @@ method_list_example = [
 
 
 def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, database,
-                               method_list: list, context: AnalysisContext) -> [(str, [])] or None:
+                               extra: dict, method_list: list) -> [(str, [])] or None:
+    context = AnalysisContext()
+    if isinstance(extra, dict):
+        context.extra = extra
+        context.logger = extra.get('logger', print)
+        context.progress = extra.get('progress', ProgressRate())
+
     result_list = []
     for query_method in methods:
         sub_list = []
@@ -120,6 +128,7 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
             if function_entry is None:
                 print('Method ' + hash_id + ' not implemented yet.')
                 break
+            context.progress.set_progress(hash_id, 0, len(securities))
             for s in securities:
                 try:
                     result = function_entry(s, data_hub, database, context)
@@ -130,7 +139,7 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
                     print(traceback.format_exc())
                     result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, error_info)
                 finally:
-                    pass
+                    context.progress.increase_progress(hash_id)
                 if result is None:
                     result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, 'NONE')
                 sub_list.append(result)
@@ -139,7 +148,7 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
             while len(sub_list) < len(securities):
                 sub_list.append(AnalysisResult(securities[len(sub_list)], AnalysisResult.SCORE_NOT_APPLIED, 'NONE'))
             result_list.append((query_method, sub_list))
-
+            context.progress.set_progress(hash_id, len(securities), len(securities))
             break
     return result_list if len(result_list) > 0 else None
 
