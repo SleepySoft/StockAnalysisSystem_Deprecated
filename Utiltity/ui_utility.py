@@ -23,9 +23,17 @@ def horizon_layout(widgets: list) -> QHBoxLayout:
     return layout
 
 
-def create_v_group_box(title: str) -> (QGroupBox, QBoxLayout):
+def create_v_group_box(title: str) -> (QGroupBox, QVBoxLayout):
     group_box = QGroupBox(title)
     group_layout = QVBoxLayout()
+    # group_layout.addStretch(1)
+    group_box.setLayout(group_layout)
+    return group_box, group_layout
+
+
+def create_h_group_box(title: str) -> (QGroupBox, QHBoxLayout):
+    group_box = QGroupBox(title)
+    group_layout = QHBoxLayout()
     # group_layout.addStretch(1)
     group_box.setLayout(group_layout)
     return group_box, group_layout

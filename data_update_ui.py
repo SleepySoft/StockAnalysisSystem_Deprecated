@@ -119,8 +119,8 @@ class DataUpdateUi(QWidget):
         self.__button_upper_level.clicked.connect(partial(self.on_page_control, '^'))
         self.__button_refresh.clicked.connect(partial(self.on_page_control, 'r'))
 
-        self.__button_batch_auto_update = QPushButton('Auto Update Select')
-        self.__button_batch_force_update = QPushButton('Force Update Select')
+        # self.__button_batch_auto_update.connect(partial(self.on_page_control, 'r'))
+        # self.__button_batch_force_update.connect(partial(self.on_page_control, 'r'))
 
     def on_detail_button(self, uri: str):
         print('Detail of ' + uri)
@@ -326,14 +326,18 @@ class DataUpdateUi(QWidget):
             self.__task_thread.start()
         else:
             print('Task already running...')
+            QMessageBox.information(self,
+                                    QtCore.QCoreApplication.translate('', '无法执行'),
+                                    QtCore.QCoreApplication.translate('', '已经有更新在运行中，无法同时运行多个更新'),
+                                    QMessageBox.Close, QMessageBox.Close)
 
     def ui_task(self):
+        print('Update task start.')
+
         self.__lock.acquire()
         task = copy.deepcopy(self.__update_pack)
         force = self.__update_force
         self.__lock.release()
-
-        print('Update task start.')
 
         self.__progress_rate.reset()
         for uri, identities in task:
