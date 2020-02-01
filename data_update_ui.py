@@ -324,10 +324,19 @@ class DataUpdateUi(QWidget):
 
     # --------------------------------- Thread ---------------------------------
 
+    def execute_refresh_task(self):
+        if self.__task_thread is None:
+            self.__task_thread = threading.Thread(target=self.refresh_task)
+            StockAnalysisSystem().lock_sys_quit()
+            self.__task_thread.start()
+
+    def refresh_task(self):
+        pass
+
     def execute_update_task(self):
         self.work_around_for_update_pack()
         if self.__task_thread is None:
-            self.__task_thread = threading.Thread(target=self.ui_task)
+            self.__task_thread = threading.Thread(target=self.update_task)
             StockAnalysisSystem().lock_sys_quit()
             self.__timing_clock.reset()
             self.__task_thread.start()
@@ -338,7 +347,7 @@ class DataUpdateUi(QWidget):
                                     QtCore.QCoreApplication.translate('', '已经有更新在运行中，无法同时运行多个更新'),
                                     QMessageBox.Close, QMessageBox.Close)
 
-    def ui_task(self):
+    def update_task(self):
         print('Update task start.')
 
         self.__lock.acquire()
