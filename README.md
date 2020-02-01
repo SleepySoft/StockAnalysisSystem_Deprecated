@@ -1,3 +1,8 @@
+# 网盘下载：
+应网友要求，对于网络访问受限的用户，提供网盘下载：  
+链接：https://pan.baidu.com/s/1H-viluqOoKrKRNJJmU17jg  
+提取码：4r3u  
+  
 # StockAnalysisSystem
 This program is designed for Chinese market and Chinese accounting policies (currently). So this document will only provide Chinese version.
   
