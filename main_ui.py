@@ -7,6 +7,8 @@ from strategy_ui import *
 from data_update_ui import *
 from DataHub.DataHubUi import *
 from Database.AliasTableUi import *
+from Database.XListTableUi import *
+from Database.DatabaseEntry import *
 from stock_analysis_system import StockAnalysisSystem
 
 
@@ -49,9 +51,17 @@ class MainWindow(CommonMainWindow):
 
         # ---------- Modules and Sub Window ----------
 
-        self.__data_hub_ui = DataUpdateUi()
-        self.__data_update_ui = DataUpdateUi()
-        self.__strategy_ui = StrategyUi()
+        data_hub_entry = StockAnalysisSystem().get_data_hub_entry()
+        strategy_entry = StockAnalysisSystem().get_strategy_entry()
+        update_table = StockAnalysisSystem().get_database_entry().get_update_table()
+
+        self.__data_hub_ui = DataHubUi(data_hub_entry.get_data_center())
+        self.__strategy_ui = StrategyUi(data_hub_entry, strategy_entry)
+        self.__data_update_ui = DataUpdateUi(data_hub_entry, update_table)
+
+        self.__gray_list_ui = XListTableUi(DatabaseEntry().get_gray_table(), '灰名单')
+        self.__black_list_ui = XListTableUi(DatabaseEntry().get_black_table(), '黑名单')
+        self.__focus_list_ui = XListTableUi(DatabaseEntry().get_focus_table(), '关注名单')
 
         self.__alias_table_module = StockAnalysisSystem().get_database_entry().get_alias_table()
         self.__alias_table_module_ui = AliasTableUi(self.__alias_table_module)
@@ -97,6 +107,47 @@ class MainWindow(CommonMainWindow):
             'ActionTips': self.__translate('main', '策略管理'),
             'ActionShortcut': 'Ctrl+S',
         })
+
+        self.add_sub_window(self.__data_hub_ui, 'data_hub_ui', {
+            'DockName': self.__translate('main', '数据查阅'),
+            'DockArea': Qt.RightDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': False,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '数据查阅'),
+            'ActionShortcut': 'Ctrl+B',
+        })
+
+        # -------------------------------------------------------------------------
+
+        self.add_sub_window(self.__black_list_ui, 'black_list_ui', {
+            'DockName': self.__translate('main', '黑名单'),
+            'DockArea': Qt.NoDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': True,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '黑名单'),
+        })
+
+        self.add_sub_window(self.__focus_list_ui, 'focus_list_ui', {
+            'DockName': self.__translate('main', '关注名单'),
+            'DockArea': Qt.NoDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': True,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '关注名单'),
+        })
+
+        self.add_sub_window(self.__gray_list_ui, 'gray_list_ui', {
+            'DockName': self.__translate('main', '灰名单'),
+            'DockArea': Qt.NoDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': True,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '灰名单'),
+        })
+
+        # -------------------------------------------------------------------------
 
         data_update_ui = self.get_sub_window('data_update_ui')
         strategy_ui = self.get_sub_window('strategy_ui')

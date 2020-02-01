@@ -10,12 +10,14 @@ author:YuQiu
 """
 
 from os import sys, path
-import Utiltity.common as common
+from Utiltity.common import *
+from Utiltity.time_utility import *
 
 
-class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
+class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
     def __init__(self):
         self.__inited = False
+        self.__quit_lock = 0
 
         self.__collector_plugin = None
         self.__strategy_plugin = None
@@ -24,9 +26,21 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
         self.__strategy_entry = None
         self.__database_entry = None
 
+    def can_sys_quit(self) -> bool:
+        return self.__quit_lock == 0
+
+    def lock_sys_quit(self):
+        self.__quit_lock += 1
+
+    def release_sys_quit(self) -> bool:
+        self.__quit_lock = max(0, self.__quit_lock - 1)
+
     def check_initialize(self) -> bool:
         if self.__inited:
             return True
+
+        clock = Clock()
+        print('Initializing Stock Analysis System ...')
 
         import DataHub.DataHubEntry as DataHubEntry
         import Strategy.StrategyEntry as StrategyEntry
@@ -41,14 +55,13 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
         self.__strategy_plugin.refresh()
         self.__collector_plugin.refresh()
 
-        root_path = path.dirname(path.abspath(__file__))
-
         self.__database_entry = DatabaseEntry.DatabaseEntry(path.join(root_path, 'Data'))
         self.__data_hub_entry = DataHubEntry.DataHubEntry(self.__database_entry, self.__collector_plugin)
         self.__strategy_entry = StrategyEntry.StrategyEntry(self.__strategy_plugin,
                                                             self.__data_hub_entry, self.__database_entry)
-        self.__inited = True
 
+        print('Stock Analysis System Initialization Done, Time spending: ' + str(clock.elapsed_ms()) + ' ms')
+        self.__inited = True
         return True
 
     def get_database_entry(self):
@@ -60,16 +73,8 @@ class StockAnalysisSystem(metaclass=common.ThreadSafeSingleton):
     def get_strategy_entry(self):
         return self.__strategy_entry if self.check_initialize() else None
 
-    # ------------------------------------ private ------------------------------------
-
-    def __check_init_status(self, expected: bool) -> bool:
-        if self.__inited != expected:
-            if self.__inited:
-                print('System has been inited.')
-            else:
-                print('System not been inited yet.')
-            return False
-        return True
 
 
-instance = StockAnalysisSystem()
+
+
+

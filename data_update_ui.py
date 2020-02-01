@@ -19,6 +19,7 @@ from Utiltity.common import *
 from Utiltity.ui_utility import *
 from Utiltity.time_utility import *
 from DataHub.DataHubEntry import *
+from Database.UpdateTableEx import *
 from stock_analysis_system import StockAnalysisSystem
 
 
@@ -38,11 +39,11 @@ class DataUpdateUi(QWidget):
     # TODO: Auto detect
     HAS_DETAIL_LIST = ['Finance.Audit', 'Finance.BalanceSheet', 'Finance.IncomeStatement', 'Finance.CashFlowStatement']
 
-    def __init__(self):
+    def __init__(self, data_hub_entry: DataHubEntry, update_table: UpdateTableEx):
         super(DataUpdateUi, self).__init__()
-        self.__data_hub = StockAnalysisSystem().get_data_hub_entry()
+        self.__data_hub = data_hub_entry
         self.__data_center = self.__data_hub.get_data_center()
-        self.__update_table = StockAnalysisSystem().get_database_entry().get_update_table()
+        self.__update_table = update_table
 
         # Page and level related
         self.__current_uri = ''
@@ -366,7 +367,9 @@ class DataUpdateUi(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    dlg = WrapperQDialog(DataUpdateUi())
+    data_hub = StockAnalysisSystem().get_data_hub_entry()
+    update_table = StockAnalysisSystem().get_database_entry().get_update_table()
+    dlg = WrapperQDialog(DataUpdateUi(data_hub, update_table))
     dlg.exec()
 
 

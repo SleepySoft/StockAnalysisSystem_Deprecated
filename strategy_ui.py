@@ -122,10 +122,10 @@ class StrategyUi(QWidget):
     TABLE_HEADER_SELECTOR = ['', 'Selector', 'Comments', 'UUID', 'Status']
     TABLE_HEADER_ANALYZER = ['', 'Strategy', 'Comments', 'UUID', 'Status']
 
-    def __init__(self):
+    def __init__(self, data_hub_entry: DataHubEntry, strategy_entry: StrategyEntry):
         super(StrategyUi, self).__init__()
-        self.__data_hub = StockAnalysisSystem().get_data_hub_entry()
-        self.__strategy_entry = StockAnalysisSystem().get_strategy_entry()
+        self.__data_hub_entry = data_hub_entry
+        self.__strategy_entry = strategy_entry
 
         self.__analyzer_info = self.load_analyzer_info()
 
@@ -349,7 +349,7 @@ class StrategyUi(QWidget):
         analyzer_list = self.__analyzer_list
         self.__lock.release()
 
-        data_utility = self.__data_hub.get_data_utility()
+        data_utility = self.__data_hub_entry.get_data_utility()
         stock_list = data_utility.get_stock_identities()
 
         self.__progress_rate.reset()
@@ -374,7 +374,9 @@ class StrategyUi(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    dlg = WrapperQDialog(StrategyUi())
+    data_hub_entry = StockAnalysisSystem().get_data_hub_entry()
+    strategy_entry = StockAnalysisSystem().get_strategy_entry()
+    dlg = WrapperQDialog(StrategyUi(data_hub_entry, strategy_entry))
     dlg.exec()
 
 
