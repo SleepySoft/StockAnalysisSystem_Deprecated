@@ -234,10 +234,6 @@ class CommonMainWindow(QMainWindow):
             pass
 
     def closeEvent(self, event):
-        """Generate 'question' dialog on clicking 'X' button in title bar.
-        Reimplement the closeEvent() event handler to include a 'Question'
-        dialog with options on how to proceed - Save, Close, Cancel buttons
-        """
         reply = QMessageBox.question(self,
                                      QtCore.QCoreApplication.translate('main', 'Quit'),
                                      QtCore.QCoreApplication.translate('main', 'Are you sure to quit'),
@@ -247,7 +243,7 @@ class CommonMainWindow(QMainWindow):
             # TODO: Check task status
             sys.exit(0)
         else:
-            pass
+            event.ignore()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -438,6 +434,99 @@ class EasyQListSuite(QWidget):
             item.setText(text)
             item.setData(Qt.UserRole, obj)
             self.__list_main.addItem(item)
+
+
+# --------------------------------------------------- PageTableWidget --------------------------------------------------
+
+class PageTableWidget(QWidget):
+    def __init__(self):
+        super(PageTableWidget, self).__init__()
+
+        self.__page = 0
+        self.__max_page = 0
+        self.__item_per_page = 50
+        self.__max_item_count = 0
+
+        self.__table_main = EasyQTableWidget()
+        self.__layout_bottom = QHBoxLayout()
+
+        self.init_ui()
+
+    def init_ui(self):
+        self.__layout_control()
+        self.__config_control()
+
+    def __layout_control(self):
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+        main_layout.addWidget(self.__table_main)
+        main_layout.addLayout(self.__layout_bottom)
+
+    def __config_control(self):
+        self.add_extra_button('<<', '<<')
+        self.add_extra_button('<', '<')
+        self.add_extra_button('>', '>')
+        self.add_extra_button('>>', '>>')
+
+    # ------------------------------------- Function -------------------------------------
+
+    def get_table(self) -> EasyQTableWidget:
+        return self.__table_main
+
+    def get_item_offset(self) -> int:
+        return self.__page * self.__item_per_page
+
+    def get_item_per_page(self) -> int:
+        return self.__item_per_page
+
+    def set_max_item(self, count: int):
+        self.__max_item_count = count
+        self.__update_max_page()
+
+    def set_item_pre_page(self, count: int):
+        if self.__item_per_page != count:
+            self.__item_per_page = count
+            self.__update_max_page()
+            self.on_content_update()
+
+    def add_extra_button(self, caption: str, button_mark: str):
+        button = QPushButton(caption)
+        self.__layout_bottom.addWidget(button)
+        button.clicked.connect(partial(self.on_button_event, button_mark))
+
+    # ---------------------------------- Event Handling ----------------------------------
+
+    def on_button_event(self, control: str):
+        if control in ['<<', '<', '>', '>>']:
+            self.on_page_control(control)
+        else:
+            self.on_extra_control(control)
+
+    def on_page_control(self, control: str):
+        if control == '<<':
+            self.__page = 0
+        elif control == '<':
+            self.__page = max(self.__page - 1, 0)
+        elif control == '>':
+            self.__page = min(self.__page + 1, self.__max_page)
+        elif control == '>>':
+            self.__page = self.__max_page
+        self.on_content_update()
+
+    # ------------------------------------- Override -------------------------------------
+
+    def on_extra_control(self, control: str):
+        # TODO: Override this function to handle extra button event
+        pass
+
+    def on_content_update(self):
+        # TODO: Override this function to handle content update
+        pass
+
+    def __update_max_page(self):
+        self.__max_page = (self.__max_item_count / self.__item_per_page) if self.__item_per_page > 0 else 0
+        if self.__page > self.__max_page:
+            self.__page = self.__max_page
 
 
 # ----------------------------------------------------------------------------------------------------------------------

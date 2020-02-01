@@ -12,7 +12,7 @@ import copy
 import traceback
 import threading
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, pyqtSignal
 from PyQt5.QtWidgets import QHeaderView, QLineEdit, QFileDialog
 
 from Utiltity.common import *
@@ -23,102 +23,11 @@ from Analyzer.AnalyzerUtility import *
 from stock_analysis_system import StockAnalysisSystem
 
 
-# --------------------------------------------------- PageTableWidget --------------------------------------------------
-
-class PageTableWidget(QWidget):
-    def __init__(self):
-        super(PageTableWidget, self).__init__()
-
-        self.__page = 0
-        self.__max_page = 0
-        self.__item_per_page = 50
-        self.__max_item_count = 0
-
-        self.__table_main = EasyQTableWidget()
-        self.__layout_bottom = QHBoxLayout()
-
-        self.init_ui()
-
-    def init_ui(self):
-        self.__layout_control()
-        self.__config_control()
-
-    def __layout_control(self):
-        main_layout = QVBoxLayout()
-        self.setLayout(main_layout)
-        main_layout.addWidget(self.__table_main)
-        main_layout.addLayout(self.__layout_bottom)
-
-    def __config_control(self):
-        self.add_extra_button('<<', '<<')
-        self.add_extra_button('<', '<')
-        self.add_extra_button('>', '>')
-        self.add_extra_button('>>', '>>')
-
-    # ------------------------------------- Function -------------------------------------
-
-    def get_table(self) -> EasyQTableWidget:
-        return self.__table_main
-
-    def get_item_offset(self) -> int:
-        return self.__page * self.__item_per_page
-
-    def get_item_per_page(self) -> int:
-        return self.__item_per_page
-
-    def set_max_item(self, count: int):
-        self.__max_item_count = count
-        self.__update_max_page()
-
-    def set_item_pre_page(self, count: int):
-        if self.__item_per_page != count:
-            self.__item_per_page = count
-            self.__update_max_page()
-            self.on_content_update()
-
-    def add_extra_button(self, caption: str, button_mark: str):
-        button = QPushButton(caption)
-        self.__layout_bottom.addWidget(button)
-        button.clicked.connect(partial(self.on_button_event, button_mark))
-
-    # ---------------------------------- Event Handling ----------------------------------
-
-    def on_button_event(self, control: str):
-        if control in ['<<', '<', '>', '>>']:
-            self.on_page_control(control)
-        else:
-            self.on_extra_control(control)
-
-    def on_page_control(self, control: str):
-        if control == '<<':
-            self.__page = 0
-        elif control == '<':
-            self.__page = max(self.__page - 1, 0)
-        elif control == '>':
-            self.__page = min(self.__page + 1, self.__max_page)
-        elif control == '>>':
-            self.__page = self.__max_page
-        self.on_content_update()
-
-    # ------------------------------------- Override -------------------------------------
-
-    def on_extra_control(self, control: str):
-        # TODO: Override this function to handle extra button event
-        pass
-
-    def on_content_update(self):
-        # TODO: Override this function to handle content update
-        pass
-
-    def __update_max_page(self):
-        self.__max_page = (self.__max_item_count / self.__item_per_page) if self.__item_per_page > 0 else 0
-        if self.__page > self.__max_page:
-            self.__page = self.__max_page
-
-
 # ---------------------------------------------------- StrategyUi ----------------------------------------------------
 
 class StrategyUi(QWidget):
+    task_finish_signal = pyqtSignal()
+
     TABLE_HEADER_SELECTOR = ['', 'Selector', 'Comments', 'UUID', 'Status']
     TABLE_HEADER_ANALYZER = ['', 'Strategy', 'Comments', 'UUID', 'Status']
 
@@ -134,7 +43,10 @@ class StrategyUi(QWidget):
         self.__task_thread = None
         self.__selector_list = []
         self.__analyzer_list = []
+        self.__result_output = ''
+        self.__timing_clock = Clock()
         self.__progress_rate = ProgressRate()
+        self.task_finish_signal.connect(self.__on_task_done)
 
         # Timer for update status
         self.__timer = QTimer()
@@ -245,6 +157,13 @@ class StrategyUi(QWidget):
         selector_list = []
         analyzer_list = []
 
+        output_path = self.__edit_path.text()
+        if len(output_path.strip()) == 0:
+            QMessageBox.information(self,
+                                    QtCore.QCoreApplication.translate('', '配置缺失'),
+                                    QtCore.QCoreApplication.translate('', '请指定结果输出文件'),
+                                    QMessageBox.Close, QMessageBox.Close)
+
         for i in range(0, self.__table_analyzer.rowCount()):
             if self.__table_analyzer.item(i, 0).checkState() == QtCore.Qt.Checked:
                 uuid = self.__table_analyzer.item(i, 3).text()
@@ -253,6 +172,7 @@ class StrategyUi(QWidget):
         self.__lock.acquire()
         self.__selector_list = selector_list
         self.__analyzer_list = analyzer_list
+        self.__result_output = output_path
         self.__lock.release()
 
         self.execute_update_task()
@@ -333,6 +253,8 @@ class StrategyUi(QWidget):
     def execute_update_task(self):
         if self.__task_thread is None:
             self.__task_thread = threading.Thread(target=self.ui_task)
+            StockAnalysisSystem().lock_sys_quit()
+            self.__timing_clock.reset()
             self.__task_thread.start()
         else:
             print('Task already running...')
@@ -347,6 +269,7 @@ class StrategyUi(QWidget):
         self.__lock.acquire()
         selector_list = self.__selector_list
         analyzer_list = self.__analyzer_list
+        output_path = self.__result_output
         self.__lock.release()
 
         data_utility = self.__data_hub_entry.get_data_utility()
@@ -362,12 +285,24 @@ class StrategyUi(QWidget):
         # ----------- Generate report ------------
         clock.reset()
         name_dict = self.__strategy_entry.strategy_name_dict()
-        generate_analysis_report(result, 'analysis_report.xlsx', name_dict)
+        generate_analysis_report(result, output_path, name_dict)
         print('Generate report time spending: ' + str(clock.elapsed_s()) + ' s')
 
         # ----------------- End ------------------
-        self.__task_thread = None
+        self.task_finish_signal.emit()
         print('Update task finished.')
+
+    # ---------------------------------------------------------------------------------
+
+    def __on_task_done(self):
+        self.__task_thread = None
+        StockAnalysisSystem().release_sys_quit()
+        QMessageBox.information(self,
+                                QtCore.QCoreApplication.translate('main', '远行完成'),
+                                QtCore.QCoreApplication.translate('main', '策略运行完成，耗时' +
+                                                                  str(self.__timing_clock.elapsed_s()) + '秒\n' +
+                                                                  '报告生成路径：' + self.__result_output),
+                                QMessageBox.Ok, QMessageBox.Ok)
 
 
 # ----------------------------------------------------------------------------------------------------------------------

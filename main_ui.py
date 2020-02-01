@@ -64,7 +64,7 @@ class MainWindow(CommonMainWindow):
         self.__focus_list_ui = XListTableUi(DatabaseEntry().get_focus_table(), '关注名单')
 
         self.__alias_table_module = StockAnalysisSystem().get_database_entry().get_alias_table()
-        self.__alias_table_module_ui = AliasTableUi(self.__alias_table_module)
+        self.__alias_table_ui = AliasTableUi(self.__alias_table_module)
 
         # ---------- Deep init ----------
         self.init_ui()
@@ -149,6 +149,17 @@ class MainWindow(CommonMainWindow):
 
         # -------------------------------------------------------------------------
 
+        self.add_sub_window(self.__alias_table_ui, 'alias_table_ui', {
+            'DockName': self.__translate('main', '别名表（考虑废弃）'),
+            'DockArea': Qt.NoDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': True,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '别名表'),
+        })
+
+        # -------------------------------------------------------------------------
+
         data_update_ui = self.get_sub_window('data_update_ui')
         strategy_ui = self.get_sub_window('strategy_ui')
 
@@ -159,10 +170,19 @@ class MainWindow(CommonMainWindow):
         self.__alias_table_module.init(True)
 
     def modules_ui_init(self):
-        self.__alias_table_module_ui.Init()
+        self.__alias_table_ui.Init()
 
     # ----------------------------- UI Events -----------------------------
 
+    def closeEvent(self, event):
+        if StockAnalysisSystem().can_sys_quit():
+            super().closeEvent(event)
+        else:
+            QMessageBox.information(self,
+                                    QtCore.QCoreApplication.translate('main', '无法退出'),
+                                    QtCore.QCoreApplication.translate('main', '有任务正在执行中，无法退出程序'),
+                                    QMessageBox.Ok, QMessageBox.Ok)
+            event.ignore()
 
 
 

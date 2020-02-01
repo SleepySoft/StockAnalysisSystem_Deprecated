@@ -12,7 +12,7 @@ import copy
 import traceback
 import threading
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, pyqtSignal
 from PyQt5.QtWidgets import QHeaderView
 
 from Utiltity.common import *
@@ -32,6 +32,8 @@ DEFAULT_INFO = """数据更新界面说明：
 
 
 class DataUpdateUi(QWidget):
+    task_finish_signal = pyqtSignal()
+
     TABLE_HEADER_URI = ['', 'URI', 'Local Data Since', 'Local Data Until', 'Latest Update',
                         'Update Estimation', 'Sub Update', 'Update', 'Status']
     TABLE_HEADER_IDENTITY = ['', 'Identity', 'Local Data Since', 'Local Data Until', 'Latest Update',
@@ -55,7 +57,9 @@ class DataUpdateUi(QWidget):
         self.__task_thread = None
         self.__update_pack = []     # [[uri, [identities] or None]]
         self.__update_force = False
+        self.__timing_clock = Clock()
         self.__progress_rate = ProgressRate()
+        self.task_finish_signal.connect(self.__on_task_done)
 
         # Timer for update status
         self.__timer = QTimer()
@@ -324,6 +328,8 @@ class DataUpdateUi(QWidget):
         self.work_around_for_update_pack()
         if self.__task_thread is None:
             self.__task_thread = threading.Thread(target=self.ui_task)
+            StockAnalysisSystem().lock_sys_quit()
+            self.__timing_clock.reset()
             self.__task_thread.start()
         else:
             print('Task already running...')
@@ -358,9 +364,20 @@ class DataUpdateUi(QWidget):
             else:
                 self.__data_center.update_local_data(uri, force=force)
                 self.__progress_rate.increase_progress(uri)
-        self.__task_thread = None
 
+        self.task_finish_signal.emit()
         print('Update task finished.')
+
+    # ---------------------------------------------------------------------------------
+
+    def __on_task_done(self):
+        self.__task_thread = None
+        StockAnalysisSystem().release_sys_quit()
+        QMessageBox.information(self,
+                                QtCore.QCoreApplication.translate('main', '更新完成'),
+                                QtCore.QCoreApplication.translate('main', '数据更新完成，耗时' +
+                                                                  str(self.__timing_clock.elapsed_s()) + '秒'),
+                                QMessageBox.Ok, QMessageBox.Ok)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
