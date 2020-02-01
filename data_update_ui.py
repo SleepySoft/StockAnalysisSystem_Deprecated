@@ -83,7 +83,7 @@ class DataUpdateUi(QWidget):
     def init_ui(self):
         self.__layout_control()
         self.__config_control()
-        self.update_uri_level()
+        # self.update_uri_level()
 
     def __layout_control(self):
         main_layout = QVBoxLayout()

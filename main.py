@@ -102,8 +102,8 @@ def main():
     sas = stock_analysis_system.StockAnalysisSystem()
     sas.check_initialize()
 
-    run_console()
-    # run_ui()
+    # run_console()
+    run_ui()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -116,14 +116,14 @@ class PageTableWidget(QWidget):
             self.__page = self.__max_page
 
 
-# ---------------------------------------------------- DataUpdateUi ----------------------------------------------------
+# ---------------------------------------------------- StrategyUi ----------------------------------------------------
 
-class DataUpdateUi(QWidget):
+class StrategyUi(QWidget):
     TABLE_HEADER_SELECTOR = ['', 'Selector', 'Comments', 'UUID', 'Status']
     TABLE_HEADER_ANALYZER = ['', 'Strategy', 'Comments', 'UUID', 'Status']
 
     def __init__(self):
-        super(DataUpdateUi, self).__init__()
+        super(StrategyUi, self).__init__()
         self.__data_hub = StockAnalysisSystem().get_data_hub_entry()
         self.__strategy_entry = StockAnalysisSystem().get_strategy_entry()
 
@@ -204,14 +204,14 @@ class DataUpdateUi(QWidget):
         bottom_control_area.addWidget(self.__button_run_strategy)
 
     def __config_control(self):
-        for _ in DataUpdateUi.TABLE_HEADER_SELECTOR:
+        for _ in StrategyUi.TABLE_HEADER_SELECTOR:
             self.__table_selector.insertColumn(0)
-        self.__table_selector.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_SELECTOR)
+        self.__table_selector.setHorizontalHeaderLabels(StrategyUi.TABLE_HEADER_SELECTOR)
         self.__table_selector.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
-        for _ in DataUpdateUi.TABLE_HEADER_ANALYZER:
+        for _ in StrategyUi.TABLE_HEADER_ANALYZER:
             self.__table_analyzer.insertColumn(0)
-        self.__table_analyzer.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_ANALYZER)
+        self.__table_analyzer.setHorizontalHeaderLabels(StrategyUi.TABLE_HEADER_ANALYZER)
         self.__table_analyzer.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__layout_selector.setSpacing(0)
@@ -281,7 +281,7 @@ class DataUpdateUi(QWidget):
     def update_selector(self):
         self.__table_selector.clear()
         self.__table_selector.setRowCount(0)
-        self.__table_selector.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_SELECTOR)
+        self.__table_selector.setHorizontalHeaderLabels(StrategyUi.TABLE_HEADER_SELECTOR)
 
         self.__table_selector.AppendRow(['', '所有股票', '当前只支持所有股票，不选默认也是所有股票', '-'])
 
@@ -293,7 +293,7 @@ class DataUpdateUi(QWidget):
     def update_analyzer(self):
         self.__table_analyzer.clear()
         self.__table_analyzer.setRowCount(0)
-        self.__table_analyzer.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_ANALYZER)
+        self.__table_analyzer.setHorizontalHeaderLabels(StrategyUi.TABLE_HEADER_ANALYZER)
 
         for method_uuid, method_name, method_detail in self.__analyzer_info:
             line = []
@@ -374,7 +374,7 @@ class DataUpdateUi(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    dlg = WrapperQDialog(DataUpdateUi())
+    dlg = WrapperQDialog(StrategyUi())
     dlg.exec()
 
 

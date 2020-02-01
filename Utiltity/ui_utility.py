@@ -108,7 +108,7 @@ class CommonMainWindow(QMainWindow):
     def __init__(self):
         super(CommonMainWindow, self).__init__()
         self.__menu_view = None
-        self.__sub_window_list = []
+        self.__sub_window_table = {}
         self.common_init_ui()
         self.common_init_menu()
         # self.init_sub_window()
@@ -120,6 +120,7 @@ class CommonMainWindow(QMainWindow):
         self.statusBar().showMessage('Ready')
         # self.showFullScreen()
         self.resize(1280, 800)
+        self.setDockNestingEnabled(True)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
     def common_init_menu(self):
@@ -150,23 +151,24 @@ class CommonMainWindow(QMainWindow):
     # def init_sub_window(self):
         # self.__add_sub_window(self.__serial_port_module, {
         #     'DockName': self.__translate('main', ''),
-        #     'DockArea': Qt.LeftDockWidgetArea,
+        #     'DockArea': Qt.RightDockWidgetArea,
         #     'DockShow': True,
-        #     'DockFloat': True,
-        #     'MenuName': self.__translate('main', ''),
+        #     'DockFloat': False,
         #     'MenuPresent': True,
-        #     'ActionName': self.__translate('main', ''),
-        #     'ActionShortcut': self.__translate('main', 'Ctrl+S'),
-        #     'ActionPresent': True,
         #     'ActionTips': self.__translate('main', ''),
+        #     'ActionShortcut': 'Ctrl+S',
         # })
 
-    def add_sub_window(self, window: QWidget, config: dict):
+    def get_sub_window(self, name: str) -> SimpleNamespace or None:
+        return self.__sub_window_table.get(name, None)
+
+    def add_sub_window(self, window: QWidget, name: str, config: dict):
         sub_window_data = SimpleNamespace()
         sub_window_data.config = config
         self.__setup_sub_window_dock(window, config, sub_window_data)
         self.__setup_sub_window_menu(config, sub_window_data)
         self.__setup_sub_window_action(config, sub_window_data)
+        self.__sub_window_table[name] = sub_window_data
 
     def __setup_sub_window_dock(self, window: QWidget, config: dict, sub_window_data: SimpleNamespace):
         dock_name = config.get('DockName', '')
@@ -175,52 +177,40 @@ class CommonMainWindow(QMainWindow):
         dock_float = config.get('DockFloat', False)
 
         dock_wnd = QDockWidget(dock_name, self)
+        dock_wnd.setAllowedAreas(
+            Qt.RightDockWidgetArea | Qt.LeftDockWidgetArea | Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
+        # With this setting, the dock widget cannot be closed
+        # dock_wnd.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
         self.addDockWidget(dock_area, dock_wnd)
 
         dock_wnd.setWidget(window)
         if dock_float:
             dock_wnd.setFloating(True)
-            dock_wnd.move(self.geometry().center() - dock_wnd.rect().center())
+            # self.geometry().center() - dock_wnd.rect().center()
+            # dock_wnd.move()
         if dock_show:
             dock_wnd.show()
         else:
             dock_wnd.hide()
-
         sub_window_data.dock_wnd = dock_wnd
 
     def __setup_sub_window_menu(self, config: dict, sub_window_data: SimpleNamespace):
-        dock_name = config.get('DockName', '')
-        menu_name = config.get('MenuName', dock_name)
         menu_present = config.get('MenuPresent', False)
         dock_wnd = sub_window_data.dock_wnd if hasattr(sub_window_data, 'dock_wnd') else None
 
         if menu_present and dock_wnd is not None:
             menu_view = self.__menu_view
-            menu_entry = menu_view.addAction(menu_name)
-            menu_entry.triggered.connect(partial(self.on_menu_selected, dock_wnd))
-            sub_window_data.menu_entry = menu_entry
-        else:
-            sub_window_data.menu_entry = None
+            menu_view.addAction(dock_wnd.toggleViewAction())
 
     def __setup_sub_window_action(self, config: dict, sub_window_data: SimpleNamespace):
-        dock_name = config.get('DockName', '')
-        action_name = config.get('ActionName', dock_name)
-        action_shortcut = config.get('ActionShortcut', '')
-        action_present = config.get('ActionPresent', False)
         action_tips = config.get('ActionTips', '')
-        dock_wnd = sub_window_data.dock_wnd if hasattr(sub_window_data, 'dock_wnd') else None
-        # menu_entry = sub_window_data.menu_entry if hasattr(sub_window_data, 'menu_entry') else None
+        action_shortcut = config.get('ActionShortcut', '')
+        menu_action = sub_window_data.menu_action if hasattr(sub_window_data, 'menu_action') else None
 
-        if action_present and dock_wnd is not None:
-            action = QAction(action_name, self)
+        if menu_action is not None:
             if action_shortcut != '':
-                action.setShortcut(action_shortcut)
-            action.setStatusTip(action_tips)
-            action.triggered.connect(partial(self.on_menu_selected, dock_wnd))
-            # if menu_entry is not None:
-            #     menu_entry.addAction(action)
-        else:
-            sub_window_data.menu_entry = None
+                menu_action.setShortcut(action_shortcut)
+            menu_action.setStatusTip(action_tips)
 
     # ----------------------------- UI Events -----------------------------
 
@@ -243,13 +233,6 @@ class CommonMainWindow(QMainWindow):
         finally:
             pass
 
-    def on_menu_selected(self, docker):
-        if docker is not None:
-            if docker.isVisible():
-                docker.hide()
-            else:
-                docker.show()
-
     def closeEvent(self, event):
         """Generate 'question' dialog on clicking 'X' button in title bar.
         Reimplement the closeEvent() event handler to include a 'Question'
@@ -261,6 +244,7 @@ class CommonMainWindow(QMainWindow):
                                      QMessageBox.Close | QMessageBox.Cancel,
                                      QMessageBox.Cancel)
         if reply == QMessageBox.Close:
+            # TODO: Check task status
             sys.exit(0)
         else:
             pass
