@@ -207,6 +207,7 @@ class DataUpdateUi(QWidget):
     def update_table(self):
         self.__table_main.clear()
         self.__table_main.setRowCount(0)
+        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER)
         self.__table_main.AppendRow(['', '刷新中...', '', '', '', '', '', '', ''])
         self.execute_refresh_task()
 
@@ -432,7 +433,6 @@ class DataUpdateUi(QWidget):
     def execute_refresh_task(self):
         if self.__refresh_thread is None:
             self.__refresh_thread = threading.Thread(target=self.refresh_task)
-            StockAnalysisSystem().lock_sys_quit()
             self.__refresh_thread.start()
 
     def refresh_task(self):

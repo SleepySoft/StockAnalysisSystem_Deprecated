@@ -237,9 +237,9 @@ class CommonMainWindow(QMainWindow):
         reply = QMessageBox.question(self,
                                      QtCore.QCoreApplication.translate('main', 'Quit'),
                                      QtCore.QCoreApplication.translate('main', 'Are you sure to quit'),
-                                     QMessageBox.Close | QMessageBox.Cancel,
+                                     QMessageBox.Yes | QMessageBox.Cancel,
                                      QMessageBox.Cancel)
-        if reply == QMessageBox.Close:
+        if reply == QMessageBox.Yes:
             # TODO: Check task status
             sys.exit(0)
         else:
