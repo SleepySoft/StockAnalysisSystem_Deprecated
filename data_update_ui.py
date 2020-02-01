@@ -33,11 +33,13 @@ DEFAULT_INFO = """数据更新界面说明：
 
 class DataUpdateUi(QWidget):
     task_finish_signal = pyqtSignal()
+    refresh_finish_signal = pyqtSignal()
 
-    TABLE_HEADER_URI = ['', 'URI', 'Local Data Since', 'Local Data Until', 'Latest Update',
-                        'Update Estimation', 'Sub Update', 'Update', 'Status']
-    TABLE_HEADER_IDENTITY = ['', 'Identity', 'Local Data Since', 'Local Data Until', 'Latest Update',
-                             'Update Estimation', 'Update', 'Status', '']
+    INDEX_ITEM = 1
+    INDEX_STATUS = 8
+    TABLE_HEADER = ['', 'Item', 'Local Data Since', 'Local Data Until', 'Latest Update',
+                    'Update Estimation', 'Sub Update', 'Update', 'Status']
+
     # TODO: Auto detect
     HAS_DETAIL_LIST = ['Finance.Audit', 'Finance.BalanceSheet', 'Finance.IncomeStatement', 'Finance.CashFlowStatement']
 
@@ -47,19 +49,26 @@ class DataUpdateUi(QWidget):
         self.__data_center = self.__data_hub.get_data_center()
         self.__update_table = update_table
 
-        # Page and level related
-        self.__current_uri = ''
+        # Table content
+        self.__display_uri = []
+        self.__display_identities = None
+        self.__display_table_lines = []
+
+        # Page related
         self.__page = 0
-        self.__item_per_page = 50
+        self.__item_per_page = 20
 
         # Thread and task related
         self.__lock = threading.Lock()
         self.__task_thread = None
-        self.__update_pack = []     # [[uri, [identities] or None]]
+        self.__refresh_thread = None
+        self.__update_pack = []         # [[uri, [identities] or None]]
         self.__update_force = False
         self.__timing_clock = Clock()
         self.__progress_rate = ProgressRate()
+
         self.task_finish_signal.connect(self.__on_task_done)
+        self.refresh_finish_signal.connect(self.update_table_display)
 
         # Timer for update status
         self.__timer = QTimer()
@@ -88,7 +97,7 @@ class DataUpdateUi(QWidget):
     def init_ui(self):
         self.__layout_control()
         self.__config_control()
-        # self.update_uri_level()
+        self.__to_top_level()
 
     def __layout_control(self):
         main_layout = QVBoxLayout()
@@ -112,9 +121,9 @@ class DataUpdateUi(QWidget):
         bottom_right_area.addLayout(line)
 
     def __config_control(self):
-        for _ in DataUpdateUi.TABLE_HEADER_URI:
+        for _ in DataUpdateUi.TABLE_HEADER:
             self.__table_main.insertColumn(0)
-        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_URI)
+        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER)
         self.__table_main.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__button_head_page.clicked.connect(partial(self.on_page_control, '<<'))
@@ -129,9 +138,8 @@ class DataUpdateUi(QWidget):
 
     def on_detail_button(self, uri: str):
         print('Detail of ' + uri)
-        self.__current_uri = uri
         self.__page = 0
-        self.update_identity_level(uri, self.__page * self.__item_per_page, self.__item_per_page)
+        self.__to_detail_level(uri)
 
     def on_auto_update_button(self, uri: str, identity: str):
         print('Auto update ' + uri + ':' + str(identity))
@@ -146,9 +154,15 @@ class DataUpdateUi(QWidget):
         self.execute_update_task()
 
     def on_page_control(self, control: str):
-        data_utility = self.__data_hub.get_data_utility()
-        stock_list = data_utility.get_stock_list()
-        max_page = len(stock_list) // self.__item_per_page
+        # data_utility = self.__data_hub.get_data_utility()
+        # stock_list = data_utility.get_stock_list()
+        # max_page = len(stock_list) // self.__item_per_page
+
+        if self.__display_identities is None:
+            max_item_count = len(self.__display_uri)
+        else:
+            max_item_count = len(self.__display_identities)
+        max_page = max_item_count // self.__item_per_page
 
         if control == '<<':
             self.__page = 0
@@ -159,32 +173,24 @@ class DataUpdateUi(QWidget):
         elif control == '>>':
             self.__page = max_page
         elif control == '^':
-            self.__current_uri = ''
-            self.update_uri_level()
-        elif control == 'r':
-            self.update_table()
+            self.__to_top_level()
 
-        if control in ['<<', '<', '>', '>>', '^']:
-            if self.__current_uri != '':
-                self.update_table()
+        if control in ['<<', '<', '>', '>>', '^', 'r']:
+            self.update_table()
 
     def on_timer(self):
         for i in range(0, self.__table_main.rowCount()):
-            if self.__current_uri == '':
-                uri = self.__table_main.item(i, 1).text()
-                if self.__progress_rate.has_progress(uri):
-                    rate = self.__progress_rate.get_progress_rate(uri)
-                    self.__table_main.item(i, 8).setText('%.2f%%' % (rate * 100))
-                else:
-                    self.__table_main.item(i, 8).setText(str(''))
+            item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
+            # A little ugly...To distinguish it's uri or securities ideneity
+            if self.__display_identities is None:
+                prog_id = item_id
             else:
-                uri = self.__current_uri
-                identity = self.__table_main.item(i, 1).text()
-                if self.__progress_rate.has_progress([uri, identity]):
-                    rate = self.__progress_rate.get_progress_rate([uri, identity])
-                    self.__table_main.item(i, 7).setText('%.2f%%' % (rate * 100))
-                else:
-                    self.__table_main.item(i, 7).setText('')
+                prog_id = [self.__display_uri[0], item_id]
+            if self.__progress_rate.has_progress(prog_id):
+                rate = self.__progress_rate.get_progress_rate(prog_id)
+                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('%.2f%%' % (rate * 100))
+            else:
+                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('')
 
     def closeEvent(self, event):
         if self.__task_thread is not None:
@@ -196,45 +202,20 @@ class DataUpdateUi(QWidget):
         else:
             event.accept()
 
-    # --------------------------------------------------------------------------------------
+    # ---------------------------------------- Table Update ----------------------------------------
 
     def update_table(self):
-        if self.__current_uri == '':
-            self.update_uri_level()
-        else:
-            self.update_identity_level(self.__current_uri, self.__page * self.__item_per_page, self.__item_per_page)
-
-    def update_uri_level(self):
         self.__table_main.clear()
         self.__table_main.setRowCount(0)
-        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_URI)
+        self.__table_main.AppendRow(['', '刷新中...', '', '', '', '', '', '', ''])
+        self.execute_refresh_task()
 
-        for declare in DATA_FORMAT_DECLARE:
-            line = []
-            uri = declare[0]
-            data_table, _ = self.__data_center.get_data_table(uri)
+    def update_table_display(self):
+        self.__table_main.clear()
+        self.__table_main.setRowCount(0)
+        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER)
 
-            # TODO: Fetching finance data's date range spends a lost of time because the data is huge.
-            since, until = data_table.range(uri, None)
-            update_since, update_until = self.__data_center.calc_update_range(uri)
-
-            update_tags = uri.split('.')
-            latest_update = self.__update_table.get_last_update_time(update_tags)
-
-            line.append('')     # Place holder for check box
-            line.append(uri)
-            line.append(date2text(since) if since is not None else ' - ')
-            line.append(date2text(until) if until is not None else ' - ')
-            line.append(date2text(latest_update) if latest_update is not None else ' - ')
-
-            if update_since is not None and update_until is not None:
-                line.append(date2text(update_since) + ' - ' + date2text(update_until))
-            else:
-                line.append(' - ')
-            line.append('-')    # Place holder for detail button
-            line.append('')     # Place holder for update button
-            line.append('')     # Place holder for status
-
+        for line in self.__display_table_lines:
             self.__table_main.AppendRow(line)
             index = self.__table_main.rowCount() - 1
 
@@ -244,74 +225,196 @@ class DataUpdateUi(QWidget):
             self.__table_main.setItem(index, 0, check_item)
 
             # Add detail button
-            if uri in DataUpdateUi.HAS_DETAIL_LIST:
+            if line[1] in DataUpdateUi.HAS_DETAIL_LIST:
                 button = QPushButton('Enter')
-                button.clicked.connect(partial(self.on_detail_button, uri))
+                button.clicked.connect(partial(self.on_detail_button, line[1]))
                 self.__table_main.AddWidgetToCell(index, 6, button)
 
             # Add update button
             button_auto = QPushButton('Auto')
             button_force = QPushButton('Force')
-            button_auto.clicked.connect(partial(self.on_auto_update_button, uri, None))
-            button_force.clicked.connect(partial(self.on_force_update_button, uri, None))
+            button_auto.clicked.connect(partial(self.on_auto_update_button, line[1], None))
+            button_force.clicked.connect(partial(self.on_force_update_button, line[1], None))
             self.__table_main.AddWidgetToCell(index, 7, [button_auto, button_force])
 
-    def update_identity_level(self, uri: str, offset: int, count: int):
-        if uri == '':
-            self.update_uri_level()
-            return
+    def update_table_content(self):
+        contents = []
+        count = self.__item_per_page
+        offset = self.__page * self.__item_per_page
 
-        self.__table_main.clear()
-        self.__table_main.setRowCount(0)
-        self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_IDENTITY)
+        for uri in self.__display_uri:
+            update_details = self.__display_identities if \
+                self.__display_identities is not None else [None]
+            for index in range(offset, offset + count):
+                if index >= len(update_details):
+                    break
+                line = self.generate_line_content(uri, update_details[index])
+                if line is not None:
+                    contents.append(line)
+        self.__display_table_lines = contents
 
-        data_utility = self.__data_hub.get_data_utility()
-        stock_list = data_utility.get_stock_list()
+    def generate_line_content(self, uri: str, identity:str or None) -> [list] or None:
+        line = []
 
-        for index in range(offset, offset + count):
-            if index >= len(stock_list):
-                break
+        data_table, _ = self.__data_center.get_data_table(uri)
+        if data_table is None:
+            return None
 
-            stock_identity, name = stock_list[index]
-            data_table, _ = self.__data_center.get_data_table(uri)
+        since, until = data_table.range(uri, None)
+        update_since, update_until = self.__data_center.calc_update_range(uri)
 
-            since, until = data_table.range(uri, stock_identity)
-            update_since, update_until = self.__data_center.calc_update_range(uri, stock_identity)
+        update_tags = uri.split('.')
+        latest_update = self.__update_table.get_last_update_time(update_tags)
 
-            update_tags = uri.split('.')
-            update_tags.append(stock_identity.replace('.', '_'))
-            latest_update = self.__update_table.get_last_update_time(update_tags)
+        line.append('')     # Place holder for check box
+        line.append(identity if str_available(identity) else uri)
+        line.append(date2text(since) if since is not None else ' - ')
+        line.append(date2text(until) if until is not None else ' - ')
+        line.append(date2text(latest_update) if latest_update is not None else ' - ')
 
-            line = []
-            line.append('')     # Place holder for check box
-            line.append(stock_identity)
-            line.append(date2text(since) if since is not None else ' - ')
-            line.append(date2text(until) if until is not None else ' - ')
-            line.append(date2text(latest_update) if latest_update is not None else ' - ')
+        if update_since is not None and update_until is not None:
+            line.append(date2text(update_since) + ' - ' + date2text(update_until))
+        else:
+            line.append(' - ')
+        line.append('-')    # Place holder for detail button
+        line.append('')     # Place holder for update button
+        line.append('')     # Place holder for status
 
-            if update_since is not None and update_until is not None:
-                line.append(date2text(update_since) + ' - ' + date2text(update_until))
-            else:
-                line.append(' - ')
-            line.append('')     # Place holder for update button
-            line.append('')     # Place holder for status
+        return line
 
-            self.__table_main.AppendRow(line)
-            index = self.__table_main.rowCount() - 1
+    # def update_table(self):
+    #     if self.__current_uri == '':
+    #         self.update_uri_level()
+    #     else:
+    #         self.update_identity_level(self.__current_uri, self.__page * self.__item_per_page, self.__item_per_page)
+    #
+    # def update_uri_level(self):
+    #     self.__table_main.clear()
+    #     self.__table_main.setRowCount(0)
+    #     self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_URI)
+    #
+    #     for declare in DATA_FORMAT_DECLARE:
+    #         line = []
+    #         uri = declare[0]
+    #         data_table, _ = self.__data_center.get_data_table(uri)
+    #
+    #         # TODO: Fetching finance data's date range spends a lost of time because the data is huge.
+    #         since, until = data_table.range(uri, None)
+    #         update_since, update_until = self.__data_center.calc_update_range(uri)
+    #
+    #         update_tags = uri.split('.')
+    #         latest_update = self.__update_table.get_last_update_time(update_tags)
+    #
+    #         line.append('')     # Place holder for check box
+    #         line.append(uri)
+    #         line.append(date2text(since) if since is not None else ' - ')
+    #         line.append(date2text(until) if until is not None else ' - ')
+    #         line.append(date2text(latest_update) if latest_update is not None else ' - ')
+    #
+    #         if update_since is not None and update_until is not None:
+    #             line.append(date2text(update_since) + ' - ' + date2text(update_until))
+    #         else:
+    #             line.append(' - ')
+    #         line.append('-')    # Place holder for detail button
+    #         line.append('')     # Place holder for update button
+    #         line.append('')     # Place holder for status
+    #
+    #         self.__table_main.AppendRow(line)
+    #         index = self.__table_main.rowCount() - 1
+    #
+    #         # Add check box
+    #         check_item = QTableWidgetItem()
+    #         check_item.setCheckState(QtCore.Qt.Unchecked)
+    #         self.__table_main.setItem(index, 0, check_item)
+    #
+    #         # Add detail button
+    #         if uri in DataUpdateUi.HAS_DETAIL_LIST:
+    #             button = QPushButton('Enter')
+    #             button.clicked.connect(partial(self.on_detail_button, uri))
+    #             self.__table_main.AddWidgetToCell(index, 6, button)
+    #
+    #         # Add update button
+    #         button_auto = QPushButton('Auto')
+    #         button_force = QPushButton('Force')
+    #         button_auto.clicked.connect(partial(self.on_auto_update_button, uri, None))
+    #         button_force.clicked.connect(partial(self.on_force_update_button, uri, None))
+    #         self.__table_main.AddWidgetToCell(index, 7, [button_auto, button_force])
+    #
+    # def update_identity_level(self, uri: str, offset: int, count: int):
+    #     if uri == '':
+    #         self.update_uri_level()
+    #         return
+    #
+    #     self.__table_main.clear()
+    #     self.__table_main.setRowCount(0)
+    #     self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER_IDENTITY)
+    #
+    #     data_utility = self.__data_hub.get_data_utility()
+    #     stock_list = data_utility.get_stock_list()
+    #
+    #     for index in range(offset, offset + count):
+    #         if index >= len(stock_list):
+    #             break
+    #
+    #         stock_identity, name = stock_list[index]
+    #         data_table, _ = self.__data_center.get_data_table(uri)
+    #
+    #         since, until = data_table.range(uri, stock_identity)
+    #         update_since, update_until = self.__data_center.calc_update_range(uri, stock_identity)
+    #
+    #         update_tags = uri.split('.')
+    #         update_tags.append(stock_identity.replace('.', '_'))
+    #         latest_update = self.__update_table.get_last_update_time(update_tags)
+    #
+    #         line = []
+    #         line.append('')     # Place holder for check box
+    #         line.append(stock_identity)
+    #         line.append(date2text(since) if since is not None else ' - ')
+    #         line.append(date2text(until) if until is not None else ' - ')
+    #         line.append(date2text(latest_update) if latest_update is not None else ' - ')
+    #
+    #         if update_since is not None and update_until is not None:
+    #             line.append(date2text(update_since) + ' - ' + date2text(update_until))
+    #         else:
+    #             line.append(' - ')
+    #         line.append('')     # Place holder for update button
+    #         line.append('')     # Place holder for status
+    #
+    #         self.__table_main.AppendRow(line)
+    #         index = self.__table_main.rowCount() - 1
+    #
+    #         # Add check box
+    #         check_item = QTableWidgetItem()
+    #         check_item.setCheckState(QtCore.Qt.Unchecked)
+    #         self.__table_main.setItem(index, 0, check_item)
+    #
+    #         # Add update button
+    #         button_auto = QPushButton('Auto')
+    #         button_force = QPushButton('Force')
+    #         button_auto.clicked.connect(partial(self.on_auto_update_button, uri, stock_identity))
+    #         button_force.clicked.connect(partial(self.on_force_update_button, uri, stock_identity))
+    #         self.__table_main.AddWidgetToCell(index, 6, [button_auto, button_force])
 
-            # Add check box
-            check_item = QTableWidgetItem()
-            check_item.setCheckState(QtCore.Qt.Unchecked)
-            self.__table_main.setItem(index, 0, check_item)
+    # --------------------------------------------------------------------------
 
-            # Add update button
-            button_auto = QPushButton('Auto')
-            button_force = QPushButton('Force')
-            button_auto.clicked.connect(partial(self.on_auto_update_button, uri, stock_identity))
-            button_force.clicked.connect(partial(self.on_force_update_button, uri, stock_identity))
-            self.__table_main.AddWidgetToCell(index, 6, [button_auto, button_force])
+    def __to_top_level(self):
+        self.__display_uri = [declare[0] for declare in DATA_FORMAT_DECLARE]
+        self.__display_identities = None
+        self.__page = 0
+        self.update_table()
 
-    def work_around_for_update_pack(self):
+    def __to_detail_level(self, uri: str):
+        self.__display_uri = [uri]
+        if uri in ['Market.TradeCalender']:
+            self.__display_identities = ['SSE']
+        elif uri in ['Finance.Audit', 'Finance.BalanceSheet',
+                     'Finance.IncomeStatement', 'Finance.CashFlowStatement']:
+            data_utility = self.__data_hub.get_data_utility()
+            self.__display_identities = data_utility.get_stock_identities()
+        self.__page = 0
+        self.update_table()
+
+    def __work_around_for_update_pack(self):
         for i in range(0, len(self.__update_pack)):
             if self.__update_pack[i][0] == 'Market.TradeCalender':
                 self.__update_pack[i][1] = ['SSE']
@@ -324,17 +427,32 @@ class DataUpdateUi(QWidget):
 
     # --------------------------------- Thread ---------------------------------
 
+    # ------------------------- Refresh Task -------------------------
+
     def execute_refresh_task(self):
-        if self.__task_thread is None:
-            self.__task_thread = threading.Thread(target=self.refresh_task)
+        if self.__refresh_thread is None:
+            self.__refresh_thread = threading.Thread(target=self.refresh_task)
             StockAnalysisSystem().lock_sys_quit()
-            self.__task_thread.start()
+            self.__refresh_thread.start()
 
     def refresh_task(self):
-        pass
+        print('Refresh task start.')
+        self.update_table_content()
+        self.__refresh_thread = None
+        self.refresh_finish_signal.emit()
+        print('Refresh task finished.')
+
+    # ----------------------- Data Update Task ----------------------
 
     def execute_update_task(self):
-        self.work_around_for_update_pack()
+        if self.__refresh_thread is not None:
+            QMessageBox.information(self,
+                                    QtCore.QCoreApplication.translate('', '无法执行'),
+                                    QtCore.QCoreApplication.translate('', '列表刷新中，无法执行数据更新'),
+                                    QMessageBox.Close, QMessageBox.Close)
+            return
+
+        self.__work_around_for_update_pack()
         if self.__task_thread is None:
             self.__task_thread = threading.Thread(target=self.update_task)
             StockAnalysisSystem().lock_sys_quit()
