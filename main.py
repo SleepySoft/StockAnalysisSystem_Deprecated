@@ -4,11 +4,21 @@ import traceback
 from PyQt5.QtWidgets import QApplication
 
 import main_ui
+import config_ui
 import stock_analysis_system
+from Utiltity.ui_utility import *
 
 
 def run_ui():
     app = QApplication(sys.argv)
+    sas = stock_analysis_system.StockAnalysisSystem()
+    config = sas.get_config()
+
+    while not sas.is_initialized() and not config.check_config():
+        dlg = WrapperQDialog(config_ui.ConfigUi())
+        dlg.exec()
+        sas.check_initialize()
+
     main_wnd = main_ui.MainWindow()
     main_wnd.show()
     app.exec_()

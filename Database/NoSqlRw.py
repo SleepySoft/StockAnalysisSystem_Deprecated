@@ -539,7 +539,7 @@ class ItkvTable:
 # ----------------------------------------------------- Test Code ------------------------------------------------------
 
 def __prepare_empty_test_table() -> ItkvTable:
-    client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
+    client = MongoClient('localhost', 27017, serverSelectionTimeoutMS=5)
     assert(client is not None)
 
     table = ItkvTable(client, 'TestDatabase', 'TestTable')
@@ -761,8 +761,8 @@ def test_min_max():
     table.upsert('identity8', '2200-01-01', {'Foo': 'bar8'})
     table.upsert('identity9', '',           {'Foo': 'bar9'})
 
-    min_time = table.max_of('DateTime')
-    max_time = table.min_of('DateTime')
+    min_time = table.min_of('DateTime')
+    max_time = table.max_of('DateTime')
 
     assert str(min_time) == '1900-01-01 00:00:00'
     assert str(max_time) == '2200-12-01 00:00:00'

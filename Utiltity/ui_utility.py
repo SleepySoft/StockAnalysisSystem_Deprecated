@@ -259,15 +259,21 @@ class WrapperQDialog(QDialog):
     def __init__(self, wrapped_wnd: QWidget, has_button: bool = False):
         super(WrapperQDialog, self).__init__()
 
-        self.__wrapped_wnd = wrapped_wnd
-        self.__has_button = has_button
         self.__is_ok = False
+        self.__wrapped_wnd_destroyed = False
+
+        self.__wrapped_wnd = wrapped_wnd
+        self.__wrapped_wnd.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.__wrapped_wnd.destroyed.connect(self.on_wrap_wnd_destroyed)
+        self.__has_button = has_button
 
         self.__button_ok = QPushButton('OK')
         self.__button_cancel = QPushButton('Cancel')
 
         layout = QVBoxLayout()
         layout.addWidget(self.__wrapped_wnd)
+
+        self.setWindowTitle(self.__wrapped_wnd.windowTitle())
 
         if has_button:
             line = QHBoxLayout()
@@ -300,11 +306,18 @@ class WrapperQDialog(QDialog):
     def on_button_cancel(self):
         self.close()
 
+    def on_wrap_wnd_destroyed(self):
+        self.__wrapped_wnd_destroyed = True
+        self.close()
+
     def closeEvent(self, event):
-        if self.__wrapped_wnd.close():
+        if self.__wrapped_wnd_destroyed:
             event.accept()
         else:
-            event.ignore()
+            if self.__wrapped_wnd.close():
+                event.accept()
+            else:
+                event.ignore()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

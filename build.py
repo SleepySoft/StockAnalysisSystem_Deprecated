@@ -1,3 +1,4 @@
+import time
 from sys import executable as py_executable
 from PyInstaller.__main__ import run as _build_exe
 import os as _os
@@ -10,8 +11,7 @@ _py_executable_path = _os.path.abspath(_os.path.dirname(py_executable))
 if platform.system() == 'Windows':
     _build_exe_args = (
         '--clean',
-        # '--i', "application/ico/MainWindowIcon.ico",
-        # '--paths', "{}/Lib/site-packages/PyQt5/Qt/bin".format(_py_executable_path),
+        '--i', 'res/logo.ico',
         '--paths', "./",
         '-n', 'application',
         '-y',
@@ -20,7 +20,7 @@ if platform.system() == 'Windows':
 else:
     _build_exe_args = (
         '--clean',
-        # '--i', "application/ico/MainWindowIcon.ico",
+        '--i', 'res/logo.ico',
         '--paths', "./",
         '-n', 'application',
         '-y',
@@ -34,8 +34,8 @@ def build_exe():
 
 
 def add_data_file():
-    src_path = 'Import/DataDict'
-    dist_path = 'dist/application/Import/DataDict'
+    src_path = 'Data/'
+    dist_path = 'dist/application/Data/'
     from shutil import copytree, rmtree
     if _os.path.exists(dist_path):
         rmtree(dist_path)
@@ -77,19 +77,19 @@ def packing_app(app_pkg_name):
         print(app_pkg_name, 'is removed')
     from zipfile import ZipFile
     with ZipFile(app_pkg_name, 'w') as zip_f:
-        __add_dir_in_zip(zip_f, 'dist/dd_source', 'dd_source')
-        __add_dir_in_zip(zip_f, 'dist/application', 'application')
+        __add_dir_in_zip(zip_f, 'dist/application', 'StockAnalysisSystem.Sleepy')
     pass
 
 
 def format_app_package_name():
     from readme import VERSION as _app_version
-    name_format = 'DDSniffer-{version}-{os_name}_{os_machine}.zip'
+    name_format = 'StockAnalysisSystem-{version}-{os_name}_{os_machine}_{date}.zip'
     _os_name = platform.system() + platform.release()
     _os_machine = platform.machine()
     return name_format.format(os_name=_os_name,
                               os_machine=_os_machine,
-                              version=_app_version).lower()
+                              version=_app_version,
+                              date=time.strftime("%Y%m%d", time.localtime(time.time()))).lower()
     pass
 
 

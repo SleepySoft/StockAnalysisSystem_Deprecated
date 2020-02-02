@@ -9,7 +9,7 @@ author:Sleepy
 @function:
 @modify:
 """
-
+import traceback
 from os import sys, path
 from pymongo import MongoClient
 root_path = path.dirname(path.dirname(path.abspath(__file__)))
@@ -31,30 +31,85 @@ finally:
 
 
 class DatabaseEntry:
-    def __init__(self, data_path: str = None):
-        if data_path is None or not isinstance(data_path, str):
-            data_path = path.join(root_path, 'Data')
+    def __init__(self):
+        self.__mongo_db_host = 'localhost'
+        self.__mongo_db_port = '27017'
+        self.__mongo_db_user = ''
+        self.__mongo_db_pass = ''
+        self.__sqlite_db_file = path.join(path.join(root_path, 'Data'), 'sAsUtility.db')
+
+        self.__sql_db_access = None
+        self.__mongo_db_client = None
 
         self.__no_sql_tables = {}
 
-        self.__sAsUtility = SqlAccess(path.join(data_path, 'sAsUtility.db'))
-        self.__mongo_db_client = MongoClient(config.NOSQL_DB_HOST, config.NOSQL__DB_PORT, serverSelectionTimeoutMS=5)
+        self.__alias_table = None
+        self.__update_table = None
 
-        import Database.AliasTable as AliasTable
-        import Database.XListTable as XListTable
-        import Database.UpdateTableEx as UpdateTableEx
+        self.__gray_table = None
+        self.__focus_table = None
+        self.__black_table = None
 
-        self.__alias_table = AliasTable.AliasTable(self.__sAsUtility)
-        self.__update_table = UpdateTableEx.UpdateTableEx(self.__sAsUtility)
+    # ------------------------------------------------------------------------------------------------------------------
 
-        self.__gray_table = XListTable.XListTable('gray_table', self.__sAsUtility)
-        self.__focus_table = XListTable.XListTable('focus_table', self.__sAsUtility)
-        self.__black_table = XListTable.XListTable('black_table', self.__sAsUtility)
+    def config_sql_db(self, db_path: str) -> bool:
+        self.__sqlite_db_file = path.join(db_path, 'sAsUtility.db')
+        self.__sql_db_access = SqlAccess(self.__sqlite_db_file)
+        conn = self.__sql_db_access.BuildConnection()
+        if conn is not None:
+            conn.close()
+
+            import Database.AliasTable as AliasTable
+            import Database.XListTable as XListTable
+            import Database.UpdateTableEx as UpdateTableEx
+
+            self.__alias_table = AliasTable.AliasTable(self.__sql_db_access)
+            self.__update_table = UpdateTableEx.UpdateTableEx(self.__sql_db_access)
+
+            self.__gray_table = XListTable.XListTable('gray_table', self.__sql_db_access)
+            self.__focus_table = XListTable.XListTable('focus_table', self.__sql_db_access)
+            self.__black_table = XListTable.XListTable('black_table', self.__sql_db_access)
+
+            return True
+        else:
+            self.__alias_table = None
+            self.__update_table = None
+
+            self.__gray_table = None
+            self.__focus_table = None
+            self.__black_table = None
+
+            return False
+
+    def config_nosql_db(self, host: str, port: str, user: str, password: str) -> bool:
+        self.__mongo_db_host = host
+        self.__mongo_db_port = port
+        self.__mongo_db_user = user
+        self.__mongo_db_pass = password
+
+        if self.__mongo_db_user != '':
+            url = 'mongodb://%s:%s@%s:%s/' % (self.__mongo_db_user, self.__mongo_db_pass,
+                                              self.__mongo_db_host, self.__mongo_db_port)
+        else:
+            url = 'mongodb://%s:%s/' % (self.__mongo_db_host, self.__mongo_db_port)
+
+        try:
+            self.__mongo_db_client = MongoClient(url, serverSelectionTimeoutMS=1000)
+            self.__mongo_db_client.server_info()
+            return True
+        except Exception as e:
+            print('Mongodb config error.')
+            print(e)
+            print(traceback.format_exc())
+            self.__mongo_db_client = None
+            return False
+        finally:
+            pass
 
     # ------------------------------------------------- Database Entry -------------------------------------------------
 
     def get_utility_db(self) -> SqlAccess:
-        return self.__sAsUtility
+        return self.__sql_db_access
 
     def get_mongo_db_client(self) -> MongoClient:
         return self.__mongo_db_client
@@ -81,10 +136,12 @@ class DatabaseEntry:
     def query_nosql_table(self, db: str, table: str,
                           identity_field: str = 'Identity',
                           datetime_field: str = 'DateTime') -> ItkvTable:
+        if self.get_mongo_db_client() is None:
+            return None
         if db not in self.__no_sql_tables.keys():
             self.__no_sql_tables[db] = {}
-        db_entry = self.__no_sql_tables.get(db)
-        if table not in db_entry.keys():
-            db_entry[table] = ItkvTable(self.get_mongo_db_client(), db, table, identity_field, datetime_field)
-        return db_entry.get(table)
+        database = self.__no_sql_tables.get(db)
+        if table not in database.keys():
+            database[table] = ItkvTable(self.get_mongo_db_client(), db, table, identity_field, datetime_field)
+        return database.get(table, None)
 

@@ -53,17 +53,18 @@ class MainWindow(CommonMainWindow):
 
         data_hub_entry = StockAnalysisSystem().get_data_hub_entry()
         strategy_entry = StockAnalysisSystem().get_strategy_entry()
-        update_table = StockAnalysisSystem().get_database_entry().get_update_table()
+        database_entry = StockAnalysisSystem().get_database_entry()
+        update_table = database_entry.get_update_table()
 
         self.__data_hub_ui = DataHubUi(data_hub_entry.get_data_center())
         self.__strategy_ui = StrategyUi(data_hub_entry, strategy_entry)
         self.__data_update_ui = DataUpdateUi(data_hub_entry, update_table)
 
-        self.__gray_list_ui = XListTableUi(DatabaseEntry().get_gray_table(), '灰名单')
-        self.__black_list_ui = XListTableUi(DatabaseEntry().get_black_table(), '黑名单')
-        self.__focus_list_ui = XListTableUi(DatabaseEntry().get_focus_table(), '关注名单')
+        self.__gray_list_ui = XListTableUi(database_entry.get_gray_table(), '灰名单')
+        self.__black_list_ui = XListTableUi(database_entry.get_black_table(), '黑名单')
+        self.__focus_list_ui = XListTableUi(database_entry.get_focus_table(), '关注名单')
 
-        self.__alias_table_module = StockAnalysisSystem().get_database_entry().get_alias_table()
+        self.__alias_table_module = database_entry.get_alias_table()
         self.__alias_table_ui = AliasTableUi(self.__alias_table_module)
 
         # ---------- Deep init ----------

@@ -72,11 +72,13 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 4. 策略运行进度显示  -> 20200131: Done  
 5. 界面集成  -> 20200201: Done  
 6. 完善设计文档  -> 2020.2.2: Partly done  
-7. 加入更多分析算法  
-8. 接入更多财务数据  
-9. 策略参数可配置可保存  
-10. 接入交易数据
-11. 加入实时数据
+7. 加入配置界面，而非写入config.py，使程序便于打包成EXE
+8. 加入配置检查功能
+9. 加入更多分析算法  
+10. 接入更多财务数据  
+11. 策略参数可配置可保存  
+12. 接入交易数据
+13. 加入实时数据
 
 
 
