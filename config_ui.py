@@ -66,7 +66,7 @@ class ConfigUi(QWidget):
         main_layout.addWidget(self.__label_information, 4, 0, 1, 4)
 
     def __config_control(self):
-        self.setWindowTitle('Config')
+        self.setWindowTitle('System Config')
         self.__button_ok.clicked.connect(self.on_button_ok)
         self.__label_information.setStyleSheet("QLabel{border:2px solid rgb(0, 0, 0);}")
 

@@ -60,6 +60,6 @@ class Config:
         for must_config in Config.MUST_CONFIG:
             if self.get(must_config) == '':
                 success = False
-                reason.append('No cofig: ' + must_config)
+                reason.append('必要设置: ' + must_config + '为空')
         return success, '\n'.join(reason)
 

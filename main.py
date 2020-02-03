@@ -12,9 +12,8 @@ from Utiltity.ui_utility import *
 def run_ui():
     app = QApplication(sys.argv)
     sas = stock_analysis_system.StockAnalysisSystem()
-    config = sas.get_config()
 
-    while not sas.is_initialized() and not config.check_config():
+    while not sas.is_initialized():
         dlg = WrapperQDialog(config_ui.ConfigUi())
         dlg.exec()
         sas.check_initialize()

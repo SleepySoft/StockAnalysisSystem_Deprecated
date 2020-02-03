@@ -73,6 +73,11 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
             self.__log_errors.append('Load config fail.')
             return False
 
+        ok, reason = self.__config.check_config()
+        if not ok:
+            self.__log_errors.append(reason)
+            return False
+
         self.__database_entry = DatabaseEntry.DatabaseEntry()
 
         if not self.__database_entry.config_sql_db(path.join(root_path, 'Data')):
