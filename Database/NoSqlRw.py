@@ -1,3 +1,4 @@
+import json
 import sys
 import traceback
 from bson import Code
@@ -314,8 +315,22 @@ class ItkvTable:
     def drop(self):
         collection = self.__get_collection()
         if collection is None:
-            return True
+            return
         collection.drop()
+
+    def import_json(self, json_str: str) -> bool:
+        try:
+            json_data = json.loads(json_str)
+            collection = self.__get_collection()
+            collection.drop()
+            collection.insert_many(json_data)
+            return True
+        except Exception as e:
+            print('Import json for collection [%s] fail: ' % self.__table)
+            print(e)
+            return False
+        finally:
+            pass
 
     def count(self) -> int:
         collection = self.__get_collection()

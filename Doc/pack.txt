@@ -1,0 +1,24 @@
+pipenv install
+pipenv shell
+
+pip install pandas
+pip install pyqt5
+pip install tushare
+
+pip uninstall pyinstaller
+pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+
+pyi-makespec --hidden-import pandas --icon="res/logo.ico" main.py
+pyi-makespec -w --hidden-import pandas --icon="res/logo.ico" main.py
+
+pyinstaller main.spec
+
+
+
+
+
+
+
+
+
+

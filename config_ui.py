@@ -30,6 +30,7 @@ class ConfigUi(QWidget):
         self.__line_nosql_db_user = QLineEdit()
         self.__line_nosql_db_pass = QLineEdit()
         self.__button_ok = QPushButton('OK')
+        self.__button_exit = QPushButton('Exit')
         self.__label_information = QLabel()
 
         self.init_ui()
@@ -61,13 +62,17 @@ class ConfigUi(QWidget):
         main_layout.addWidget(self.__line_ts_token, 2, 1, 1, 3)
 
         main_layout.addWidget(QLabel('Status: '), 3, 0)
-        main_layout.addWidget(self.__button_ok, 3, 3)
+        button_area = QHBoxLayout()
+        button_area.addWidget(self.__button_ok)
+        button_area.addWidget(self.__button_exit)
+        main_layout.addLayout(button_area, 3, 3)
 
         main_layout.addWidget(self.__label_information, 4, 0, 1, 4)
 
     def __config_control(self):
         self.setWindowTitle('System Config')
         self.__button_ok.clicked.connect(self.on_button_ok)
+        self.__button_exit.clicked.connect(self.on_button_exit)
         self.__label_information.setStyleSheet("QLabel{border:2px solid rgb(0, 0, 0);}")
 
         sas = StockAnalysisSystem()
@@ -79,6 +84,9 @@ class ConfigUi(QWidget):
     def on_button_ok(self):
         self.__ui_to_config()
         self.close()
+
+    def on_button_exit(self):
+        exit(0)
 
     def __config_to_ui(self):
         sas = StockAnalysisSystem()
