@@ -15,7 +15,9 @@ TS_TOKEN = 'TODO: Place holder, for compatibility.'
 
 
 class Config:
-    MUST_CONFIG = ['NOSQL_DB_HOST', 'NOSQL_DB_PORT', 'TS_TOKEN']
+    MUST_CONFIG = [('NOSQL_DB_HOST', 'Mongodb服务器地址'),
+                   ('NOSQL_DB_PORT', 'Mongodb服务器端口'),
+                   ('TS_TOKEN',      'Tushare Token (https://tushare.pro/register?reg=271027).')]
 
     def __init__(self):
         self.__config_dict = {}
@@ -57,9 +59,9 @@ class Config:
 
     def check_config(self) -> (bool, str):
         success, reason = True, []
-        for must_config in Config.MUST_CONFIG:
-            if self.get(must_config) == '':
+        for key, name in Config.MUST_CONFIG:
+            if self.get(key) == '':
                 success = False
-                reason.append('必要设置: ' + must_config + '为空')
+                reason.append('必要设置: ' + name + '为空')
         return success, '\n'.join(reason)
 

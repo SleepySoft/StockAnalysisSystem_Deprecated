@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QApplication, QHBoxLayout, QWidget, QPushButton, \
     QDockWidget, QAction, qApp, QMessageBox, QDialog, QVBoxLayout, QLabel, QGroupBox, QBoxLayout, QTableWidget, \
-    QTableWidgetItem, QTabWidget, QLayout, QTextEdit, QListWidget, QListWidgetItem
+    QTableWidgetItem, QTabWidget, QLayout, QTextEdit, QListWidget, QListWidgetItem, QMenu
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -105,10 +105,15 @@ class InfoDialog(QDialog):
 
 class CommonMainWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, hold_menu: bool = False):
         super(CommonMainWindow, self).__init__()
-        self.__menu_view = None
+        self.menu_file = None
+        self.menu_view = None
+        self.menu_help = None
+
+        self.__hold_menu = False
         self.__sub_window_table = {}
+        
         self.common_init_ui()
         self.common_init_menu()
         # self.init_sub_window()
@@ -126,27 +131,31 @@ class CommonMainWindow(QMainWindow):
     def common_init_menu(self):
         menu_bar = self.menuBar()
 
-        menu_file = menu_bar.addMenu('File')
-        self.__menu_view = menu_bar.addMenu('View')
-        menu_help = menu_bar.addMenu('Help')
+        if not self.__hold_menu:
+            self.menu_file = menu_bar.addMenu('File')
+            self.menu_view = menu_bar.addMenu('View')
+            self.menu_help = menu_bar.addMenu('Help')
+        else:
+            self.menu_file = QMenu('File')
+            self.menu_view = QMenu('View')
+            self.menu_help = QMenu('Help')
 
         exit_action = QAction('&Exit', self)
         exit_action.setShortcut('Ctrl+Q')
         exit_action.setStatusTip('Exit app')
         exit_action.triggered.connect(qApp.quit)
-        menu_file.addAction(exit_action)
+        self.menu_file.addAction(exit_action)
 
         help_action = QAction('&Help', self)
         help_action.setShortcut('Ctrl+H')
         help_action.setStatusTip('Open help Window')
         help_action.triggered.connect(self.on_menu_help)
-        menu_help.addAction(help_action)
+        self.menu_help.addAction(help_action)
 
         about_action = QAction('&About', self)
-        about_action.setShortcut('Ctrl+B')
         about_action.setStatusTip('Open about Window')
         about_action.triggered.connect(self.on_menu_about)
-        menu_help.addAction(about_action)
+        self.menu_help.addAction(about_action)
 
     # def init_sub_window(self):
         # self.__add_sub_window(self.__serial_port_module, {
@@ -199,7 +208,7 @@ class CommonMainWindow(QMainWindow):
         dock_wnd = sub_window_data.dock_wnd if hasattr(sub_window_data, 'dock_wnd') else None
 
         if menu_present and dock_wnd is not None:
-            menu_view = self.__menu_view
+            menu_view = self.menu_view
             menu_view.addAction(dock_wnd.toggleViewAction())
 
     def __setup_sub_window_action(self, config: dict, sub_window_data: SimpleNamespace):

@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import Qt
+from PyQt5.QtWidgets import QMenu
 
+from config_ui import *
 from strategy_ui import *
 from data_update_ui import *
 from DataHub.DataHubUi import *
 from Database.AliasTableUi import *
 from Database.XListTableUi import *
-from Database.DatabaseEntry import *
 from stock_analysis_system import StockAnalysisSystem
 
 
@@ -42,11 +43,11 @@ class InfoDialog(QDialog):
 class MainWindow(CommonMainWindow):
 
     def __init__(self):
-
-        # --------- init Parent ---------
-        super(MainWindow, self).__init__()
+        super(MainWindow, self).__init__(hold_menu=True)
 
         # --------- init Member ---------
+
+        self.__menu_config = None
         self.__translate = QtCore.QCoreApplication.translate
 
         # ---------- Modules and Sub Window ----------
@@ -86,7 +87,18 @@ class MainWindow(CommonMainWindow):
         self.setWindowTitle('Stock Analysis System - Sleepy')
 
     def init_menu(self):
-        pass
+        config_action = QAction('系统配置（需要重新启动程序）', self)
+        config_action.setStatusTip('系统配置')
+        config_action.triggered.connect(self.on_action_config)
+
+        self.__menu_config = QMenu('Config')
+        self.__menu_config.addAction(config_action)
+
+        menu_bar = self.menuBar()
+        menu_bar.addMenu(self.menu_file)
+        menu_bar.addMenu(self.menu_view)
+        menu_bar.addMenu(self.__menu_config)
+        menu_bar.addMenu(self.menu_help)
 
     def init_sub_window(self):
         self.add_sub_window(self.__data_update_ui, 'data_update_ui', {
@@ -174,6 +186,10 @@ class MainWindow(CommonMainWindow):
         self.__alias_table_ui.Init()
 
     # ----------------------------- UI Events -----------------------------
+
+    def on_action_config(self):
+        dlg = WrapperQDialog(ConfigUi())
+        dlg.exec()
 
     def closeEvent(self, event):
         if StockAnalysisSystem().can_sys_quit():
