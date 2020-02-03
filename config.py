@@ -17,9 +17,9 @@ TS_TOKEN = 'TODO: Place holder, for compatibility.'
 class Config:
     MUST_CONFIG = [('NOSQL_DB_HOST', '必须填写Mongodb服务器地址（NoSql Host），否则无法正常访问数据'),
                    ('NOSQL_DB_PORT', '必须填写Mongodb服务器端口（NoSql Port），否则无法正常访问数据'),
-                   ('TS_TOKEN',      '必须赶写Tushare Token，否则无法更新数据。\n'
+                   ('TS_TOKEN',      '必须填写Tushare Token，否则无法更新数据。\n'
                                      '如果没有Tushare Token，请到官方网站注册一个：https://tushare.pro/register?reg=271027\n'
-                                     '如果随意填写，则数据无法正常更新。但可以使用导入的离线数据（请手动mongodb.zip）')]
+                                     '如果随意填写，则数据无法正常更新。但可以使用导入的离线数据（请手动导入mongodb.zip）')]
 
     def __init__(self):
         self.__config_dict = {}
@@ -34,6 +34,8 @@ class Config:
         try:
             with open(config_file, 'wt') as f:
                 json.dump(self.__config_dict, f)
+            global TS_TOKEN
+            TS_TOKEN = self.get('TS_TOKEN')
             return True
         except Exception as e:
             print('Save config fail.')
@@ -50,6 +52,9 @@ class Config:
             if self.__config_dict is None or len(self.__config_dict) == 0:
                 self.__config_dict = {}
                 return False
+            else:
+                global TS_TOKEN
+                TS_TOKEN = self.get('TS_TOKEN')
             return True
         except Exception as e:
             print('Load config fail.')
