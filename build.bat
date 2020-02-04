@@ -74,9 +74,17 @@ goto end
 
 	pyinstaller main.spec
 
-	xcopy "Data" "dist/main/Data" /e /i /h /s
+	Rem Copy plug-in
 	xcopy "Analyzer" "dist/main/Analyzer" /e /i /h /s
 	xcopy "Collector" "dist/main/Collector" /e /i /h /s
+
+	Rem Copy empty sqlite db to data path
+	xcopy "res\sAsUtility.db.empty" "dist\main\Data\"
+	ren "dist\main\Data\sAsUtility.db.empty" "sAsUtility.db"
+	
+	Rem Copy export mongodb and sqlite db to offline_data path
+	xcopy "Data\sAsUtility.db" "dist\offline_data\"
+	xcopy "res\StockAnalysisSystem.zip.*" "dist\offline_data\"
 	
 	goto end
 

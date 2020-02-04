@@ -14,7 +14,6 @@ from os import sys, path, system
 
 from PyQt5.QtCore import pyqtSignal, QProcess
 from PyQt5.QtWidgets import QGridLayout, QLineEdit, QFileDialog
-from gevent.libev.corecext import SIGNAL
 
 from Utiltity.ui_utility import *
 from stock_analysis_system import StockAnalysisSystem
@@ -116,7 +115,7 @@ class ConfigUi(QWidget):
         self.close()
 
     def on_button_exit(self):
-        exit(0)
+        sys.exit(0)
 
     def on_button_browse(self):
         folder = str(QFileDialog.getExistingDirectory(self, "Select MongoDB Binary Directory",
@@ -224,6 +223,7 @@ class ConfigUi(QWidget):
         tips = 'Process finished...'
         self.__text_information.append(tips)
         print(tips)
+        print('注意：sqlite数据库文件[ Data/sAsUtility.db ]需要手动进行备份或替换')
 
     def read_output(self):
         output = bytes(self.__process.readAllStandardOutput()).decode('UTF-8').strip()
