@@ -26,6 +26,15 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 ----------------------------------------------------------------------------------------------------------------------
   
 # 使用方法及软件依赖与配置
+  
+## 懒人看这里 
+1. 对于打包好的程序，直接运行main.exe即可
+2. 程序现在提供了脚本帮助用户自动配置python环境，请直接运行“build.bat -e”，为当前的Python环境安装依赖库  
+3. 程序第一次启动时，会自动检查配置并弹出配置界面，请按照提示填写即可。同时这个界面提供mongodb数据的一键导入功能：  
+> 请将offline_data/StockAnalysisSystem.zip.1解压到当前文件夹，导入时选择解压出来的StockAnalysisSystem其文件夹即可  
+> 如果不导入数据，可以通过数据管理界面重新下载（需要正确配置Ts Token）  
+4. 如果是直接运行EXE的用户，导入数据的同时，sAsUtility.db需要手动拷贝到Data目录  
+  
 ## 环境及软件依赖
 1. 使用python3，推荐python3.7. IDE推荐pycharm（如果需要调试）：https://www.jetbrains.com/pycharm/download/#section=windows  
 2. 依赖pandas，推荐使用anaconda的环境：https://www.anaconda.com/distribution/  
@@ -35,17 +44,15 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 > 1.1 在当前运行的python环境中安装tushare：pip install tushare  
 > 1.2 注册一个tushare的账号：https://tushare.pro/register?reg=271027  
 > 1.3 想办法获取500以上的积分（如果没有，无法更新数据，但可以使用离线数据）：https://tushare.pro/document/1?doc_id=13  
-> 1.4 获取你的token并填入config.py：https://tushare.pro/document/1?doc_id=39  
+> 1.4 获取你的token并填入配置界面：https://tushare.pro/document/1?doc_id=39  
+6. 其它的依赖项请参照build.bat，或者在当前环境下直接运行build.bat -e  
   
 # 软件配置
-1. 将你的tushare token填入config.py  
-2. 将你的mongodb的配置信息填入config.py  
-3. 将Data/mongodb.zip解压，并导入mongodb  
-> 如果不做1，则无法更新数据；但做了2和3的话，离线数据可以正常使用  
-> 如果不做2和3，则需要自己下载数据，更新前建议将Data/sAsUtility.db删除  
+当前软件配置全部通过界面进行，请按照界面提示操作即可  
   
  # 软件运行
-请直接运行main.py，如果有库缺失，请下载依赖库（按上节所做配置应该能正常运行）  
+请直接运行main.py，如果有库缺失，请下载依赖库
+对于使用打包好的程序的用户，请直接运行main.exe
 如果不想运行，也可以直接打开analysis_report.xlsx查看分析结果。  
   
 # 报告格式说明
