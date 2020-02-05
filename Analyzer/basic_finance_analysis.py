@@ -275,12 +275,12 @@ def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
         fin_fee_vs_benefit = row['减:财务费用'] / row['净利润(含少数股东损益)']
 
         # 货币资金+其他流动资产 > 短期借款+长期借款+一年到期的非流动负债+应付债券
-        # 贷款占资产总额的比例大于30%
-        # 利息费用与净利润比例大于30%
-        if cash > loan and loan_vs_totol_asset > 0.3 and fin_fee_vs_benefit > 0.3:
+        # 贷款占资产总额的比例大于50%
+        # 利息费用与净利润比例大于30%（康美并不符合），排除
+        if 1.0 < cash / loan < 1.7 and loan_vs_totol_asset > 0.3:
             score = 0
-            reason.append('%s: 资金：%s；借款：%s。贷款比总资产比例：%s。利息比净利润%s' %
-                          (period, cash, loan, loan_vs_totol_asset, fin_fee_vs_benefit))
+            reason.append('%s: 资金：%s万；借款：%s万。贷款总资产比：%.2f%%。利息净利润比%.2f%%' %
+                          (period, cash / 10000, loan / 10000, loan_vs_totol_asset * 100, fin_fee_vs_benefit * 100))
 
     return AnalysisResult(securities, score, reason) if applied else \
         AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, reason)
