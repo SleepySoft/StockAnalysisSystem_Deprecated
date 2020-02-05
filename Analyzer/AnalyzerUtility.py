@@ -140,6 +140,7 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
                     result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, error_info)
                 finally:
                     context.progress.increase_progress(hash_id)
+                    print('Analyzer %s progress: %.2f%%' % (hash_id, context.progress.get_progress_rate(hash_id) * 100))
                 if result is None:
                     result = AnalysisResult(s, AnalysisResult.SCORE_NOT_APPLIED, 'NONE')
                 sub_list.append(result)

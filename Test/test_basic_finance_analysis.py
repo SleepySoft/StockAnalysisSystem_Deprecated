@@ -23,23 +23,29 @@ finally:
 def test_entry() -> bool:
     ret = True
     sas = stock_analysis_system.StockAnalysisSystem()
+    if not sas.check_initialize():
+        print('StockAnalysisSystem init fail.')
+        print(sas.get_log_errors())
+        return False
 
     data_hub = sas.get_data_hub_entry()
     se = sas.get_strategy_entry()
 
-    stock_list = data_hub.get_data_utility().get_stock_list()
-    stock_ids = [_id for _id, _name in stock_list]
+    # stock_list = data_hub.get_data_utility().get_stock_list()
+    # stock_ids = [_id for _id, _name in stock_list]
+    stock_ids = ['600518.SSE']
 
     clock = Clock()
 
     result = se.run_strategy(stock_ids, [
-        '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
-        'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
-        'f39f14d6-b417-4a6e-bd2c-74824a154fc0',
-        '3b01999c-3837-11ea-b851-27d2aa2d4e7d',
-        '1fdee036-c7c1-4876-912a-8ce1d7dd978b',
-        'b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6',
-        'd811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7',
+        # '7a2c2ce7-9060-4c1c-bca7-71ca12e92b09',
+        # 'e639a8f1-f2f5-4d48-a348-ad12508b0dbb',
+        # 'f39f14d6-b417-4a6e-bd2c-74824a154fc0',
+        # '3b01999c-3837-11ea-b851-27d2aa2d4e7d',
+        # '1fdee036-c7c1-4876-912a-8ce1d7dd978b',
+        # 'b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6',
+        # 'd811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7',
+        '2c05bb4c-935e-4be7-9c04-ae12720cd757',
     ])
 
     # Dummy analyzers for test

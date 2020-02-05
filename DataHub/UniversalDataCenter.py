@@ -267,6 +267,8 @@ class UniversalDataCenter:
         self.__plugin_manager = collector_plugin
         self.__last_error = ''
         self.__data_table = []
+        self.__field_readable_dict = {}
+        self.__readable_field_dict = {}
 
     def get_plugin_manager(self) -> PluginManager:
         return self.__plugin_manager
@@ -310,7 +312,24 @@ class UniversalDataCenter:
             del extra['fields']
         else:
             fields = None
+        if 'readable' in extra:
+            readable = extra.get('readable')
+            del extra['readable']
+        else:
+            readable = False
+
+        if fields is not None and readable:
+            fields = self.readable_to_fields(fields)
+
         result = table.query(uri, identify, time_serial, extra, fields)
+
+        if fields is not None:
+            # Fill the missing columns
+            result = result.reindex(columns=fields)
+            if readable:
+                columns = list(result.columns)
+                columns_mapping = self.field_map_readable(columns)
+                result.rename(columns=columns_mapping, inplace=True)
         return result
 
     def query_from_plugin(self, uri: str, identify: str or [str] = None,
@@ -434,6 +453,57 @@ class UniversalDataCenter:
                 return False
         return True
 
+    # ---------------------------------------------------- Readable ----------------------------------------------------
+
+    # ----------------- Fields -----------------
+
+    def check_fields_name(self, fields: [str]):
+        self.__check_cache_fields_declaration()
+        if not isinstance(fields, (tuple, list)):
+            fields = [fields]
+        for f in fields:
+            if f not in self.__field_readable_dict.keys():
+                return False
+        return True
+
+    def fields_to_readable(self, fields: [str]) -> [str]:
+        self.__check_cache_fields_declaration()
+        return [self.__field_readable_dict.get(f, f) for f in fields]
+
+    def field_map_readable(self, fields: [str]) -> [str]:
+        self.__check_cache_fields_declaration()
+        return {f: self.__field_readable_dict.get(f, f) for f in fields}
+
+    # ----------------- Readable -----------------
+
+    def check_readable_name(self, readable: [str]):
+        self.__check_cache_fields_declaration()
+        if not isinstance(readable, (tuple, list)):
+            readable = [readable]
+        for r in readable:
+            if r not in self.__readable_field_dict.keys():
+                return False
+        return True
+
+    def readable_to_fields(self, readable: [str]) -> [str]:
+        self.__check_cache_fields_declaration()
+        return [self.__readable_field_dict.get(r, r) for r in readable]
+
+    def readable_map_field(self, readable: [str]) -> [str]:
+        self.__check_cache_fields_declaration()
+        return {r: self.__readable_field_dict.get(r, r) for r in readable}
+
+    def __check_cache_fields_declaration(self):
+        if len(self.__field_readable_dict) > 0 and len(self.__readable_field_dict) > 0:
+            return
+        field_probs = self.get_plugin_manager().execute_module_function(
+            self.get_plugin_manager().all_modules(), 'fields', {}, False)
+        for field_prob in field_probs:
+            for collector, field_declare in field_prob.items():
+                for field, readable in field_declare.items():
+                    self.__field_readable_dict[field] = readable
+                    self.__readable_field_dict[readable] = field
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 #                                                         Test
@@ -463,9 +533,18 @@ def test_update():
     data_center.update_local_data('test.entry1', 'identify_test1')
 
 
+def test_readable_to_fields():
+    pass
+
+
+def test_fields_to_readable():
+    pass
+
+
 def test_entry():
     # test_entry1()
-    test_update()
+    # test_update()
+    test_readable_to_fields()
 
 
 # ----------------------------------------------------- File Entry -----------------------------------------------------

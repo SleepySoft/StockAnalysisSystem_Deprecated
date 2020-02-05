@@ -96,19 +96,30 @@ def run_strategy():
 
 def run_console():
     # update_special()
-    update_local([
-        'Market.SecuritiesInfo',
-        'Market.NamingHistory',
-        'Market.TradeCalender',
-
-        'Finance.Audit',
-        'Finance.BalanceSheet',
-        'Finance.IncomeStatement',
-        'Finance.CashFlowStatement',
-    ], False)
+    # update_local([
+    #     'Market.SecuritiesInfo',
+    #     'Market.NamingHistory',
+    #     'Market.TradeCalender',
+    #
+    #     'Finance.Audit',
+    #     'Finance.BalanceSheet',
+    #     'Finance.IncomeStatement',
+    #     'Finance.CashFlowStatement',
+    # ], False)
     # run_strategy()
 
     exit(0)
+
+
+def run_test():
+    sas = stock_analysis_system.StockAnalysisSystem()
+    data_hub = sas.get_data_hub_entry()
+    data_center = data_hub.get_data_center()
+    result = data_center.query('Finance.BalanceSheet', '600000.SSE',
+                               fields=['存货', '长期待摊费用', '拆出资金'], readable=True)
+    assert '存货' in result.columns
+    assert '拆出资金' in result.columns
+    assert '长期待摊费用' in result.columns
 
 
 def main():
@@ -117,6 +128,7 @@ def main():
 
     # run_console()
     run_ui()
+    # run_test()
 
 
 # ----------------------------------------------------------------------------------------------------------------------

@@ -233,6 +233,59 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry,
     return AnalysisResult(securities, score, reason)
 
 
+def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
+                                 database: DatabaseEntry, context: AnalysisContext) -> AnalysisResult:
+    nop(database)
+    nop(context)
+
+    fields_balance_sheet = ['短期借款', '长期借款', '货币资金', '其他流动资产',  '应付债券',
+                            '一年内到期的非流动负债', '应收票据', '其他流动负债', '流动负债合计',
+                            '资产总计']
+    fields_income_statement = ['净利润(含少数股东损益)', '减:财务费用']
+
+    assert data_hub.get_data_center().check_readable_name(fields_balance_sheet)
+    assert data_hub.get_data_center().check_readable_name(fields_income_statement)
+
+    df_balance_sheet = data_hub.get_data_center().query(
+        'Finance.BalanceSheet', securities, (years_ago(4), now()),
+        fields=fields_balance_sheet + ['stock_identity', 'period'], readable=True)
+    df_income_statement = data_hub.get_data_center().query(
+        'Finance.IncomeStatement', securities, (years_ago(4), now()),
+        fields=fields_income_statement + ['stock_identity', 'period'], readable=True)
+
+    df = pd.merge(df_balance_sheet, df_income_statement, how='left', on=['stock_identity', 'period'])
+
+    df.fillna(0.0, inplace=True)
+    df.sort_values('period', ascending=True)
+
+    score = 100
+    reason = []
+    applied = False
+    for index, row in df.iterrows():
+        period = row['period']
+
+        if row['流动负债合计'] < 0.001:
+            reason.append(str(period) + ': 流动负债合计为0，可能数据缺失')
+            continue
+        applied = True
+
+        cash = row['货币资金'] + row['其他流动资产']
+        loan = row['短期借款'] + row['长期借款'] + row['一年内到期的非流动负债'] + row['应付债券'] + row['其他流动负债']
+        loan_vs_totol_asset = loan / row['资产总计']
+        fin_fee_vs_benefit = row['减:财务费用'] / row['净利润(含少数股东损益)']
+
+        # 货币资金+其他流动资产 > 短期借款+长期借款+一年到期的非流动负债+应付债券
+        # 贷款占资产总额的比例大于30%
+        # 利息费用与净利润比例大于30%
+        if cash > loan and loan_vs_totol_asset > 0.3 and fin_fee_vs_benefit > 0.3:
+            score = 0
+            reason.append('%s: 资金：%s；借款：%s。贷款比总资产比例：%s。利息比净利润%s' %
+                          (period, cash, loan, loan_vs_totol_asset, fin_fee_vs_benefit))
+
+    return AnalysisResult(securities, score, reason) if applied else \
+        AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, reason)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 METHOD_LIST = [
@@ -245,7 +298,7 @@ METHOD_LIST = [
     ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',     '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
     # oth_b_income field missing for lots of securities. This analyzer may not work.
     ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',   '排除主营业务或营业利润占比过低的公司（数据缺失）', analysis_profit_structure),
-    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',     '排除存贷双高的公司',         None),
+    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',     '排除存贷双高的公司',         analysis_cash_loan_both_high),
     ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',     '排除商誉过高的公司',         None),
     ('4ccedeea-b731-4b97-9681-d804838e351b', '股权质押过高', '', None),
     ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', '', None),
