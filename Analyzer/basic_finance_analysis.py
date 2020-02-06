@@ -165,31 +165,23 @@ def analysis_consecutive_losses(securities: str, data_hub: DataHubEntry,
     nop(database)
     nop(context)
 
-    df = data_hub.get_data_center().query('Finance.IncomeStatement', securities)
-    error_report = check_gen_report_when_data_missing(df, securities, 'Finance.IncomeStatement',
-                                                      ['period', 'total_profit', 'operate_profit'])
-    if error_report is not None:
-        return error_report
-
-    df.fillna(0.0, inplace=True)
-    df_in_4_years = df[df['period'] > years_ago(4)]
-    df_in_4_years.sort_values('period', ascending=True)
+    df, result = query_readable_annual_report_pattern(data_hub, 'Finance.IncomeStatement',
+                                                      securities, (years_ago(4), now()),
+                                                      ['利润总额', '营业利润'])
+    if result is not None:
+        return result
 
     score = 100
     reason = []
-    for index, row in df_in_4_years.iterrows():
+    for index, row in df.iterrows():
         period = row['period']
-        # 利润总额
-        total_profit = row['total_profit']
-        # 营业利润
-        operating_profit = row['operate_profit']
 
-        if total_profit < 0:
+        if row['利润总额'] < 0:
             score = 0
-            reason.append(date2text(period) + '：利润总额 - ' + str(total_profit))
-        if operating_profit < 0:
+            reason.append(date2text(period) + '：利润总额 - ' + str(row['利润总额']))
+        if row['营业利润'] < 0:
             score = 0
-            reason.append(date2text(period) + '：营业利润 - ' + str(operating_profit))
+            reason.append(date2text(period) + '：营业利润 - ' + str(row['营业利润']))
     if len(reason) == 0:
         reason.append('近四年不存在亏损')
 
@@ -201,20 +193,11 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry,
     nop(database)
     nop(context)
 
-    fields_income_statement = ['营业收入', '营业总收入', '其他业务收入']
-    assert data_hub.get_data_center().check_readable_name(fields_income_statement)
-
-    df = data_hub.get_data_center().query(
-        'Finance.IncomeStatement', securities, (years_ago(4), now()),
-        fields=fields_income_statement + ['stock_identity', 'period'], readable=True)
-    if len(df) == 0:
-        return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, 'No data in past 4 years.')
-
-    # Only analysis annual report
-    df = df[df['period'].dt.month == 12]
-
-    df.fillna(0.0, inplace=True)
-    df.sort_values('period', ascending=True)
+    df, result = query_readable_annual_report_pattern(data_hub, 'Finance.IncomeStatement',
+                                                      securities, (years_ago(4), now()),
+                                                      ['营业收入', '营业总收入', '其他业务收入'])
+    if result is not None:
+        return result
 
     score = 100
     reason = []
@@ -232,8 +215,8 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry,
 
         if main_operating_profit_ratio > 50:
             score = 0
-            reason.append('%s: 主营业务收入：%s；营业总收入：%s；主营业务收入占比：%s' %
-                          (period, main_operating_profit, row['营业收入'], main_operating_profit_ratio))
+        reason.append('%s: 主营业务收入：%s万；营业总收入：%s万；主营业务收入占比：%.2f%%' %
+                      (period, main_operating_profit / 10000, row['营业收入'] / 10000, main_operating_profit_ratio * 100))
 
     return AnalysisResult(securities, score, reason) if applied else \
         AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, reason)
@@ -249,25 +232,17 @@ def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
                             '资产总计']
     fields_income_statement = ['净利润(含少数股东损益)', '减:财务费用']
 
-    assert data_hub.get_data_center().check_readable_name(fields_balance_sheet)
-    assert data_hub.get_data_center().check_readable_name(fields_income_statement)
+    df_balance_sheet, result = query_readable_annual_report_pattern(
+        data_hub, 'Finance.BalanceSheet', securities, (years_ago(4), now()), fields_balance_sheet)
+    if result is not None:
+        return result
 
-    df_balance_sheet = data_hub.get_data_center().query(
-        'Finance.BalanceSheet', securities, (years_ago(4), now()),
-        fields=fields_balance_sheet + ['stock_identity', 'period'], readable=True)
-    df_income_statement = data_hub.get_data_center().query(
-        'Finance.IncomeStatement', securities, (years_ago(4), now()),
-        fields=fields_income_statement + ['stock_identity', 'period'], readable=True)
+    df_income_statement, result = query_readable_annual_report_pattern(
+        data_hub, 'Finance.IncomeStatement', securities, (years_ago(4), now()), fields_income_statement)
+    if result is not None:
+        return result
 
     df = pd.merge(df_balance_sheet, df_income_statement, how='left', on=['stock_identity', 'period'])
-    if len(df) == 0:
-        return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, 'No data in past 4 years.')
-
-    # Only analysis annual report
-    df = df[df['period'].dt.month == 12]
-
-    df.fillna(0.0, inplace=True)
-    df.sort_values('period', ascending=True)
 
     score = 100
     reason = []
@@ -306,12 +281,12 @@ METHOD_LIST = [
     ('3b01999c-3837-11ea-b851-27d2aa2d4e7d', '财报非标',     '排除财报非标的公司',         analysis_finance_report_sign),
     ('1fdee036-c7c1-4876-912a-8ce1d7dd978b', '农林牧渔',     '排除农林牧渔相关行业',       analysis_exclude_industries),
 
-    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',     '排除营业利润或利润总额连续亏损的公司', analysis_consecutive_losses),
+    ('b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6', '连续亏损',        '排除营业利润或利润总额连续亏损的公司',  analysis_consecutive_losses),
     # oth_b_income field missing for lots of securities. This analyzer may not work.
-    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务',   '排除主营业务或营业利润占比过低的公司（数据缺失）', analysis_profit_structure),
-    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',     '排除存贷双高的公司',         analysis_cash_loan_both_high),
-    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',     '排除商誉过高的公司',         None),
-    ('4ccedeea-b731-4b97-9681-d804838e351b', '股权质押过高', '', None),
+    ('d811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7', '非主营业务过高',  '排除主营业务或营业利润占比过低的公司',  analysis_profit_structure),
+    ('2c05bb4c-935e-4be7-9c04-ae12720cd757', '存贷双高',        '排除存贷双高的公司',                    analysis_cash_loan_both_high),
+    ('e6ab71a9-0c9f-4500-b2db-d682af567f70', '商誉过高',        '排除商誉过高的公司',                    None),
+    ('4ccedeea-b731-4b97-9681-d804838e351b', '股权质押过高',    '', None),
     ('f6fe627b-acbe-4b3f-a1fb-5edcd00d27b0', '', '', None),
 ]
 

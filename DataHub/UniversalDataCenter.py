@@ -482,6 +482,7 @@ class UniversalDataCenter:
             readable = [readable]
         for r in readable:
             if r not in self.__readable_field_dict.keys():
+                print('Unknown readable name: ' + r)
                 return False
         return True
 

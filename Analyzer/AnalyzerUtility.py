@@ -154,44 +154,7 @@ def standard_dispatch_analysis(securities: [str], methods: [str], data_hub, data
     return result_list if len(result_list) > 0 else None
 
 
-# ------------------------------------------------------------------------------------------------------------------
-
-
-"""
-The results should look like:
-
-method1           method2           method3           ...           methodM
-m1_result1        m2_result1        m3_result1                      mM_result1
-m1_result2        m2_result2        m3_result2                      mM_result2
-m1_result3        m2_result3        m3_result3                      mM_result3
-.                 .                 .                               .
-.                 .                 .                               .
-.                 .                 .                               .
-m1_resultN        m2_resultN        m3_resultN                      mM_resultN
-"""
-
-
-def get_securities_in_result(result: dict) -> [str]:
-    securities = []
-    for method, results in result.items():
-        for r in results:
-            if str_available(r.securities) and r.securities not in securities:
-                securities.append(r.securities)
-    return securities
-
-
-def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_fail: bool = False) -> [str]:
-    securities = get_securities_in_result(result)
-    for method, results in result.items():
-        for r in results:
-            if r.score == AnalysisResult.SCORE_NOT_APPLIED:
-                exclude = not_applied_as_fail
-            else:
-                exclude = (r.score < score_threshold)
-            if exclude and r.securities in securities:
-                securities.remove(r.securities)
-    return securities
-
+# --------------------------------------------------- Analyzer Helper --------------------------------------------------
 
 # def check_append_report_when_data_missing(df: pd.DataFrame, securities: str,
 #                                           uri: str, fields: str or [str], result: list):
@@ -234,6 +197,79 @@ def gen_report_when_analyzing_error(securities: str, exception: Exception):
     print(traceback.format_exc())
     return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, error_info)
 
+
+def query_readable_annual_report_pattern(data_hub, uri: str, securities: str, time_serial: tuple,
+                                         fields: [str]) -> (pd.DataFrame, AnalysisResult):
+    """
+    The pattern of query readable annual report. It will do the following things:
+    1. Check readable names are all known
+    2. Query data from data center
+    3. Only keep annual report
+    4. Check empty
+    5. Fill na with 0.0 and sort by date
+    :param data_hub: The instance of DataHubEntry
+    :param uri: The uri user queries for
+    :param securities: The securities user queries
+    :param time_serial: The data range user queries
+    :param fields: The readable fields user queries
+    :return: (Query Result if successful, else None, Analysis Result if fail else None)
+    """
+    if not data_hub.get_data_center().check_readable_name(fields):
+        return None, AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, 'Unknown radable name detect.')
+
+    df = data_hub.get_data_center().query(uri, securities, time_serial,
+                                          fields=fields + ['stock_identity', 'period'], readable=True)
+    # Only analysis annual report
+    df = df[df['period'].dt.month == 12]
+
+    if len(df) == 0:
+        return None, AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED,
+                                    'No data in this period' + str(time_serial))
+    df.fillna(0.0, inplace=True)
+    df.sort_values('period', ascending=True)
+
+    return df, None
+
+
+# ---------------------------------------------------- Parse Result ----------------------------------------------------
+
+"""
+The results should look like:
+
+method1           method2           method3           ...           methodM
+m1_result1        m2_result1        m3_result1                      mM_result1
+m1_result2        m2_result2        m3_result2                      mM_result2
+m1_result3        m2_result3        m3_result3                      mM_result3
+.                 .                 .                               .
+.                 .                 .                               .
+.                 .                 .                               .
+m1_resultN        m2_resultN        m3_resultN                      mM_resultN
+"""
+
+
+def get_securities_in_result(result: dict) -> [str]:
+    securities = []
+    for method, results in result.items():
+        for r in results:
+            if str_available(r.securities) and r.securities not in securities:
+                securities.append(r.securities)
+    return securities
+
+
+def pick_up_pass_securities(result: dict, score_threshold: int, not_applied_as_fail: bool = False) -> [str]:
+    securities = get_securities_in_result(result)
+    for method, results in result.items():
+        for r in results:
+            if r.score == AnalysisResult.SCORE_NOT_APPLIED:
+                exclude = not_applied_as_fail
+            else:
+                exclude = (r.score < score_threshold)
+            if exclude and r.securities in securities:
+                securities.remove(r.securities)
+    return securities
+
+
+# ---------------------------------------------------- Excel Report ----------------------------------------------------
 
 def generate_analysis_report(result: dict, file_path: str, name_dict: dict = {}):
     wb = openpyxl.Workbook()
