@@ -33,7 +33,8 @@ def test_entry() -> bool:
 
     # stock_list = data_hub.get_data_utility().get_stock_list()
     # stock_ids = [_id for _id, _name in stock_list]
-    stock_ids = ['600518.SSE']
+    # stock_ids = ['600518.SSE']
+    stock_ids = ['000416.SZSE']
 
     clock = Clock()
 
@@ -44,7 +45,7 @@ def test_entry() -> bool:
         # '3b01999c-3837-11ea-b851-27d2aa2d4e7d',
         # '1fdee036-c7c1-4876-912a-8ce1d7dd978b',
         # 'b0e34011-c5bf-4ac3-b6a4-c15e5ea150a6',
-        # 'd811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7',
+        'd811ebd6-ee28-4d2f-b7e0-79ce0ecde7f7',
         '2c05bb4c-935e-4be7-9c04-ae12720cd757',
     ])
 

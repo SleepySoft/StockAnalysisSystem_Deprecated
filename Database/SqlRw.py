@@ -229,7 +229,9 @@ class SqlAccess:
         try:
             df.to_sql(table_name, connection, if_exists=if_exists, index=False)
         except Exception as e:
+            print('DataFrameToDB Fail.')
             print(e)
+            print(traceback.format_exc())
             return False
         finally:
             connection.commit()

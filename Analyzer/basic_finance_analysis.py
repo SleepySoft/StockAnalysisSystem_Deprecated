@@ -201,36 +201,42 @@ def analysis_profit_structure(securities: str, data_hub: DataHubEntry,
     nop(database)
     nop(context)
 
-    df = data_hub.get_data_center().query('Finance.IncomeStatement', securities)
-    error_report = check_gen_report_when_data_missing(df, securities, 'Finance.IncomeStatement',
-                                                      ['period', 'revenue', 'total_revenue', 'oth_b_income'])
-    if error_report is not None:
-        return error_report
+    fields_income_statement = ['营业收入', '营业总收入', '其他业务收入']
+    assert data_hub.get_data_center().check_readable_name(fields_income_statement)
+
+    df = data_hub.get_data_center().query(
+        'Finance.IncomeStatement', securities, (years_ago(4), now()),
+        fields=fields_income_statement + ['stock_identity', 'period'], readable=True)
+    if len(df) == 0:
+        return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, 'No data in past 4 years.')
+
+    # Only analysis annual report
+    df = df[df['period'].dt.month == 12]
 
     df.fillna(0.0, inplace=True)
-    df_in_4_years = df[df['period'] > years_ago(4)]
-    df_in_4_years.sort_values('period', ascending=True)
+    df.sort_values('period', ascending=True)
 
     score = 100
     reason = []
-    for index, row in df_in_4_years.iterrows():
+    applied = False
+    for index, row in df.iterrows():
         period = row['period']
-        # 营业收入
-        operating_profit = row['revenue']
-        # 营业总收入(为什么和营业收入是一样的)
-        total_revenue = row['total_revenue']
-        # 其他业务收入
-        other_revenue = row['oth_b_income']
 
-        print('总%s - 营%s - 它%s' % (total_revenue, operating_profit, other_revenue))
-        main_operating_profit_ratio = float(operating_profit - other_revenue) / operating_profit
+        if row['营业收入'] < 0.001:
+            reason.append(str(period) + ': 营业收入为0，可能数据缺失')
+            continue
+        applied = True
+
+        main_operating_profit = row['营业收入'] - row['其他业务收入']
+        main_operating_profit_ratio = main_operating_profit / row['营业收入']
 
         if main_operating_profit_ratio > 50:
             score = 0
-            reason.append(period + (': 主营业务收入：%s；营业总收入：%s；占比：%s' %
-                                    (operating_profit - other_revenue, operating_profit, main_operating_profit_ratio)))
+            reason.append('%s: 主营业务收入：%s；营业总收入：%s；主营业务收入占比：%s' %
+                          (period, main_operating_profit, row['营业收入'], main_operating_profit_ratio))
 
-    return AnalysisResult(securities, score, reason)
+    return AnalysisResult(securities, score, reason) if applied else \
+        AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, reason)
 
 
 def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
@@ -254,6 +260,11 @@ def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
         fields=fields_income_statement + ['stock_identity', 'period'], readable=True)
 
     df = pd.merge(df_balance_sheet, df_income_statement, how='left', on=['stock_identity', 'period'])
+    if len(df) == 0:
+        return AnalysisResult(securities, AnalysisResult.SCORE_NOT_APPLIED, 'No data in past 4 years.')
+
+    # Only analysis annual report
+    df = df[df['period'].dt.month == 12]
 
     df.fillna(0.0, inplace=True)
     df.sort_values('period', ascending=True)
@@ -264,15 +275,15 @@ def analysis_cash_loan_both_high(securities: str, data_hub: DataHubEntry,
     for index, row in df.iterrows():
         period = row['period']
 
-        if row['流动负债合计'] < 0.001:
-            reason.append(str(period) + ': 流动负债合计为0，可能数据缺失')
-            continue
-        applied = True
-
         cash = row['货币资金'] + row['其他流动资产']
         loan = row['短期借款'] + row['长期借款'] + row['一年内到期的非流动负债'] + row['应付债券'] + row['其他流动负债']
         loan_vs_totol_asset = loan / row['资产总计']
         fin_fee_vs_benefit = row['减:财务费用'] / row['净利润(含少数股东损益)']
+
+        if loan < 0.001:
+            reason.append(str(period) + ': 流动负债合计为0，可能数据缺失')
+            continue
+        applied = True
 
         # 货币资金+其他流动资产 > 短期借款+长期借款+一年到期的非流动负债+应付债券
         # 贷款占资产总额的比例大于50%

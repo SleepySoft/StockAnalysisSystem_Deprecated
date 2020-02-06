@@ -36,8 +36,11 @@ class XListTable:
     def clear(self):
         self.__local_data = pd.DataFrame(columns=XListTable.FIELD)
 
-    def flush(self):
-        self.__sql_db.DataFrameToDB(self.__table, self.__local_data)
+    def flush(self) -> bool:
+        self.__local_data['last_update'] = pd.to_datetime(
+            self.__local_data['last_update'], infer_datetime_format=True)
+        result = self.__sql_db.DataFrameToDB(self.__table, self.__local_data)
+        return result
 
     def reload(self):
         self.__local_data = self.__sql_db.DataFrameFromDB(self.__table, XListTable.FIELD, '')
@@ -48,11 +51,11 @@ class XListTable:
         self.remove_from_list(name)
         s = pd.Series([name, reason, comments, now()], index=XListTable.FIELD)
         self.__local_data = self.__local_data.append(s, ignore_index=True)
-        # self.__local_data.loc[len(self.__local_data), :] = [name, reason, comments, now()]
 
     def remove_from_list(self, name: str):
         name_field = XListTable.FIELD[XListTable.INDEX_NAME]
-        self.__local_data = self.__local_data[self.__local_data[name_field] != name]
+        df = self.__local_data
+        df.drop(df[df[name_field] == name].index, inplace=True)
 
     def get_name_list(self) -> [str]:
         name_field = XListTable.FIELD[XListTable.INDEX_NAME]

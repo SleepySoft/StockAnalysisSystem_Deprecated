@@ -67,6 +67,7 @@ class XListTableUi(QWidget):
         super(XListTableUi, self).__init__()
 
         self.__title = title
+        self.__unsave = False
         self.__x_table = x_table
         self.__main_table = EasyQTableWidget(self)
         self.__translate = QtCore.QCoreApplication.translate
@@ -125,6 +126,7 @@ class XListTableUi(QWidget):
                 QMessageBox.warning(self, 'Input', '名字为必填项')
             else:
                 self.__x_table.upsert_to_list(name, reason, comments)
+                self.__unsave = True
                 self.__refresh()
 
     def on_button_del_name(self):
@@ -132,6 +134,7 @@ class XListTableUi(QWidget):
         if len(row) > 0:
             name = row[0]
             self.__x_table.remove_from_list(name)
+            self.__unsave = True
             self.__refresh()
 
     def on_button_import_csv(self):
@@ -150,6 +153,7 @@ class XListTableUi(QWidget):
                                     self.__translate('',
                                                      '导入成功' if ret else '导入失败，请检查CSV文件格式'),
                                     QMessageBox.Ok)
+            self.__unsave = True
             self.__refresh()
 
     def on_button_save(self):
@@ -161,6 +165,7 @@ class XListTableUi(QWidget):
         if reply != QMessageBox.Yes:
             return
         self.__x_table.flush()
+        self.__unsave = False
 
     def on_button_reload(self):
         reply = QMessageBox.information(self, self.__translate('', '读取警告'),
@@ -171,6 +176,7 @@ class XListTableUi(QWidget):
         if reply != QMessageBox.Yes:
             return
         self.__x_table.reload()
+        self.__unsave = False
         self.__refresh()
 
     def on_button_reset(self):
@@ -184,6 +190,41 @@ class XListTableUi(QWidget):
             return
         self.__x_table.clear()
         self.__refresh()
+
+    def hideEvent(self, event):
+        if self.__unsave:
+            reply = QMessageBox.question(self, self.__translate('', '保存提示'),
+                                         self.__translate('', '有未保存内容，是否保存？\n'),
+                                         QMessageBox.Yes | QMessageBox.No,
+                                         QMessageBox.Yes)
+            if reply == QMessageBox.Yes:
+                self.__x_table.flush()
+                self.__unsave = False
+
+    def showEvent(self, event):
+        self.__x_table.reload()
+        self.__refresh()
+        self.__unsave = False
+
+    def closeEvent(self, event):
+        if not self.__unsave:
+            event.accept()
+        else:
+            reply = QMessageBox.question(self, self.__translate('', '保存提示'),
+                                         self.__translate('',
+                                                          '有未保存内容，是否保存？\n'
+                                                          '是：保存并退出\n' 
+                                                          '否：不保存直接退出\n'
+                                                          '取消：关闭此提示且不退出'),
+                                         QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+                                         QMessageBox.Cancel)
+            if reply == QMessageBox.Yes:
+                self.__x_table.flush()
+                event.accept()
+            elif reply == QMessageBox.No:
+                event.accept()
+            else:
+                event.ignore()
 
     # ---------------------------------------------------- pvivate -----------------------------------------------------
 
