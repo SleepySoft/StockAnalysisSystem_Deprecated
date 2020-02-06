@@ -83,7 +83,13 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 8. 加入配置检查功能  -> 20200203: Done  
 9. 加入打包功能，使程序能打包成EXE直接执行  -> 20200204: Done  
 10. 加入更多分析算法  
+> 存贷双高  -> 20200206: Done  
+> 股权质押过高  
+> 去年及未来一年有减持计划  
 11. 接入更多财务数据  
+> 股权质押数据  
+> 回购数据  
+> 增减持数据  
 12. 策略参数可配置可保存  
 13. 接入交易数据  
 14. 加入实时数据  
