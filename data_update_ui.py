@@ -41,7 +41,9 @@ class DataUpdateUi(QWidget):
                     'Update Estimation', 'Sub Update', 'Update', 'Status']
 
     # TODO: Auto detect
-    HAS_DETAIL_LIST = ['Finance.Audit', 'Finance.BalanceSheet', 'Finance.IncomeStatement', 'Finance.CashFlowStatement']
+    INCLUDES_SECURITIES_SUB_UPDATE_LIST = [
+        'Finance.Audit', 'Finance.BalanceSheet', 'Finance.IncomeStatement', 'Finance.CashFlowStatement',
+        'Stockholder.PledgeStatus', 'Stockholder.PledgeHistory']
 
     def __init__(self, data_hub_entry: DataHubEntry, update_table: UpdateTableEx):
         super(DataUpdateUi, self).__init__()
@@ -226,7 +228,7 @@ class DataUpdateUi(QWidget):
             self.__table_main.setItem(index, 0, check_item)
 
             # Add detail button
-            if line[1] in DataUpdateUi.HAS_DETAIL_LIST:
+            if line[1] in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
                 button = QPushButton('Enter')
                 button.clicked.connect(partial(self.on_detail_button, line[1]))
                 self.__table_main.AddWidgetToCell(index, 6, button)
@@ -329,7 +331,7 @@ class DataUpdateUi(QWidget):
     #         self.__table_main.setItem(index, 0, check_item)
     #
     #         # Add detail button
-    #         if uri in DataUpdateUi.HAS_DETAIL_LIST:
+    #         if uri in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
     #             button = QPushButton('Enter')
     #             button.clicked.connect(partial(self.on_detail_button, uri))
     #             self.__table_main.AddWidgetToCell(index, 6, button)
@@ -408,8 +410,7 @@ class DataUpdateUi(QWidget):
         self.__display_uri = [uri]
         if uri in ['Market.TradeCalender']:
             self.__display_identities = ['SSE']
-        elif uri in ['Finance.Audit', 'Finance.BalanceSheet',
-                     'Finance.IncomeStatement', 'Finance.CashFlowStatement']:
+        elif uri in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
             data_utility = self.__data_hub.get_data_utility()
             self.__display_identities = data_utility.get_stock_identities()
         self.__page = 0
@@ -419,8 +420,7 @@ class DataUpdateUi(QWidget):
         for i in range(0, len(self.__update_pack)):
             if self.__update_pack[i][0] == 'Market.TradeCalender':
                 self.__update_pack[i][1] = ['SSE']
-            elif self.__update_pack[i][0] in ['Finance.Audit', 'Finance.BalanceSheet',
-                                              'Finance.IncomeStatement', 'Finance.CashFlowStatement']:
+            elif self.__update_pack[i][0] in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
                 if self.__update_pack[i][1] is None:
                     data_utility = self.__data_hub.get_data_utility()
                     stock_list = data_utility.get_stock_identities()
@@ -485,7 +485,16 @@ class DataUpdateUi(QWidget):
         for uri, identities in task:
             if identities is not None:
                 for identity in identities:
-                    self.__data_center.update_local_data(uri, identity, force=force)
+                    # Optimise: Update not earlier than listing date.
+                    listing_date = self.__data_hub.get_data_utility().get_stock_listing_date(identity, default_since())
+
+                    if force:
+                        since, until = listing_date, now()
+                    else:
+                        since, until = self.__data_center.calc_update_range(uri, identity)
+                        since = max(listing_date, since)
+
+                    self.__data_center.update_local_data(uri, identity, (since, until))
                     self.__progress_rate.increase_progress([uri, identity])
                     self.__progress_rate.increase_progress(uri)
             else:

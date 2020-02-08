@@ -766,8 +766,8 @@ def test_remove_key():
 def test_min_max():
     table = __prepare_empty_test_table()
 
-    table.upsert('identity1', '1900-12-31', {'Foo': 'bar1'})
-    table.upsert('identity2', '1900-01-01', {'Foo': 'bar2'})
+    table.upsert('identity1', '1990-12-31', {'Foo': 'bar1'})
+    table.upsert('identity2', '1990-01-01', {'Foo': 'bar2'})
     table.upsert('identity3', '2000-05-10', {'Foo': 'bar3'})
     table.upsert('identity4', '2000-02-28', {'Foo': 'bar4'})
     table.upsert('identity5', '2100-11-11', {'Foo': 'bar5'})
@@ -779,7 +779,7 @@ def test_min_max():
     min_time = table.min_of('DateTime')
     max_time = table.max_of('DateTime')
 
-    assert str(min_time) == '1900-01-01 00:00:00'
+    assert str(min_time) == '1990-01-01 00:00:00'
     assert str(max_time) == '2200-12-01 00:00:00'
 
 

@@ -31,7 +31,7 @@ def dump_test_data() -> bool:
         print('Dump Market.SecuritiesInfo Failed.')
 
     df = data_center.query_from_plugin('Market.TradeCalender', 'A-SHARE',
-                                       (text2date('1900-01-01'), today()), dump_flag=True)
+                                       (default_since(), today()), dump_flag=True)
     if df is None:
         ret = False
         print('Dump Market.TradeCalender Failed.')
@@ -51,7 +51,7 @@ def test_entry() -> bool:
         print('Test Market.SecuritiesInfo Failed.')
 
     df = data_center.query_from_plugin('Market.TradeCalender', 'A-SHARE',
-                                       (text2date('1900-01-01'), today()), test_flag=True)
+                                       (default_since(), today()), test_flag=True)
     if df is None:
         ret = False
         print('Test Market.SecuritiesInfo Failed.')

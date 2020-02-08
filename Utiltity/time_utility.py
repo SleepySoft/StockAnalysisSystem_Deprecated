@@ -86,7 +86,7 @@ def datetime2text(time: datetime.datetime) -> str:
 
 
 def default_since() -> datetime.datetime:
-    return text2date('1900-01-01')
+    return text2date('1990-01-01')
 
 
 def normalize_time_serial(time_serial: tuple or list,
@@ -103,7 +103,7 @@ def normalize_time_serial(time_serial: tuple or list,
     return since, until
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------- Clock --------------------------------------------------------
 
 class Clock:
     def __init__(self):
@@ -122,7 +122,7 @@ class Clock:
         return int((time.time() - self.__start) * 1000)
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------ Delayer -------------------------------------------------------
 
 class Delayer:
     def __init__(self, delay_ms: int):
@@ -135,6 +135,50 @@ class Delayer:
     def delay(self):
         elapsed = self.__clock.elapsed()
         if elapsed < self.__delay / 1000:
-            time.sleep(self.__delay / 1000 - elapsed)
+            delay_s = self.__delay / 1000 - elapsed
+            time.sleep(delay_s)
+            print('Delay %s ms' % delay_s)
+        self.__clock.reset()
+
+
+# -------------------------------------------------- DateTimeIterator --------------------------------------------------
+
+class DateTimeIterator:
+    def __init__(self, since: datetime.datetime, until: datetime.datetime):
+        self.__since = since
+        self.__until = until
+        self.__iter_from = self.__since
+        self.__iter_to = self.__since
+
+    def end(self) -> bool:
+        return self.__iter_to >= self.__until
+
+    def range(self) -> (datetime.datetime, datetime.datetime):
+        return self.__iter_from, self.__iter_to
+
+    def iter_days(self, days: int) -> (datetime.datetime, datetime.datetime):
+        return self.iter_delta(datetime.timedelta(days=days))
+
+    def iter_years(self, years: int) -> (datetime.datetime, datetime.datetime):
+        return self.iter_delta(datetime.timedelta(days=years*365))
+
+    def iter_delta(self, delta: datetime.timedelta) -> (datetime.datetime, datetime.datetime):
+        self.__iter_from = self.__iter_to
+        self.__iter_to += delta
+        if self.end():
+            self.__iter_to = self.__until
+        return self.range()
+
+
+
+
+
+
+
+
+
+
+
+
 
 

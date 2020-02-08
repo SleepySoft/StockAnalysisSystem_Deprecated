@@ -89,10 +89,13 @@ PARSE_LIST = (
     path.join('AliasSheet', 'Alias_NamingHistory_Ts.xlsx'),
     path.join('AliasSheet', 'Alias_SecuritiesInfo_Ts.xlsx'),
 
-    path.join('AliasSheet', 'Alias_Audit_Ts.xlsx'),
-    path.join('AliasSheet', 'Alias_BalanceSheet_Ts.xlsx'),
-    path.join('AliasSheet', 'Alias_IncomeStatement_Ts.xlsx'),
-    path.join('AliasSheet', 'Alias_CashFlowStatement_Ts.xlsx'),
+    # path.join('AliasSheet', 'Alias_Audit_Ts.xlsx'),
+    # path.join('AliasSheet', 'Alias_BalanceSheet_Ts.xlsx'),
+    # path.join('AliasSheet', 'Alias_IncomeStatement_Ts.xlsx'),
+    # path.join('AliasSheet', 'Alias_CashFlowStatement_Ts.xlsx'),
+
+    # path.join('AliasSheet', 'Alias_PledgeStatus_Ts.xlsx'),
+    # path.join('AliasSheet', 'Alias_PledgeHistory_Ts.xlsx'),
 )
 
 

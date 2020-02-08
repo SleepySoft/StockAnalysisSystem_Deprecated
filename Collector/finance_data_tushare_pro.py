@@ -20,34 +20,6 @@ except Exception as e:
 finally:
     pass
 
-ts.set_token(config.TS_TOKEN)
-
-
-# -------------------------------------------------------- Prob --------------------------------------------------------
-
-CAPACITY_LIST = [
-    'Finance.Audit',
-    'Finance.BalanceSheet',
-    'Finance.IncomeStatement',
-    'Finance.CashFlowStatement',
-]
-
-
-def plugin_prob() -> dict:
-    return {
-        'plugin_name': 'finance_data_tushare_pro',
-        'plugin_version': '0.0.0.1',
-        'tags': ['tusharepro']
-    }
-
-
-def plugin_adapt(uri: str) -> bool:
-    return uri in CAPACITY_LIST
-
-
-def plugin_capacities() -> list:
-    return CAPACITY_LIST
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -368,6 +340,24 @@ FIELDS = {
 }
 
 
+# -------------------------------------------------------- Prob --------------------------------------------------------
+
+def plugin_prob() -> dict:
+    return {
+        'plugin_name': 'finance_data_tushare_pro',
+        'plugin_version': '0.0.0.1',
+        'tags': ['tusharepro']
+    }
+
+
+def plugin_adapt(uri: str) -> bool:
+    return uri in FIELDS.keys()
+
+
+def plugin_capacities() -> list:
+    return list(FIELDS.keys())
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 def __fetch_finance_data(**kwargs) -> pd.DataFrame:
@@ -378,13 +368,12 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         period = kwargs.get('period')
 
         ts_code = pickup_ts_code(kwargs)
-        since, until = normalize_time_serial(period, text2date('1900-01-01'), today())
+        since, until = normalize_time_serial(period, default_since(), today())
 
         ts_since = since.strftime('%Y%m%d')
         ts_until = until.strftime('%Y%m%d')
 
-        pro = ts.pro_api()
-        # If we specify the exchange parameter, it raises error.
+        pro = ts.pro_api(config.TS_TOKEN)
 
         fields_list = list(FIELDS[uri].keys())
         field_joined = ','.join(fields_list)

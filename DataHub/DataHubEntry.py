@@ -73,6 +73,7 @@ RESULT_FIELDS_SECURITIES_INFO = {
     'code':           (['str'], [],                 True,  ''),
     'name':           (['str'], [],                 True,  ''),
     'exchange':       (['str'], ['SSE', 'SZSE'],    True,  ''),
+    'listing_date':   (['datetime'], [],            True,  ''),
 }
 
 # ---------------------- FinanceData.Audit ----------------------
@@ -102,6 +103,33 @@ RESULT_FIELDS_FINANCE_DATA = {
     'period':         (['datetime'], [],    True, '')                # The last day of report period
 }
 
+# ------------------------ Stockholder.PledgeStatus ------------------------
+
+QUERY_FIELDS_PLEDGE_STATUS = {
+    'stock_identity': ([str], [],                           False, ''),
+    'due_date':       ([tuple,  None], [],                  False, ''),
+}
+
+RESULT_FIELDS_PLEDGE_STATUS = {
+    'stock_identity': (['str'], [],         True, ''),
+    'due_date':       (['datetime'], [],    True, ''),
+    'pledge_count':   (['int'], [],         True, ''),
+    'pledge_ratio':   (['float'], [],       True, ''),
+}
+
+# ------------------------ Stockholder.PledgeHistory ------------------------
+
+QUERY_FIELDS_PLEDGE_HISTORY = {
+    'stock_identity': ([str], [],                           False, ''),
+    'due_date':       ([tuple,  None], [],                  False, ''),
+}
+
+RESULT_FIELDS_PLEDGE_HISTORY = {
+    # TODO: TBD
+    'stock_identity': (['str'], [],         True, ''),
+    'due_date':       (['datetime'], [],    True, ''),
+}
+
 # ---------------------------------------- Declare ----------------------------------------
 
 DFTDB = 'StockAnalysisSystem'
@@ -125,7 +153,8 @@ DATA_FORMAT_DECLARE = [
     ('Finance.IncomeStatement',   DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
     ('Finance.CashFlowStatement', DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
 
-    # ('Finance.EquityInterestPledgeStatus', DFTDB, DFTPRX, 'stock_identity', 'period', QUERY_FIELDS_FINANCE_DATA, RESULT_FIELDS_FINANCE_DATA),
+    ('Stockholder.PledgeStatus',  DFTDB, DFTPRX, 'stock_identity', 'due_date', QUERY_FIELDS_PLEDGE_STATUS, RESULT_FIELDS_PLEDGE_STATUS),
+    ('Stockholder.PledgeHistory', DFTDB, DFTPRX, 'stock_identity', 'due_date', QUERY_FIELDS_PLEDGE_HISTORY, RESULT_FIELDS_PLEDGE_HISTORY),
 ]
 
 

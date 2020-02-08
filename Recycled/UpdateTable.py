@@ -180,7 +180,7 @@ def test_since_record_unique_and_decrease():
     assert(ut.update_since('__Index Component', '123456', '', '20150101'))
 
     assert(ut.update_since('__Trade Calender', '', '', '20300101'))
-    assert(ut.update_since('__Trade Calender', '', '', '19000101'))
+    assert(ut.update_since('__Trade Calender', '', '', '19900101'))
     assert(ut.update_since('__Trade Calender', '', '', '19910101'))
 
     assert(len(ut.get_update_record('__Finance Data', 'Annual', '000001')) == 1)
@@ -189,7 +189,7 @@ def test_since_record_unique_and_decrease():
 
     assert(ut.get_since('__Finance Data', 'Annual', '000001') == text_auto_time('20000102'))
     assert(ut.get_since('__Index Component', '123456', '') == text_auto_time('20100101'))
-    assert(ut.get_since('__Trade Calender', '', '') == text_auto_time('19000101'))
+    assert(ut.get_since('__Trade Calender', '', '') == text_auto_time('19900101'))
 
     __clear_test_entry(ut)
 
