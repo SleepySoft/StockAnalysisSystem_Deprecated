@@ -61,10 +61,10 @@ class DatabaseEntry:
 
             import Database.AliasTable as AliasTable
             import Database.XListTable as XListTable
-            import Database.UpdateTableEx as UpdateTableEx
+            # import Database.UpdateTableEx as UpdateTableEx
 
             self.__alias_table = AliasTable.AliasTable(self.__sql_db_access)
-            self.__update_table = UpdateTableEx.UpdateTableEx(self.__sql_db_access)
+            # self.__update_table = UpdateTableEx.UpdateTableEx(self.__sql_db_access)
 
             self.__gray_table = XListTable.XListTable('gray_table', self.__sql_db_access)
             self.__focus_table = XListTable.XListTable('focus_table', self.__sql_db_access)
@@ -96,6 +96,9 @@ class DatabaseEntry:
         try:
             self.__mongo_db_client = MongoClient(url, serverSelectionTimeoutMS=1000)
             self.__mongo_db_client.server_info()
+
+            import Database.UpdateTableEx as UpdateTableEx
+            self.__update_table = UpdateTableEx.UpdateTableEx(self.__mongo_db_client)
             return True
         except Exception as e:
             print('Mongodb config error.')

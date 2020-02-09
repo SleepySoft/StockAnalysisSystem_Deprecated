@@ -112,6 +112,7 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
     check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
+        result.fillna(0.0)
         if uri == 'Stockholder.PledgeStatus':
             result['due_date'] = result['end_date']
             result['rest_pledge'] = result['rest_pledge'] * 10000
@@ -121,8 +122,8 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
             result['pledge_amount'] = result['pledge_amount'] * 10000
             result['holding_amount'] = result['holding_amount'] * 10000
             result['pledged_amount'] = result['pledged_amount'] * 10000
-        result['due_date'] = pd.to_datetime(result['due_date'])
 
+        result['due_date'] = pd.to_datetime(result['due_date'])
         result['stock_identity'] = result['ts_code']
         result['stock_identity'] = result['stock_identity'].str.replace('.SH', '.SSE')
         result['stock_identity'] = result['stock_identity'].str.replace('.SZ', '.SZSE')

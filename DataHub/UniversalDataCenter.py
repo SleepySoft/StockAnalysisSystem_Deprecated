@@ -63,6 +63,7 @@ class ParameterChecker:
     PYTHON_DATAFRAME_TYPE_MAPPING = {
         'str': 'object',
         'int': 'int64',
+        'float': 'float64',
         'datetime': 'datetime64[ns]',
     }
 
@@ -142,7 +143,7 @@ class ParameterChecker:
                     break
             if not type_ok:
                 logger.info('DataFrame field check error: Field type mismatch - ' +
-                            str(df_type) + ' not match ' + str(type_df))
+                            field + ': ' + str(df_type) + ' not match ' + str(type_df))
                 return False
 
             if len(values) > 0:

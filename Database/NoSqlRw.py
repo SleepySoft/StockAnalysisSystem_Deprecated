@@ -21,6 +21,8 @@ def text2datetime(text: str) -> datetime:
 
 
 def text_auto_time(text: str) -> datetime:
+    if isinstance(text, datetime):
+        return text
     # noinspection PyBroadException
     try:
         return datetime.strptime(text, '%Y-%m-%d')
