@@ -1,10 +1,17 @@
+# StockAnalysisSystem
+This program is designed for Chinese market and Chinese accounting policies (currently). So this document will only provide Chinese version.
+  
 # 网盘下载：
 应网友要求，对于网络访问受限的用户，提供网盘下载：  
 链接：https://pan.baidu.com/s/1H-viluqOoKrKRNJJmU17jg  
 提取码：4r3u  
   
-# StockAnalysisSystem
-This program is designed for Chinese market and Chinese accounting policies (currently). So this document will only provide Chinese version.
+#联系作者
+如果有任何意见及建议，或者对此项目感兴趣的，请联系我：  
+微博：SleepySoft  
+邮箱：sleepysoft##163.com  
+QQ群：931499339，进群验证码：SleepySoft  
+如果遇到BUG，可以给我发邮件，或直接在git上提交issue  
   
 # 股票分析系统
   
@@ -61,12 +68,6 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 绿色为PASS，红色为FAIL，灰色为不适用，或因数据缺失导致无法分析  
 最后一列为总评分，在一行中，只要有一个评分为FAIL，则总评分为FAIL；如果不存在FAIL但存在灰色结果，则总评分为灰色的PASS  
 当前分析算法还不够完善，结果仅供参考，遇到和自己分析存在偏差的情况，请参阅详细信息并进行人工复核  
-   
-----------------------------------------------------------------------------------------------------------------------
-# 其它事项
-如果有任何意见及建议，或者遇到bug，请联系我  
-邮箱：sleepysoft##163.com  
-微博：SleepySoft  
   
 ----------------------------------------------------------------------------------------------------------------------
   
@@ -90,9 +91,12 @@ This program is designed for Chinese market and Chinese accounting policies (cur
 > 股权质押数据  
 > 回购数据  
 > 增减持数据  
-12. 策略参数可配置可保存  
-13. 接入交易数据  
-14. 加入实时数据  
+12. 将数据迁移到MongoDB
+> UpdateTable  
+> XList Table  
+13. 策略参数可配置可保存  
+14. 接入交易数据  
+15. 加入实时数据  
 
 
 
