@@ -190,7 +190,8 @@ class DataUpdateUi(QWidget):
                 prog_id = [self.__display_uri[0], item_id]
             if self.__progress_rate.has_progress(prog_id):
                 rate = self.__progress_rate.get_progress_rate(prog_id)
-                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('%.2f%%' % (rate * 100))
+                status = '%ss | %.2f%%' % (self.__timing_clock.elapsed_s(), rate * 100)
+                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
             else:
                 self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('')
 
@@ -256,7 +257,7 @@ class DataUpdateUi(QWidget):
                     contents.append(line)
         self.__display_table_lines = contents
 
-    def generate_line_content(self, uri: str, identity:str or None) -> [list] or None:
+    def generate_line_content(self, uri: str, identity: str or None) -> [list] or None:
         line = []
 
         data_table, _ = self.__data_center.get_data_table(uri)
@@ -456,7 +457,6 @@ class DataUpdateUi(QWidget):
         if self.__task_thread is None:
             self.__task_thread = threading.Thread(target=self.update_task)
             StockAnalysisSystem().lock_sys_quit()
-            self.__timing_clock.reset()
             self.__task_thread.start()
         else:
             print('Task already running...')
@@ -473,6 +473,7 @@ class DataUpdateUi(QWidget):
         force = self.__update_force
         self.__lock.release()
 
+        self.__timing_clock.reset()
         self.__progress_rate.reset()
         for uri, identities in task:
             if identities is not None:
@@ -509,6 +510,7 @@ class DataUpdateUi(QWidget):
     def __on_task_done(self):
         self.__task_thread = None
         StockAnalysisSystem().release_sys_quit()
+        self.update_table()
         QMessageBox.information(self,
                                 QtCore.QCoreApplication.translate('main', '更新完成'),
                                 QtCore.QCoreApplication.translate('main', '数据更新完成，耗时' +

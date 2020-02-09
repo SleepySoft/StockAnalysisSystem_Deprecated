@@ -73,12 +73,15 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+delayer = Delayer(1200)
+
+
 def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
     uri = kwargs.get('uri')
     result = check_execute_test_flag(**kwargs)
 
     if result is None:
-        period = kwargs.get('period')
+        period = kwargs.get('due_date')
         ts_code = pickup_ts_code(kwargs)
         since, until = normalize_time_serial(period, default_since(), today())
 
@@ -86,7 +89,6 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
         time_iter = DateTimeIterator(since, until)
 
         result = None
-        delayer = Delayer(1200)
         while not time_iter.end():
             # The max items count retrieved per 1 fetching: 1000
             # The max items per 1 year: 52 (one new item per 7days for PledgeStatus)
@@ -96,6 +98,7 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
             ts_since = sub_since.strftime('%Y%m%d')
             ts_until = sub_until.strftime('%Y%m%d')
 
+            delayer.delay()
             if uri == 'Stockholder.PledgeStatus':
                 sub_result = pro.pledge_stat(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
             elif uri == 'Stockholder.PledgeHistory':
@@ -108,7 +111,6 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
                     result = sub_result
                 else:
                     result.append(result)
-            delayer.delay()
     check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
@@ -117,6 +119,8 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
             result['due_date'] = result['end_date']
             result['rest_pledge'] = result['rest_pledge'] * 10000
             result['unrest_pledge'] = result['unrest_pledge'] * 10000
+            result['pledge_count'] = result['pledge_count'].astype(np.int64)
+            result['pledge_ratio'] = result['pledge_ratio'].astype(float)
         elif uri == 'Stockholder.PledgeHistory':
             result['due_date'] = result['ann_date']
             result['pledge_amount'] = result['pledge_amount'] * 10000

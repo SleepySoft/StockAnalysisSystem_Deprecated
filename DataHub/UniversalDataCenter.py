@@ -361,7 +361,7 @@ class UniversalDataCenter:
         if since == until:
             # Does not need update.
             return True
-        print(uri + ' -> Update range : ' + date2text(since) + ' - ' + date2text(until))
+        print(uri + ': [' + str(identify) + '] -> Update range : ' + date2text(since) + ' - ' + date2text(until))
 
         # ------------------------- Fetch -------------------------
         result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), **extra)
