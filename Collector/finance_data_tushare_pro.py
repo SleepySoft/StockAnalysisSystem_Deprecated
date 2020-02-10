@@ -415,7 +415,7 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
 
 def query(**kwargs) -> pd.DataFrame or None:
     uri = kwargs.get('uri')
-    if uri in CAPACITY_LIST:
+    if uri in list(FIELDS.keys()):
         return __fetch_finance_data(**kwargs)
     else:
         return None
