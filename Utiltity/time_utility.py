@@ -137,7 +137,7 @@ class Delayer:
         if elapsed < self.__delay / 1000:
             delay_s = self.__delay / 1000 - elapsed
             time.sleep(delay_s)
-            print('Delay %s ms' % delay_s)
+            print('Delay %s ms' % delay_s * 1000)
         self.__clock.reset()
 
 
