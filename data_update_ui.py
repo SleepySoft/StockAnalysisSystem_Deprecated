@@ -35,6 +35,7 @@ class DataUpdateUi(QWidget):
     task_finish_signal = pyqtSignal()
     refresh_finish_signal = pyqtSignal()
 
+    INDEX_CHECK = 0
     INDEX_ITEM = 1
     INDEX_STATUS = 8
     TABLE_HEADER = ['', 'Item', 'Local Data Since', 'Local Data Until', 'Latest Update',
@@ -135,8 +136,8 @@ class DataUpdateUi(QWidget):
         self.__button_upper_level.clicked.connect(partial(self.on_page_control, '^'))
         self.__button_refresh.clicked.connect(partial(self.on_page_control, 'r'))
 
-        # self.__button_batch_auto_update.connect(partial(self.on_page_control, 'r'))
-        # self.__button_batch_force_update.connect(partial(self.on_page_control, 'r'))
+        self.__button_batch_auto_update.clicked.connect(partial(self.on_batch_update, False))
+        self.__button_batch_force_update.clicked.connect(partial(self.on_batch_update, True))
 
     def on_detail_button(self, uri: str):
         print('Detail of ' + uri)
@@ -179,6 +180,19 @@ class DataUpdateUi(QWidget):
 
         if control in ['<<', '<', '>', '>>', '^', 'r']:
             self.update_table()
+
+    def on_batch_update(self, force: bool):
+        update_list = []
+        for i in range(0, self.__table_main.rowCount()):
+            item_check = self.__table_main.item(i, DataUpdateUi.INDEX_CHECK)
+            if item_check.checkState() == Qt.Checked:
+                item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
+                update_list.append(item_id)
+        if len(update_list) > 0:
+            print(('Force update' if force else 'Update') + ' batch : ' + str(update_list))
+            self.__update_pack = [[uri, None] for uri in update_list]
+            self.__update_force = False
+            self.execute_update_task()
 
     def on_timer(self):
         for i in range(0, self.__table_main.rowCount()):
