@@ -133,7 +133,7 @@ def __fetch_naming_history(**kwargs):
         ts_since = since.strftime('%Y%m%d')
         ts_until = until.strftime('%Y%m%d')
 
-        pro = ts.pro_api()
+        pro = ts.pro_api(config.TS_TOKEN)
         result = pro.namechange(ts_code=ts_code, start_date=ts_since, end_date=ts_until,
                                 fields='ts_code,name,start_date,end_date,ann_date,change_reason')
     check_execute_dump_flag(result, **kwargs)
@@ -150,7 +150,7 @@ def __fetch_naming_history(**kwargs):
 def __fetch_securities_info(**kwargs) -> pd.DataFrame or None:
     result = check_execute_test_flag(**kwargs)
     if result is None:
-        pro = ts.pro_api()
+        pro = ts.pro_api(config.TS_TOKEN)
         # If we specify the exchange parameter, it raises error.
         result = pro.stock_basic(fields='ts_code,symbol,name,area,industry,fullname,list_date,'
                                         'enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')

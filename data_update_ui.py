@@ -190,8 +190,9 @@ class DataUpdateUi(QWidget):
                 prog_id = [self.__display_uri[0], item_id]
             if self.__progress_rate.has_progress(prog_id):
                 rate = self.__progress_rate.get_progress_rate(prog_id)
-                status = '%ss | %.2f%%' % (self.__timing_clock.elapsed_s(), rate * 100)
-                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
+                if rate < 1.0:
+                    status = '%ss | %.2f%%' % (self.__timing_clock.elapsed_s(), rate * 100)
+                    self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
             else:
                 self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('')
 

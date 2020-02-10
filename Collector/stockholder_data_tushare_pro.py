@@ -89,28 +89,40 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
         time_iter = DateTimeIterator(since, until)
 
         result = None
-        while not time_iter.end():
-            # The max items count retrieved per 1 fetching: 1000
-            # The max items per 1 year: 52 (one new item per 7days for PledgeStatus)
-            # So the iter years should not be larger than 20 years
+        # while not time_iter.end():
+        #     # The max items count retrieved per 1 fetching: 1000
+        #     # The max items per 1 year: 52 (one new item per 7days for PledgeStatus)
+        #     # So the iter years should not be larger than 20 years
+        #
+        #     sub_since, sub_until = time_iter.iter_years(15)
+        #     ts_since = sub_since.strftime('%Y%m%d')
+        #     ts_until = sub_until.strftime('%Y%m%d')
+        #
+        #     clock = Clock()
+        #     delayer.delay()
+        #     if uri == 'Stockholder.PledgeStatus':
+        #         sub_result = pro.pledge_stat(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        #     elif uri == 'Stockholder.PledgeHistory':
+        #         sub_result = pro.pledge_detail(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
+        #     else:
+        #         sub_result = None
+        #     print(uri + ' Network finished, time spending: ' + str(clock.elapsed_ms()) + 'ms')
+        #
+        #     if sub_result is not None:
+        #         if result is None:
+        #             result = sub_result
+        #         else:
+        #             result.append(result)
 
-            sub_since, sub_until = time_iter.iter_years(15)
-            ts_since = sub_since.strftime('%Y%m%d')
-            ts_until = sub_until.strftime('%Y%m%d')
+        clock = Clock()
+        if uri == 'Stockholder.PledgeStatus':
+            result = pro.pledge_stat(ts_code=ts_code)
+        elif uri == 'Stockholder.PledgeHistory':
+            result = pro.pledge_detail(ts_code=ts_code)
+        else:
+            result = None
+        print(uri + ' Network finished, time spending: ' + str(clock.elapsed_ms()) + 'ms')
 
-            delayer.delay()
-            if uri == 'Stockholder.PledgeStatus':
-                sub_result = pro.pledge_stat(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-            elif uri == 'Stockholder.PledgeHistory':
-                sub_result = pro.pledge_detail(ts_code=ts_code, start_date=ts_since, end_date=ts_until)
-            else:
-                sub_result = None
-
-            if sub_result is not None:
-                if result is None:
-                    result = sub_result
-                else:
-                    result.append(result)
     check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
