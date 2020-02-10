@@ -81,14 +81,14 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
     result = check_execute_test_flag(**kwargs)
 
     if result is None:
-        period = kwargs.get('due_date')
+        # period = kwargs.get('due_date')
         ts_code = pickup_ts_code(kwargs)
-        since, until = normalize_time_serial(period, default_since(), today())
+        # since, until = normalize_time_serial(period, default_since(), today())
 
         pro = ts.pro_api(config.TS_TOKEN)
-        time_iter = DateTimeIterator(since, until)
-
-        result = None
+        # time_iter = DateTimeIterator(since, until)
+        #
+        # result = None
         # while not time_iter.end():
         #     # The max items count retrieved per 1 fetching: 1000
         #     # The max items per 1 year: 52 (one new item per 7days for PledgeStatus)
@@ -115,13 +115,14 @@ def __fetch_stock_holder_data(**kwargs) -> pd.DataFrame:
         #             result.append(result)
 
         clock = Clock()
+        delayer.delay()
         if uri == 'Stockholder.PledgeStatus':
             result = pro.pledge_stat(ts_code=ts_code)
         elif uri == 'Stockholder.PledgeHistory':
             result = pro.pledge_detail(ts_code=ts_code)
         else:
             result = None
-        print(uri + ' Network finished, time spending: ' + str(clock.elapsed_ms()) + 'ms')
+        print(uri + ' - Network finished, time spending: ' + str(clock.elapsed_ms()) + 'ms')
 
     check_execute_dump_flag(result, **kwargs)
 

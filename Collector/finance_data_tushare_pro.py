@@ -360,6 +360,11 @@ def plugin_capacities() -> list:
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+# For the sake of "抱歉，您每分钟最多访问该接口60次"
+
+delayer = Delayer(1000)
+
+
 def __fetch_finance_data(**kwargs) -> pd.DataFrame:
     uri = kwargs.get('uri')
     result = check_execute_test_flag(**kwargs)
@@ -378,6 +383,8 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
         fields_list = list(FIELDS[uri].keys())
         field_joined = ','.join(fields_list)
 
+        clock = Clock()
+        delayer.delay()
         if uri == 'Finance.Audit':
             result = pro.fina_audit(ts_code=ts_code, start_date=ts_since, end_date=ts_until, fields=field_joined)
         elif uri == 'Finance.BalanceSheet':
@@ -388,6 +395,7 @@ def __fetch_finance_data(**kwargs) -> pd.DataFrame:
             result = pro.cashflow(ts_code=ts_code, start_date=ts_since, end_date=ts_until, fields=field_joined)
         else:
             result = None
+        print(uri + ' - Network finished, time spending: ' + str(clock.elapsed_ms()) + 'ms')
     check_execute_dump_flag(result, **kwargs)
 
     if result is not None:
