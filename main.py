@@ -24,7 +24,7 @@ def run_ui():
 
     main_wnd = main_ui.MainWindow()
     main_wnd.show()
-    app.exec_()
+    sys.exit(app.exec())
 
 
 def update_local(update_list: [str], force: bool = False):
@@ -129,6 +129,8 @@ def main():
     # run_console()
     run_ui()
     # run_test()
+
+    print('Process Quit.')
 
 
 # ----------------------------------------------------------------------------------------------------------------------

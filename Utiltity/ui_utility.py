@@ -249,8 +249,8 @@ class CommonMainWindow(QMainWindow):
                                      QMessageBox.Yes | QMessageBox.Cancel,
                                      QMessageBox.Cancel)
         if reply == QMessageBox.Yes:
-            # TODO: Check task status
-            sys.exit(0)
+            event.accept()
+            QApplication.quit()
         else:
             event.ignore()
 

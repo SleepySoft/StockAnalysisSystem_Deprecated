@@ -68,8 +68,7 @@ class PluginManager:
         try:
             return callable(getattr(module, function))
         except Exception as e:
-            print("Check callable fail.!")
-            print('Error =>', e)
+            print('Check callable: ' + str(e))
             return False
         finally:
             pass

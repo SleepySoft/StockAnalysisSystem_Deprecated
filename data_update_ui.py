@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QHeaderView
 
 from Utiltity.common import *
 from Utiltity.ui_utility import *
-from Utiltity.time_utility import *
+from Utiltity.task_queue import *
 from DataHub.DataHubEntry import *
 from Database.UpdateTableEx import *
 from stock_analysis_system import StockAnalysisSystem
@@ -30,6 +30,100 @@ DEFAULT_INFO = """数据更新界面说明：
 4. 在首页更新财务信息会对所有股票执行一次，故耗时非常长，请做好挂机准备（Update Select未实现）
 5. Force Update会拉取从1990年至今的数据，耗时非常长，请谨慎使用"""
 
+
+# ---------------------------------- UpdateTask ----------------------------------
+
+class UpdateTask(TaskQueue.Task):
+    def __init__(self, ui, data_hub, data_center, force: bool):
+        super(UpdateTask, self).__init__('UpdateTask')
+        self.__ui = ui
+        self.__force = force
+        self.__data_hub = data_hub
+        self.__data_center = data_center
+        self.__quit = False
+
+        # Parameters
+        self.uri = ''
+        self.identities = []
+        self.clock = Clock(False)
+        self.progress = ProgressRate()
+
+    def set_work_package(self, uri: str, identities: list or str or None):
+        if isinstance(identities, str):
+            identities = [identities]
+        self.uri = uri
+        self.identities = identities
+
+    # ----------------------------------------------------------------------------------------
+
+    # def __build_click_table(self):
+    #     self.__clock_table = {}
+    #     for uri, identities in self.__update_pack:
+    #         self.__clock_table[uri] = Clock()
+    #
+    # def __build_progress_table(self):
+    #     self.__progress_table = {}
+    #     for uri, identities in self.__update_pack:
+    #         progress_rate = ProgressRate()
+    #         self.__progress_table[uri] = progress_rate
+    #         if identities is not None:
+    #             progress_rate.set_progress(uri, 0, len(identities))
+    #             for identity in identities:
+    #                 progress_rate.set_progress([uri, identity], 0, 1)
+    #         else:
+    #             progress_rate.set_progress(uri, 0, 1)
+
+    def run(self):
+        print('Update task start.')
+
+        self.clock.reset()
+        self.progress.reset()
+
+        if self.identities is not None:
+            for identity in self.identities:
+                if self.__quit:
+                    break
+                # Optimise: Update not earlier than listing date.
+                listing_date = self.__data_hub.get_data_utility().get_stock_listing_date(identity, default_since())
+
+                if self.__force:
+                    since, until = listing_date, now()
+                else:
+                    since, until = self.__data_center.calc_update_range(self.uri, identity)
+                    since = max(listing_date, since)
+                self.__data_center.update_local_data(self.uri, identity, (since, until))
+                self.progress.increase_progress([self.uri, identity])
+                self.progress.increase_progress(self.uri)
+        else:
+            self.__data_center.update_local_data(self.uri, force=self.__force)
+            self.progress.increase_progress(self.uri)
+
+        self.clock.freeze()
+        self.__ui.task_finish_signal.emit(self)
+        print('Update task finished.')
+
+    def quit(self):
+        self.__quit = True
+
+    def identity(self) -> str:
+        return self.uri
+
+
+# ---------------------------------- RefreshTask ----------------------------------
+
+class RefreshTask(TaskQueue.Task):
+    def __init__(self, ui):
+        super(RefreshTask, self).__init__('RefreshTask')
+        self.__ui = ui
+
+    def run(self):
+        print('Refresh task start.')
+        self.__ui.update_table_content()
+        self.__ui.refresh_finish_signal.emit()
+        print('Refresh task finished.')
+
+
+# ---------------------------------------------------- DataUpdateUi ----------------------------------------------------
 
 class DataUpdateUi(QWidget):
     task_finish_signal = pyqtSignal()
@@ -61,14 +155,7 @@ class DataUpdateUi(QWidget):
         self.__page = 0
         self.__item_per_page = 20
 
-        # Thread and task related
-        self.__lock = threading.Lock()
-        self.__task_thread = None
-        self.__refresh_thread = None
-        self.__update_pack = []         # [[uri, [identities] or None]]
-        self.__update_force = False
-        self.__timing_clock = Clock()
-        self.__progress_rate = ProgressRate()
+        self.__processing_tasks = []
 
         self.task_finish_signal.connect(self.__on_task_done)
         self.refresh_finish_signal.connect(self.update_table_display)
@@ -146,15 +233,22 @@ class DataUpdateUi(QWidget):
 
     def on_auto_update_button(self, uri: str, identity: str):
         print('Auto update ' + uri + ':' + str(identity))
-        self.__update_pack = [[uri, identity]]
-        self.__update_force = False
-        self.execute_update_task()
+        self.__build_post_update_task(uri, False)
 
     def on_force_update_button(self, uri: str, identity: str):
         print('Force update ' + uri + ':' + str(identity))
-        self.__update_pack = [[uri, identity]]
-        self.__update_force = True
-        self.execute_update_task()
+        self.__build_post_update_task(uri, True)
+
+    def on_batch_update(self, force: bool):
+        for i in range(0, self.__table_main.rowCount()):
+            item_check = self.__table_main.item(i, DataUpdateUi.INDEX_CHECK)
+            if item_check.checkState() == Qt.Checked:
+                item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
+                # A little ugly...To distinguish it's uri or securities ideneity
+                if self.__display_identities is None:
+                    self.__build_post_update_task(item_id, None, force)
+                else:
+                    self.__build_post_update_task(self.__display_uri[0], item_id, force)
 
     def on_page_control(self, control: str):
         # data_utility = self.__data_hub.get_data_utility()
@@ -181,34 +275,22 @@ class DataUpdateUi(QWidget):
         if control in ['<<', '<', '>', '>>', '^', 'r']:
             self.update_table()
 
-    def on_batch_update(self, force: bool):
-        update_list = []
-        for i in range(0, self.__table_main.rowCount()):
-            item_check = self.__table_main.item(i, DataUpdateUi.INDEX_CHECK)
-            if item_check.checkState() == Qt.Checked:
-                item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
-                update_list.append(item_id)
-        if len(update_list) > 0:
-            print(('Force update' if force else 'Update') + ' batch : ' + str(update_list))
-            self.__update_pack = [[uri, None] for uri in update_list]
-            self.__update_force = False
-            self.execute_update_task()
-
     def on_timer(self):
         for i in range(0, self.__table_main.rowCount()):
             item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
             # A little ugly...To distinguish it's uri or securities ideneity
             if self.__display_identities is None:
-                prog_id = item_id
+                uri = item_id
+                prog_id = uri
             else:
-                prog_id = [self.__display_uri[0], item_id]
-            if self.__progress_rate.has_progress(prog_id):
-                rate = self.__progress_rate.get_progress_rate(prog_id)
-                if rate < 1.0:
-                    status = '%ss | %.2f%%' % (self.__timing_clock.elapsed_s(), rate * 100)
+                uri = self.__display_uri[0]
+                prog_id = [uri, item_id]
+            for task in self.__processing_tasks:
+                if task.progress.has_progress(prog_id):
+                    rate = task.progress.get_progress_rate(prog_id)
+                    status = '%ss | %.2f%%' % (task.clock.elapsed_s(), rate * 100)
                     self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
-            else:
-                self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('')
+                    break
 
     def closeEvent(self, event):
         if self.__task_thread is not None:
@@ -227,7 +309,8 @@ class DataUpdateUi(QWidget):
         self.__table_main.setRowCount(0)
         self.__table_main.setHorizontalHeaderLabels(DataUpdateUi.TABLE_HEADER)
         self.__table_main.AppendRow(['', '刷新中...', '', '', '', '', '', '', ''])
-        self.execute_refresh_task()
+        task = RefreshTask(self)
+        StockAnalysisSystem().get_task_queue().append_task(task)
 
     def update_table_display(self):
         self.__table_main.clear()
@@ -432,97 +515,109 @@ class DataUpdateUi(QWidget):
         self.__page = 0
         self.update_table()
 
-    def __work_around_for_update_pack(self):
-        for i in range(0, len(self.__update_pack)):
-            if self.__update_pack[i][0] == 'Market.TradeCalender':
-                self.__update_pack[i][1] = ['SSE']
-            elif self.__update_pack[i][0] in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
-                if self.__update_pack[i][1] is None:
-                    data_utility = self.__data_hub.get_data_utility()
-                    stock_list = data_utility.get_stock_identities()
-                    self.__update_pack[i][1] = stock_list
+    def __build_post_update_task(self, uri: str, identities: list or None, force: bool):
+        task = UpdateTask(self, self.__data_hub, self.__data_center, force)
+        if identities is None:
+            if uri == 'Market.TradeCalender':
+                identities = 'SSE'
+            elif uri in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
+                data_utility = self.__data_hub.get_data_utility()
+                identities = data_utility.get_stock_identities()
+        task.set_work_package(uri, identities)
+        self.__processing_tasks.append(task)
+        StockAnalysisSystem().get_task_queue().append_task(task)
+
+    # def __work_around_for_update_pack(self):
+    #     for i in range(0, len(self.__update_pack)):
+    #         if self.__update_pack[i][0] == 'Market.TradeCalender':
+    #             self.__update_pack[i][1] = ['SSE']
+    #         elif self.__update_pack[i][0] in DataUpdateUi.INCLUDES_SECURITIES_SUB_UPDATE_LIST:
+    #             if self.__update_pack[i][1] is None:
+    #                 data_utility = self.__data_hub.get_data_utility()
+    #                 stock_list = data_utility.get_stock_identities()
+    #                 self.__update_pack[i][1] = stock_list
 
     # --------------------------------- Thread ---------------------------------
 
     # ------------------------- Refresh Task -------------------------
 
-    def execute_refresh_task(self):
-        if self.__refresh_thread is None:
-            self.__refresh_thread = threading.Thread(target=self.refresh_task)
-            self.__refresh_thread.start()
-
-    def refresh_task(self):
-        print('Refresh task start.')
-        self.update_table_content()
-        self.__refresh_thread = None
-        self.refresh_finish_signal.emit()
-        print('Refresh task finished.')
+    # def execute_refresh_task(self):
+    #     if self.__refresh_thread is None:
+    #         self.__refresh_thread = threading.Thread(target=self.refresh_task)
+    #         self.__refresh_thread.start()
+    #
+    # def refresh_task(self):
+    #     print('Refresh task start.')
+    #     self.update_table_content()
+    #     self.__refresh_thread = None
+    #     self.refresh_finish_signal.emit()
+    #     print('Refresh task finished.')
 
     # ----------------------- Data Update Task ----------------------
 
-    def execute_update_task(self):
-        if self.__refresh_thread is not None:
-            QMessageBox.information(self,
-                                    QtCore.QCoreApplication.translate('', '无法执行'),
-                                    QtCore.QCoreApplication.translate('', '列表刷新中，无法执行数据更新'),
-                                    QMessageBox.Close, QMessageBox.Close)
-            return
-
-        self.__work_around_for_update_pack()
-        if self.__task_thread is None:
-            self.__task_thread = threading.Thread(target=self.update_task)
-            StockAnalysisSystem().lock_sys_quit()
-            self.__task_thread.start()
-        else:
-            print('Task already running...')
-            QMessageBox.information(self,
-                                    QtCore.QCoreApplication.translate('', '无法执行'),
-                                    QtCore.QCoreApplication.translate('', '已经有更新在运行中，无法同时运行多个更新'),
-                                    QMessageBox.Close, QMessageBox.Close)
-
-    def update_task(self):
-        print('Update task start.')
-
-        self.__lock.acquire()
-        task = copy.deepcopy(self.__update_pack)
-        force = self.__update_force
-        self.__lock.release()
-
-        self.__timing_clock.reset()
-        self.__progress_rate.reset()
-        for uri, identities in task:
-            if identities is not None:
-                self.__progress_rate.set_progress(uri, 0, len(identities))
-                for identity in identities:
-                    self.__progress_rate.set_progress([uri, identity], 0, 1)
-            else:
-                self.__progress_rate.set_progress(uri, 0, 1)
-
-        for uri, identities in task:
-            if identities is not None:
-                for identity in identities:
-                    # Optimise: Update not earlier than listing date.
-                    listing_date = self.__data_hub.get_data_utility().get_stock_listing_date(identity, default_since())
-
-                    if force:
-                        since, until = listing_date, now()
-                    else:
-                        since, until = self.__data_center.calc_update_range(uri, identity)
-                        since = max(listing_date, since)
-
-                    self.__data_center.update_local_data(uri, identity, (since, until))
-                    self.__progress_rate.increase_progress([uri, identity])
-                    self.__progress_rate.increase_progress(uri)
-            else:
-                self.__data_center.update_local_data(uri, force=force)
-                self.__progress_rate.increase_progress(uri)
-
-        self.task_finish_signal.emit()
-        print('Update task finished.')
+    # def execute_update_task(self):
+    #     if self.__refresh_thread is not None:
+    #         QMessageBox.information(self,
+    #                                 QtCore.QCoreApplication.translate('', '无法执行'),
+    #                                 QtCore.QCoreApplication.translate('', '列表刷新中，无法执行数据更新'),
+    #                                 QMessageBox.Close, QMessageBox.Close)
+    #         return
+    #
+    #     self.__work_around_for_update_pack()
+    #     if self.__task_thread is None:
+    #         self.__task_thread = threading.Thread(target=self.update_task)
+    #         StockAnalysisSystem().lock_sys_quit()
+    #         self.__task_thread.start()
+    #     else:
+    #         print('Task already running...')
+    #         QMessageBox.information(self,
+    #                                 QtCore.QCoreApplication.translate('', '无法执行'),
+    #                                 QtCore.QCoreApplication.translate('', '已经有更新在运行中，无法同时运行多个更新'),
+    #                                 QMessageBox.Close, QMessageBox.Close)
+    #
+    # def update_task(self):
+    #     print('Update task start.')
+    #
+    #     self.__lock.acquire()
+    #     task = copy.deepcopy(self.__update_pack)
+    #     force = self.__update_force
+    #     self.__lock.release()
+    #
+    #     self.__timing_clock.reset()
+    #     self.__progress_rate.reset()
+    #     for uri, identities in task:
+    #         if identities is not None:
+    #             self.__progress_rate.set_progress(uri, 0, len(identities))
+    #             for identity in identities:
+    #                 self.__progress_rate.set_progress([uri, identity], 0, 1)
+    #         else:
+    #             self.__progress_rate.set_progress(uri, 0, 1)
+    #
+    #     for uri, identities in task:
+    #         if identities is not None:
+    #             for identity in identities:
+    #                 # Optimise: Update not earlier than listing date.
+    #                 listing_date = self.__data_hub.get_data_utility().get_stock_listing_date(identity, default_since())
+    #
+    #                 if force:
+    #                     since, until = listing_date, now()
+    #                 else:
+    #                     since, until = self.__data_center.calc_update_range(uri, identity)
+    #                     since = max(listing_date, since)
+    #
+    #                 self.__data_center.update_local_data(uri, identity, (since, until))
+    #                 self.__progress_rate.increase_progress([uri, identity])
+    #                 self.__progress_rate.increase_progress(uri)
+    #         else:
+    #             self.__data_center.update_local_data(uri, force=force)
+    #             self.__progress_rate.increase_progress(uri)
+    #
+    #     self.task_finish_signal.emit()
+    #     print('Update task finished.')
 
     # ---------------------------------------------------------------------------------
 
-    def __on_task_done(self):
+    def __on_task_done(self, task: UpdateTask):
         self.__task_thread = None
         StockAnalysisSystem().release_sys_quit()
         self.update_table()
@@ -567,41 +662,4 @@ if __name__ == "__main__":
         exit()
     finally:
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

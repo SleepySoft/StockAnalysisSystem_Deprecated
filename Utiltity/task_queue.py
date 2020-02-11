@@ -41,7 +41,7 @@ class TaskQueue:
     def quit(self):
         self.__lock.acquire()
         self.__quit_flag = True
-        self.__remove_pending_task(None)
+        self.__clear_pending_task()
         self.__cancel_running_task()
         self.__lock.release()
 
@@ -79,10 +79,14 @@ class TaskQueue:
     def set_will_task(self, task: Task):
         self.__will_task = task
 
-    def cancel_task(self, identity: str):
+    def cancel_task(self, identity: str or None):
         self.__lock.acquire()
-        self.__remove_pending_task(identity)
-        self.__check_cancel_running_task(identity)
+        if identity is None:
+            self.__clear_pending_task()
+            self.__cancel_running_task()
+        else:
+            self.__remove_pending_task(identity)
+            self.__check_cancel_running_task(identity)
         self.__lock.release()
 
     def cancel_running_task(self):
@@ -93,6 +97,8 @@ class TaskQueue:
     # ------------------------------------- private --------------------------------------
 
     def __find_adapted_task(self, identity: str) -> Task or None:
+        if identity is None or identity == '':
+            return None
         for task in self.__task_queue:
             if task.identity() == identity:
                 return task
@@ -100,14 +106,16 @@ class TaskQueue:
             return self.__running_task
         return None
 
-    def __remove_pending_task(self, identity: str or None):
+    def __remove_pending_task(self, identity):
         if identity is None:
-            self.__task_queue.clear()
-        else:
-            task_queue = self.__task_queue.copy()
-            for task in task_queue:
-                if task.identity() == identity:
-                    self.__task_queue.remove(task)
+            return
+        task_queue = self.__task_queue.copy()
+        for task in task_queue:
+            if task.identity() == identity:
+                self.__task_queue.remove(task)
+
+    def __clear_pending_task(self):
+        self.__task_queue.clear()
 
     def __check_cancel_running_task(self, identity: str or None):
         if identity is None or \

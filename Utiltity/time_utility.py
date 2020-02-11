@@ -106,20 +106,30 @@ def normalize_time_serial(time_serial: tuple or list,
 # ------------------------------------------------------- Clock --------------------------------------------------------
 
 class Clock:
-    def __init__(self):
-        self.__start = time.time()
+    def __init__(self, start_flag: bool = True):
+        self.__start_time = time.time()
+        self.__start_flag = start_flag
+        self.__freeze_time = None
 
     def reset(self):
-        self.__start = time.time()
+        self.__freeze_time = None
+        self.__start_time = time.time()
+
+    def freeze(self):
+        self.__freeze_time = time.time()
 
     def elapsed(self) -> float:
-        return time.time() - self.__start
+        if self.__freeze_time is None:
+            base_time = time.time()
+        else:
+            base_time = self.__freeze_time
+        return (base_time - self.__start_time) if self.__start_flag else 0
 
     def elapsed_s(self) -> int:
-        return int(time.time() - self.__start)
+        return int(self.elapsed()) if self.__start_flag else 0
 
     def elapsed_ms(self) -> int:
-        return int((time.time() - self.__start) * 1000)
+        return int(self.elapsed() * 1000) if self.__start_flag else 0
 
 
 # ------------------------------------------------------ Delayer -------------------------------------------------------

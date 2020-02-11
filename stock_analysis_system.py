@@ -11,6 +11,7 @@ author:YuQiu
 
 from os import sys, path
 from Utiltity.common import *
+from Utiltity.task_queue import *
 from Utiltity.time_utility import *
 
 
@@ -22,6 +23,7 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
 
         import config
         self.__config = config.Config()
+        self.__task_queue = TaskQueue()
 
         self.__collector_plugin = None
         self.__strategy_plugin = None
@@ -30,17 +32,6 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
         self.__strategy_entry = None
         self.__database_entry = None
 
-    # -------------------------------------- Quit Lock --------------------------------------
-
-    def can_sys_quit(self) -> bool:
-        return self.__quit_lock == 0
-
-    def lock_sys_quit(self):
-        self.__quit_lock += 1
-
-    def release_sys_quit(self) -> bool:
-        self.__quit_lock = max(0, self.__quit_lock - 1)
-
     # ---------------------------------------- Config ----------------------------------------
 
     def get_config(self):
@@ -48,6 +39,20 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
 
     def get_log_errors(self) -> [str]:
         return self.__log_errors
+
+    # ------------------------------------- System Task -------------------------------------
+
+    def get_task_queue(self) -> TaskQueue:
+        return self.__task_queue
+
+    def can_sys_quit(self) -> bool:
+        return (not self.__task_queue.is_busy()) and (self.__quit_lock == 0)
+
+    def lock_sys_quit(self):
+        self.__quit_lock += 1
+
+    def release_sys_quit(self) -> bool:
+        self.__quit_lock = max(0, self.__quit_lock - 1)
 
     # ----------------------------------------- Init -----------------------------------------
 
@@ -100,10 +105,15 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
         self.__data_hub_entry = DataHubEntry.DataHubEntry(self.__database_entry, self.__collector_plugin)
         self.__strategy_entry = StrategyEntry.StrategyEntry(self.__strategy_plugin,
                                                             self.__data_hub_entry, self.__database_entry)
+        self.__task_queue.start()
 
         print('Stock Analysis System Initialization Done, Time spending: ' + str(clock.elapsed_ms()) + ' ms')
         self.__inited = True
         return True
+
+    def finalize(self):
+        self.__task_queue.quit()
+        self.__task_queue.join(5)
 
     # -------------------------------------------- Entry --------------------------------------------
 

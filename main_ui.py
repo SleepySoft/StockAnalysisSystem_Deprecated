@@ -193,6 +193,7 @@ class MainWindow(CommonMainWindow):
 
     def closeEvent(self, event):
         if StockAnalysisSystem().can_sys_quit():
+            StockAnalysisSystem().finalize()
             super().closeEvent(event)
         else:
             QMessageBox.information(self,
