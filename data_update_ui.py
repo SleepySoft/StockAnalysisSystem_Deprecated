@@ -233,11 +233,11 @@ class DataUpdateUi(QWidget):
 
     def on_auto_update_button(self, uri: str, identity: str):
         print('Auto update ' + uri + ':' + str(identity))
-        self.__build_post_update_task(uri, False)
+        self.__build_post_update_task(uri, None, False)
 
     def on_force_update_button(self, uri: str, identity: str):
         print('Force update ' + uri + ':' + str(identity))
-        self.__build_post_update_task(uri, True)
+        self.__build_post_update_task(uri, None, True)
 
     def on_batch_update(self, force: bool):
         for i in range(0, self.__table_main.rowCount()):
@@ -278,7 +278,7 @@ class DataUpdateUi(QWidget):
     def on_timer(self):
         for i in range(0, self.__table_main.rowCount()):
             item_id = self.__table_main.item(i, DataUpdateUi.INDEX_ITEM).text()
-            # A little ugly...To distinguish it's uri or securities ideneity
+            # A little ugly...To distinguish it's uri or securities identity
             if self.__display_identities is None:
                 uri = item_id
                 prog_id = uri
@@ -292,15 +292,15 @@ class DataUpdateUi(QWidget):
                     self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
                     break
 
-    def closeEvent(self, event):
-        if self.__task_thread is not None:
-            QMessageBox.information(self,
-                                    QtCore.QCoreApplication.translate('', '无法关闭窗口'),
-                                    QtCore.QCoreApplication.translate('', '更新过程中无法关闭此窗口'),
-                                    QMessageBox.Close, QMessageBox.Close)
-            event.ignore()
-        else:
-            event.accept()
+    # def closeEvent(self, event):
+    #     if self.__task_thread is not None:
+    #         QMessageBox.information(self,
+    #                                 QtCore.QCoreApplication.translate('', '无法关闭窗口'),
+    #                                 QtCore.QCoreApplication.translate('', '更新过程中无法关闭此窗口'),
+    #                                 QMessageBox.Close, QMessageBox.Close)
+    #         event.ignore()
+    #     else:
+    #         event.accept()
 
     # ---------------------------------------- Table Update ----------------------------------------
 
@@ -618,14 +618,16 @@ class DataUpdateUi(QWidget):
     # ---------------------------------------------------------------------------------
 
     def __on_task_done(self, task: UpdateTask):
-        self.__task_thread = None
-        StockAnalysisSystem().release_sys_quit()
+        if task in self.__processing_tasks:
+            self.__processing_tasks.remove(task)
+        else:
+            print('Impossible: Cannot find finished task in task list.')
         self.update_table()
-        QMessageBox.information(self,
-                                QtCore.QCoreApplication.translate('main', '更新完成'),
-                                QtCore.QCoreApplication.translate('main', '数据更新完成，耗时' +
-                                                                  str(self.__timing_clock.elapsed_s()) + '秒'),
-                                QMessageBox.Ok, QMessageBox.Ok)
+        # QMessageBox.information(self,
+        #                         QtCore.QCoreApplication.translate('main', '更新完成'),
+        #                         QtCore.QCoreApplication.translate('main', '数据更新完成，耗时' +
+        #                                                           str(self.__timing_clock.elapsed_s()) + '秒'),
+        #                         QMessageBox.Ok, QMessageBox.Ok)
 
 
 # ----------------------------------------------------------------------------------------------------------------------

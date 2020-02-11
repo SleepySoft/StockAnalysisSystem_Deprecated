@@ -142,10 +142,15 @@ class TaskQueue:
             self.__lock.release()
 
             if task is not None:
-                task.run()
-                self.__lock.acquire()
-                self.__running_task = None
-                self.__lock.release()
+                try:
+                    task.run()
+                except Exception as e:
+                    print('Task ' + task.name() + ' [' + task.identity() + '] got exception:')
+                    print(e)
+                finally:
+                    self.__lock.acquire()
+                    self.__running_task = None
+                    self.__lock.release()
             else:
                 time.sleep(0.1)
 
