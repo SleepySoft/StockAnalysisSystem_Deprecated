@@ -532,7 +532,7 @@ class DataUpdateUi(QWidget):
         self.__page = 0
         self.update_table()
 
-    def __build_post_update_task(self, uri: str, identities: list or None, force: bool):
+    def __build_post_update_task(self, uri: str, identities: list or None, force: bool) -> bool:
         task = UpdateTask(self, self.__data_hub, self.__data_center, force)
         if identities is None:
             if uri == 'Market.TradeCalender':
@@ -543,7 +543,7 @@ class DataUpdateUi(QWidget):
         task.set_work_package(uri, identities)
         self.__processing_update_tasks.append(task)
         self.__processing_update_tasks_count.append(task)
-        StockAnalysisSystem().get_task_queue().append_task(task)
+        return StockAnalysisSystem().get_task_queue().append_task(task)
 
     # def __work_around_for_update_pack(self):
     #     for i in range(0, len(self.__update_pack)):
