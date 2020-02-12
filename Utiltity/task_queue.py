@@ -12,6 +12,9 @@ class TaskQueue:
         def __init__(self, name: str):
             self.__name = name
 
+        def __str__(self):
+            return 'Task %s [%s]' % (self.name(), self.identity())
+
         def name(self) -> str:
             return self.__name
 
@@ -57,15 +60,18 @@ class TaskQueue:
     # -------------------------------- Task Related --------------------------------
 
     def append_task(self, task: Task, unique: bool = True) -> bool:
+        print('Task queue -> append task : ' + str(task))
         self.__lock.acquire()
         if unique and self.__find_adapted_task(task.identity()) is not None:
             self.__lock.release()
+            print('Task queue -> found duplicate, drop.')
             return False
         self.__task_queue.append(task)
         self.__lock.release()
         return True
 
     def insert_task(self, task: Task, index: int = 0, unique: bool = True):
+        print('Task queue -> insert task : ' + str(task))
         self.__lock.acquire()
         if unique:
             self.__remove_pending_task(task.identity())
@@ -143,11 +149,13 @@ class TaskQueue:
 
             if task is not None:
                 try:
+                    print('Task queue -> start task: ' + str(task))
                     task.run()
                 except Exception as e:
-                    print('Task ' + task.name() + ' [' + task.identity() + '] got exception:')
+                    print('Task queue -> ' + str(task) + ' got exception:')
                     print(e)
                 finally:
+                    print('Task queue -> finish task: ' + str(task))
                     self.__lock.acquire()
                     self.__running_task = None
                     self.__lock.release()

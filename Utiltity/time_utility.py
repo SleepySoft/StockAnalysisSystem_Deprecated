@@ -112,6 +112,7 @@ class Clock:
         self.__freeze_time = None
 
     def reset(self):
+        self.__start_flag = True
         self.__freeze_time = None
         self.__start_time = time.time()
 
@@ -147,7 +148,7 @@ class Delayer:
         if elapsed < self.__delay / 1000:
             delay_s = self.__delay / 1000 - elapsed
             time.sleep(delay_s)
-            print('Delay %s ms' % delay_s * 1000)
+            print('Delay %s ms' % (delay_s * 1000))
         self.__clock.reset()
 
 

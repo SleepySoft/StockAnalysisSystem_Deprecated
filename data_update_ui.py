@@ -24,10 +24,10 @@ from stock_analysis_system import StockAnalysisSystem
 
 
 DEFAULT_INFO = """数据更新界面说明：
-1. 首先请配置好config.py里面的TS_TOKEN及NOSQL相关字段
-2. 如果从零开始，请先更新Market.SecuritiesInfo以获取股票列表，后续功能方可正常运作
-3. 由于采集本地数据范围需要从数据库中读取大量数据，故界面反应会较慢，后续会对此进行优化
-4. 在首页更新财务信息会对所有股票执行一次，故耗时非常长，请做好挂机准备（Update Select未实现）
+1. 要使用此功能，首先请在设置界面配置好TS_TOKEN及NOSQL相关设置项目
+2. 如果从零开始，请先更新Market.SecuritiesInfo以获取股票列表，后续更新方可正常运作
+3. 由于采集本地数据范围需要从数据库中读取大量数据，故界面刷新会较慢，后续会对此进行优化
+4. 在首页更新财务信息会对所有股票执行一次，故耗时非常长，请做好挂机准备
 5. Force Update会拉取从1990年至今的数据，耗时非常长，请谨慎使用"""
 
 
@@ -47,6 +47,9 @@ class UpdateTask(TaskQueue.Task):
         self.identities = []
         self.clock = Clock(False)
         self.progress = ProgressRate()
+
+    def in_work_package(self, uri: str) -> bool:
+        return self.uri == uri
 
     def set_work_package(self, uri: str, identities: list or str or None):
         if isinstance(identities, str):
@@ -80,6 +83,13 @@ class UpdateTask(TaskQueue.Task):
         self.progress.reset()
 
         if self.identities is not None:
+            self.progress.set_progress(self.uri, 0, len(self.identities))
+            for identity in self.identities:
+                self.progress.set_progress([self.uri, identity], 0, 1)
+        else:
+            self.progress.set_progress(self.uri, 0, 1)
+
+        if self.identities is not None:
             for identity in self.identities:
                 if self.__quit:
                     break
@@ -99,7 +109,7 @@ class UpdateTask(TaskQueue.Task):
             self.progress.increase_progress(self.uri)
 
         self.clock.freeze()
-        self.__ui.task_finish_signal.emit(self)
+        self.__ui.task_finish_signal[UpdateTask].emit(self)
         print('Update task finished.')
 
     def quit(self):
@@ -126,7 +136,7 @@ class RefreshTask(TaskQueue.Task):
 # ---------------------------------------------------- DataUpdateUi ----------------------------------------------------
 
 class DataUpdateUi(QWidget):
-    task_finish_signal = pyqtSignal()
+    task_finish_signal = pyqtSignal([UpdateTask])
     refresh_finish_signal = pyqtSignal()
 
     INDEX_CHECK = 0
@@ -155,7 +165,10 @@ class DataUpdateUi(QWidget):
         self.__page = 0
         self.__item_per_page = 20
 
-        self.__processing_tasks = []
+        # For processing updating
+        self.__processing_update_tasks = []
+        # Fot task counting
+        self.__processing_update_tasks_count = []
 
         self.task_finish_signal.connect(self.__on_task_done)
         self.refresh_finish_signal.connect(self.update_table_display)
@@ -285,12 +298,16 @@ class DataUpdateUi(QWidget):
             else:
                 uri = self.__display_uri[0]
                 prog_id = [uri, item_id]
-            for task in self.__processing_tasks:
+            for task in self.__processing_update_tasks:
+                if not task.in_work_package(uri):
+                    continue
                 if task.progress.has_progress(prog_id):
                     rate = task.progress.get_progress_rate(prog_id)
                     status = '%ss | %.2f%%' % (task.clock.elapsed_s(), rate * 100)
                     self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText(status)
-                    break
+                else:
+                    self.__table_main.item(i, DataUpdateUi.INDEX_STATUS).setText('等待中...')
+                break
 
     # def closeEvent(self, event):
     #     if self.__task_thread is not None:
@@ -524,7 +541,8 @@ class DataUpdateUi(QWidget):
                 data_utility = self.__data_hub.get_data_utility()
                 identities = data_utility.get_stock_identities()
         task.set_work_package(uri, identities)
-        self.__processing_tasks.append(task)
+        self.__processing_update_tasks.append(task)
+        self.__processing_update_tasks_count.append(task)
         StockAnalysisSystem().get_task_queue().append_task(task)
 
     # def __work_around_for_update_pack(self):
@@ -618,16 +636,17 @@ class DataUpdateUi(QWidget):
     # ---------------------------------------------------------------------------------
 
     def __on_task_done(self, task: UpdateTask):
-        if task in self.__processing_tasks:
-            self.__processing_tasks.remove(task)
+        if task in self.__processing_update_tasks_count:
+            self.__processing_update_tasks_count.remove(task)
+            if len(self.__processing_update_tasks_count) == 0:
+                QMessageBox.information(self,
+                                        QtCore.QCoreApplication.translate('main', '更新完成'),
+                                        QtCore.QCoreApplication.translate('main', '数据更新完成'),
+                                        QMessageBox.Ok, QMessageBox.Ok)
+                self.__processing_update_tasks.clear()
+                self.update_table()
         else:
             print('Impossible: Cannot find finished task in task list.')
-        self.update_table()
-        # QMessageBox.information(self,
-        #                         QtCore.QCoreApplication.translate('main', '更新完成'),
-        #                         QtCore.QCoreApplication.translate('main', '数据更新完成，耗时' +
-        #                                                           str(self.__timing_clock.elapsed_s()) + '秒'),
-        #                         QMessageBox.Ok, QMessageBox.Ok)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
