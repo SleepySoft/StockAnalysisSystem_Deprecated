@@ -59,10 +59,23 @@ class TaskQueue:
 
     # -------------------------------- Task Related --------------------------------
 
-    def append_task(self, task: Task, unique: bool = True) -> bool:
-        print('Task queue -> append task : ' + str(task))
+    def get_tasks(self, name: str or None, identity: str or None) -> [Task]:
+        task_list = []
         self.__lock.acquire()
-        if unique and self.__find_adapted_task(task.identity()) is not None:
+        for task in self.__task_queue:
+            if (name is None and identity is None) or \
+                    (name is not None and task.name):
+                task_list.append(task)
+        if self.__running_task is not None:
+            if identity is None or self.__running_task.identity() == identity:
+                task_list.append(self.__running_task)
+        self.__lock.release()
+        return task_list
+
+    def append_task(self, task: Task, unique: bool = True) -> bool:
+        print('Task queue -> append : ' + str(task))
+        self.__lock.acquire()
+        if unique and len(self.__find_adapt_tasks(None, task.identity())) > 0:
             self.__lock.release()
             print('Task queue -> found duplicate, drop.')
             return False
@@ -71,7 +84,7 @@ class TaskQueue:
         return True
 
     def insert_task(self, task: Task, index: int = 0, unique: bool = True):
-        print('Task queue -> insert task : ' + str(task))
+        print('Task queue -> insert : ' + str(task))
         self.__lock.acquire()
         if unique:
             self.__remove_pending_task(task.identity())
@@ -100,17 +113,31 @@ class TaskQueue:
         self.__cancel_running_task()
         self.__lock.release()
 
+    def find_matching_tasks(self, name: str or None, identity: str or None) -> [Task]:
+        self.__lock.acquire()
+        tasks = self.__find_adapt_tasks(name, identity)
+        self.__lock.release()
+        return tasks
+
     # ------------------------------------- private --------------------------------------
 
-    def __find_adapted_task(self, identity: str) -> Task or None:
-        if identity is None or identity == '':
-            return None
+    def __adapted_task(self, task: Task, name: str or None, identity: str or None) -> Task or None:
+        adapt = True
+        if task is not None:
+            if name is not None and name != '':
+                adapt = (adapt and (task.name() == name))
+            if identity is not None and identity != '':
+                adapt = (adapt and (task.identity() == identity))
+        return task if adapt else None
+
+    def __find_adapt_tasks(self, name: str or None, identity: str or None) -> [Task]:
+        tasks = []
         for task in self.__task_queue:
-            if task.identity() == identity:
-                return task
-        if self.__running_task is not None and self.__running_task.identity() == identity:
-            return self.__running_task
-        return None
+            if self.__adapted_task(task, name, identity):
+                tasks.append(task)
+        if self.__adapted_task(self.__running_task, name, identity):
+            tasks.append(self.__running_task)
+        return tasks
 
     def __remove_pending_task(self, identity):
         if identity is None:
@@ -149,13 +176,13 @@ class TaskQueue:
 
             if task is not None:
                 try:
-                    print('Task queue -> start task: ' + str(task))
+                    print('Task queue -> start: ' + str(task))
                     task.run()
                 except Exception as e:
                     print('Task queue -> ' + str(task) + ' got exception:')
                     print(e)
                 finally:
-                    print('Task queue -> finish task: ' + str(task))
+                    print('Task queue -> finish: ' + str(task))
                     self.__lock.acquire()
                     self.__running_task = None
                     self.__lock.release()
