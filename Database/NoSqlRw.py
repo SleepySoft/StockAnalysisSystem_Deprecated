@@ -68,6 +68,8 @@ class ItkvTable:
         self.__client = client
         self.__database = database
         self.__table = table
+        self.__connection_count = 0
+        self.__connection_threshold = 100
         self.__identity_field = identity_field
         self.__datetime_field = datetime_field
 
@@ -76,6 +78,10 @@ class ItkvTable:
 
     def datetime_field(self) -> str or None:
         return self.__datetime_field
+
+    def set_connection_threshold(self, threshold: int):
+        self.__connection_threshold = threshold
+        self.__check_recycle_connection()
 
     # -----------------------------------------------------------------
 
@@ -256,18 +262,22 @@ class ItkvTable:
     def __get_collection(self):
         if self.__client is None:
             return None
-
-        # Close the previous connections. Avoiding resource and memory leak.
-        # https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient.close
-        #   Close all sockets in the connection pools and stop the monitor threads. If this instance is used
-        #   again it will be automatically re-opened and the threads restarted unless auto encryption is enabled.
-        self.__client.close()
-
+        self.__check_recycle_connection()
         db = self.__client[self.__database]
         if db is None:
             return None
         collection = db[self.__table]
+        self.__connection_count += 1
         return collection
+
+    def __check_recycle_connection(self):
+        if self.__connection_count >= self.__connection_threshold:
+            # Close the previous connections. Avoiding resource and memory leak.
+            # https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient.close
+            #   Close all sockets in the connection pools and stop the monitor threads. If this instance is used
+            #   again it will be automatically re-opened and the threads restarted unless auto encryption is enabled.
+            self.__client.close()
+            self.__connection_count = 0
 
     def __gen_find_spec(self, identity: str or list,
                         since: datetime or str = None,
