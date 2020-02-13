@@ -62,6 +62,10 @@ def update_local(update_list: [str], force: bool = False):
             data_center.update_local_data('Finance.IncomeStatement', stock_identity, force=force)
         if 'Finance.CashFlowStatement' in update_list:
             data_center.update_local_data('Finance.CashFlowStatement', stock_identity, force=force)
+        if 'Stockholder.PledgeStatus' in update_list:
+            data_center.update_local_data('Stockholder.PledgeStatus', stock_identity, force=force)
+        if 'Stockholder.PledgeHistory' in update_list:
+            data_center.update_local_data('Stockholder.PledgeHistory', stock_identity, force=force)
 
         counter += 1
         print('Done (%s / %s). Time Spending: %s s' % (counter, len(stock_list), time.time() - start_single))
@@ -96,16 +100,19 @@ def run_strategy():
 
 def run_console():
     # update_special()
-    # update_local([
-    #     'Market.SecuritiesInfo',
-    #     'Market.NamingHistory',
-    #     'Market.TradeCalender',
-    #
-    #     'Finance.Audit',
-    #     'Finance.BalanceSheet',
-    #     'Finance.IncomeStatement',
-    #     'Finance.CashFlowStatement',
-    # ], False)
+    update_local([
+        # 'Market.SecuritiesInfo',
+        # 'Market.NamingHistory',
+        # 'Market.TradeCalender',
+        #
+        # 'Finance.Audit',
+        # 'Finance.BalanceSheet',
+        # 'Finance.IncomeStatement',
+        # 'Finance.CashFlowStatement',
+        #
+        # 'Stockholder.PledgeStatus',
+        'Stockholder.PledgeHistory',
+    ], True)
     # run_strategy()
 
     exit(0)
@@ -126,8 +133,8 @@ def main():
     sas = stock_analysis_system.StockAnalysisSystem()
     sas.check_initialize()
 
-    # run_console()
-    run_ui()
+    run_console()
+    # run_ui()
     # run_test()
 
     print('Process Quit.')
