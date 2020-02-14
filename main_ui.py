@@ -10,6 +10,7 @@ from data_update_ui import *
 from DataHub.DataHubUi import *
 from Database.AliasTableUi import *
 from Database.XListTableUi import *
+from Utiltity.task_queue_ui import *
 from stock_analysis_system import StockAnalysisSystem
 
 
@@ -67,6 +68,7 @@ class MainWindow(CommonMainWindow):
 
         self.__alias_table_module = database_entry.get_alias_table()
         self.__alias_table_ui = AliasTableUi(self.__alias_table_module)
+        self.__task_queue_ui = TaskQueueUi(StockAnalysisSystem().get_task_queue())
 
         # ---------- Deep init ----------
         self.init_ui()
@@ -169,6 +171,15 @@ class MainWindow(CommonMainWindow):
             'DockFloat': True,
             'MenuPresent': True,
             'ActionTips': self.__translate('main', '别名表'),
+        })
+
+        self.add_sub_window(self.__task_queue_ui, 'task_queue_ui', {
+            'DockName': self.__translate('main', '任务管理'),
+            'DockArea': Qt.NoDockWidgetArea,
+            'DockShow': False,
+            'DockFloat': True,
+            'MenuPresent': True,
+            'ActionTips': self.__translate('main', '任务管理'),
         })
 
         # -------------------------------------------------------------------------

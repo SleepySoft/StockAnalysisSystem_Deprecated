@@ -363,7 +363,7 @@ class UniversalDataCenter:
         if since == until:
             # Does not need update.
             return True
-        print(uri + ': [' + str(identify) + '] -> Update range : ' + date2text(since) + ' - ' + date2text(until))
+        print('%s: [%s] -> Update range: %s - %s' % (uri, str(identify), date2text(since), date2text(until)))
 
         # ------------------------- Fetch -------------------------
         result = self.query_from_plugin(uri, identify, (min(since, until), max(since, until)), **extra)
@@ -378,13 +378,21 @@ class UniversalDataCenter:
                 return False
 
         # ------------------------- Merge -------------------------
+
+        clock = Clock()
         table.merge(uri, identify, result)
+        print('%s: [%s] - Persistence finished, time spending: %sms' % (uri, str(identify), clock.elapsed_ms()))
 
         # ---------------------- Update Table ---------------------
+
+        # 1.Update of uri
         update_tags = uri.split('.')
+        self.get_update_table().update_latest_update_time(update_tags)
+
+        # 2.Update of each identity
         if str_available(identify):
             update_tags.append(identify.replace('.', '_'))
-        self.get_update_table().update_latest_update_time(update_tags)
+            self.get_update_table().update_latest_update_time(update_tags)
 
         return True
 

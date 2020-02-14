@@ -18,6 +18,10 @@ class TaskQueue:
         def name(self) -> str:
             return self.__name
 
+        def status(self) -> int:
+            # TODO: Waiting, Running, Finished, Canceled
+            pass
+
         def run(self):
             pass
 
@@ -27,11 +31,21 @@ class TaskQueue:
         def identity(self) -> str:
             pass
 
+    # -------------------------------------- Observer ---------------------------------------
+
+    class Observer:
+        def __init__(self):
+            pass
+
+        def on_task_updated(self, task, change: str):
+            pass
+
     # -------------------------------------- TaskQueue --------------------------------------
 
     def __init__(self):
         self.__lock = threading.Lock()
         self.__quit_flag = True
+        self.__observers = []
         self.__task_queue = []
         self.__task_thread = None
         self.__running_task = None
@@ -68,19 +82,21 @@ class TaskQueue:
                 task_list.append(task)
         if self.__running_task is not None:
             if identity is None or self.__running_task.identity() == identity:
-                task_list.append(self.__running_task)
+                task_list.insert(0, self.__running_task)
         self.__lock.release()
         return task_list
 
     def append_task(self, task: Task, unique: bool = True) -> bool:
         print('Task queue -> append : ' + str(task))
         self.__lock.acquire()
-        if unique and len(self.__find_adapt_tasks(None, task.identity())) > 0:
+        if unique and (task.identity() is not None and
+                       len(self.__find_adapt_tasks(None, task.identity())) > 0):
             self.__lock.release()
             print('Task queue -> found duplicate, drop.')
             return False
         self.__task_queue.append(task)
         self.__lock.release()
+        self.notify_task_updated(task, 'append')
         return True
 
     def insert_task(self, task: Task, index: int = 0, unique: bool = True):
@@ -94,6 +110,7 @@ class TaskQueue:
         else:
             self.__task_queue.insert(index, task)
         self.__lock.release()
+        self.notify_task_updated(task, 'insert')
 
     def set_will_task(self, task: Task):
         self.__will_task = task
@@ -107,17 +124,29 @@ class TaskQueue:
             self.__remove_pending_task(identity)
             self.__check_cancel_running_task(identity)
         self.__lock.release()
+        self.notify_task_updated(None, 'canceled')
 
     def cancel_running_task(self):
         self.__lock.acquire()
         self.__cancel_running_task()
         self.__lock.release()
+        self.notify_task_updated(None, 'canceled')
 
     def find_matching_tasks(self, name: str or None, identity: str or None) -> [Task]:
         self.__lock.acquire()
         tasks = self.__find_adapt_tasks(name, identity)
         self.__lock.release()
         return tasks
+
+    # ------------------------------------ Observer -------------------------------------
+
+    def add_observer(self, ob: Observer):
+        if ob not in self.__observers:
+            self.__observers.append(ob)
+
+    def notify_task_updated(self, task: Task, action: str):
+        for ob in self.__observers:
+            ob.on_task_updated(task, action)
 
     # ------------------------------------- private --------------------------------------
 
@@ -174,15 +203,19 @@ class TaskQueue:
             self.__running_task = task
             self.__lock.release()
 
+            clock = time.time()
             if task is not None:
                 try:
                     print('Task queue -> start: ' + str(task))
+                    self.notify_task_updated(task, 'started')
                     task.run()
                 except Exception as e:
                     print('Task queue -> ' + str(task) + ' got exception:')
                     print(e)
                 finally:
-                    print('Task queue -> finish: ' + str(task))
+                    print('Task queue -> finish: %s, time spending: %.2f ms' %
+                          (str(task), (time.time() - clock) * 1000))
+                    self.notify_task_updated(task, 'finished')
                     self.__lock.acquire()
                     self.__running_task = None
                     self.__lock.release()

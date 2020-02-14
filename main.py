@@ -127,7 +127,7 @@ def run_test():
     assert '存货' in result.columns
     assert '拆出资金' in result.columns
     assert '长期待摊费用' in result.columns
-
+    
 
 def main():
     sas = stock_analysis_system.StockAnalysisSystem()

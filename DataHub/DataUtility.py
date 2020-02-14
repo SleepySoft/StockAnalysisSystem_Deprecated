@@ -1,5 +1,5 @@
 import logging
-
+import threading
 import numpy as np
 import pandas as pd
 from os import sys, path
@@ -42,11 +42,63 @@ def csv_name_column_to_identity(csv_file: str, column: str) -> bool:
 class DataUtility:
     def __init__(self, data_center: UniversalDataCenter):
         self.__data_center = data_center
+        self.__lock = threading.Lock()
 
         self.__stock_id_information_table = {}
         self.__stock_history_name_id_table = {}
 
+    def get_stock_list(self) -> [(str, str)]:
+        self.__lock.acquire()
+        if len(self.__stock_id_information_table) == 0:
+            self.__refresh_securities_cache()
+        ret = [(_id, _info[0]) for _id, _info in self.__stock_id_information_table.items()]
+        self.__lock.release()
+        return ret
+
+    def get_stock_identities(self) -> [str]:
+        self.__lock.acquire()
+        if len(self.__stock_id_information_table) == 0:
+            self.__refresh_securities_cache()
+        ret = [_id for _id, _info in self.__stock_id_information_table.items()]
+        self.__lock.release()
+        return ret
+
+    def names_to_stock_identity(self, names: [str]) -> [str]:
+        self.__lock.acquire()
+        if len(self.__stock_id_information_table) == 0:
+            self.__refresh_securities_cache()
+        if not isinstance(names, list):
+            names = [str(names)]
+
+        # The result is a tuple like (stock_identity, naming_date)
+        # We'll keep the original name if there's no match record.
+        # Too simple: [self.__stock_history_name_id_table.get(name, (name, ''))[0] for name in names]
+
+        ids = []
+        for name in names:
+            _id = self.__stock_history_name_id_table.get(name.lower(), ('', ''))[0]
+            if _id != '':
+                ids.append(_id)
+            else:
+                # For debug
+                ids.append(name)
+        self.__lock.release()
+
+        return ids
+
+    def get_stock_listing_date(self, stock_identity: str, default_val: datetime.datetime) -> datetime.datetime:
+        self.__lock.acquire()
+        ret = self.__stock_id_information_table[stock_identity][1] \
+            if stock_identity in self.__stock_id_information_table.keys() else default_val
+        self.__lock.release()
+        return ret
+
     def refresh_securities_cache(self):
+        self.__refresh_securities_cache()
+
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def __refresh_securities_cache(self):
         securities_info = self.__data_center.query('Market.SecuritiesInfo',
                                                    fields=['stock_identity', 'name', 'listing_date'])
         if securities_info is not None:
@@ -61,58 +113,13 @@ class DataUtility:
                 row['name'].lower().replace('*', ''): (row['stock_identity'],
                                                        row['naming_date'])
                 for index, row in securities_used_name.iterrows()}
-            
+
             # Also add current name into history naming list
             if securities_info is not None:
                 for key, info in self.__stock_id_information_table.items():
                     trimed_name = info[0].lower().replace('*', '')
                     if trimed_name not in self.__stock_history_name_id_table.keys():
                         self.__stock_history_name_id_table[trimed_name] = (key, today())
-
-    def get_stock_list(self) -> [(str, str)]:
-        if len(self.__stock_id_information_table) == 0:
-            self.refresh_securities_cache()
-        return [(_id, _info[0]) for _id, _info in self.__stock_id_information_table.items()]
-        # result = self.__data_center.query('Market.SecuritiesInfo', fields=['stock_identity', 'name'])
-        # return [(line.get('stock_identity', ''), line.get('name', '')) for line in result]
-
-    def get_stock_identities(self) -> [str]:
-        if len(self.__stock_id_information_table) == 0:
-            self.refresh_securities_cache()
-        return [_id for _id, _info in self.__stock_id_information_table.items()]
-
-    def names_to_stock_identity(self, names: [str]) -> [str]:
-        if len(self.__stock_id_information_table) == 0:
-            self.refresh_securities_cache()
-        if not isinstance(names, list):
-            names = [str(names)]
-        # The result is a tuple like (stock_identity, naming_date)
-        # We'll keep the original name if there's no match record.
-        # Too simple: [self.__stock_history_name_id_table.get(name, (name, ''))[0] for name in names]
-
-        ids = []
-        for name in names:
-            _id = self.__stock_history_name_id_table.get(name.lower(), ('', ''))[0]
-            if _id != '':
-                ids.append(_id)
-            else:
-                # For debug
-                ids.append(name)
-        return ids
-
-        # stock_list = self.get_stock_list()
-        # name_id_table = {stock_name: stock_id for stock_id, stock_name in stock_list}
-        #
-        # ids = []
-        # for name in names:
-        #     name = name_id_table.get(name, name)
-        #     identity = common.normalize_stock_identity(name)
-        #     ids.append(identity if identity != '' else name)
-        # return ids
-
-    def get_stock_listing_date(self, stock_identity: str, default_val: datetime.datetime) -> datetime.datetime:
-        return self.__stock_id_information_table[stock_identity][1] \
-            if stock_identity in self.__stock_id_information_table.keys() else default_val
 
 
 

@@ -38,6 +38,7 @@ class DatabaseEntry:
         self.__mongo_db_pass = ''
         self.__sqlite_db_file = path.join(path.join(root_path, 'Data'), 'sAsUtility.db')
 
+        self.__mongo_db_url = ''
         self.__sql_db_access = None
         self.__mongo_db_client = None
 
@@ -99,6 +100,7 @@ class DatabaseEntry:
 
             import Database.UpdateTableEx as UpdateTableEx
             self.__update_table = UpdateTableEx.UpdateTableEx(self.__mongo_db_client)
+
             return True
         except Exception as e:
             print('Mongodb config error.')
@@ -138,7 +140,7 @@ class DatabaseEntry:
 
     def query_nosql_table(self, db: str, table: str,
                           identity_field: str = 'Identity',
-                          datetime_field: str = 'DateTime') -> ItkvTable:
+                          datetime_field: str = 'DateTime') -> ItkvTable or None:
         if self.get_mongo_db_client() is None:
             return None
         if db not in self.__no_sql_tables.keys():

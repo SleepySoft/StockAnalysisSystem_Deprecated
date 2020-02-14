@@ -4,7 +4,7 @@
 @version:
 author:Sleepy
 @time: 2017/08/08
-@file: DataTable.py
+@file: data_update.py
 @function:
 @modify:
 """
@@ -133,6 +133,19 @@ class RefreshTask(TaskQueue.Task):
         print('Refresh task finished.')
 
 
+# ------------------------------ UpdateStockListTask ------------------------------
+
+class UpdateStockListTask(TaskQueue.Task):
+    def __init__(self, data_utility):
+        super(UpdateStockListTask, self).__init__('UpdateStockListTask')
+        self.__data_utility = data_utility
+
+    def run(self):
+        print('Update stock list task start.')
+        self.__data_utility.refresh_securities_cache()
+        print('Update stock list task finished.')
+
+
 # ---------------------------------------------------- DataUpdateUi ----------------------------------------------------
 
 class DataUpdateUi(QWidget):
@@ -152,6 +165,8 @@ class DataUpdateUi(QWidget):
 
     def __init__(self, data_hub_entry: DataHubEntry, update_table: UpdateTableEx):
         super(DataUpdateUi, self).__init__()
+
+        # Access entry
         self.__data_hub = data_hub_entry
         self.__data_center = self.__data_hub.get_data_center()
         self.__update_table = update_table
@@ -194,6 +209,10 @@ class DataUpdateUi(QWidget):
         self.__button_batch_force_update = QPushButton('Force Update Select')
 
         self.init_ui()
+
+        # Post update and cache stock list after posting RefreshTask
+        data_utility = self.__data_hub.get_data_utility()
+        StockAnalysisSystem().get_task_queue().append_task(UpdateStockListTask(data_utility))
 
     # ---------------------------------------------------- UI Init -----------------------------------------------------
 
@@ -543,7 +562,12 @@ class DataUpdateUi(QWidget):
         task.set_work_package(uri, identities)
         self.__processing_update_tasks.append(task)
         self.__processing_update_tasks_count.append(task)
-        return StockAnalysisSystem().get_task_queue().append_task(task)
+        ret = StockAnalysisSystem().get_task_queue().append_task(task)
+        # After updating market info, also update stock list cache
+        if ret and uri == 'Market.SecuritiesInfo':
+            data_utility = self.__data_hub.get_data_utility()
+            StockAnalysisSystem().get_task_queue().append_task(UpdateStockListTask(data_utility))
+        return ret
 
     # def __work_around_for_update_pack(self):
     #     for i in range(0, len(self.__update_pack)):
