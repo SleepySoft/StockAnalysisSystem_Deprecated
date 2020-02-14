@@ -74,10 +74,6 @@ class StockAnalysisSystem(metaclass=ThreadSafeSingleton):
         import Database.DatabaseEntry as DatabaseEntry
         import Utiltity.plugin_manager as plugin_manager
 
-        # Set proxy if necessary
-        import os
-        os.environ['HTTP_PROXY'] = 'http://force-proxy-birst.pac.schneider-electric.com:80'
-
         if not self.__config.load_config(path.join(root_path, 'config.json')):
             self.__log_errors.append('Load config fail.')
             return False
