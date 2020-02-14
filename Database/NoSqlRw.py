@@ -3,7 +3,7 @@ import sys
 import traceback
 from bson import Code
 from datetime import datetime
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 
 
 # ---------------------- Duplicate Functions: Because we don't want this file depends other files ----------------------
@@ -68,7 +68,7 @@ class ItkvTable:
         self.__client = client
         self.__database = database
         self.__table = table
-        self.__connection_count = 0
+        self.__connection_count = -1
         self.__connection_threshold = 100
         self.__identity_field = identity_field
         self.__datetime_field = datetime_field
@@ -267,8 +267,19 @@ class ItkvTable:
         if db is None:
             return None
         collection = db[self.__table]
+        if self.__connection_count == -1:
+            self.__check_create_index(collection)
+            self.__connection_count = 0
         self.__connection_count += 1
         return collection
+
+    def __check_create_index(self, collection):
+        index = []
+        if str_available(self.__identity_field):
+            index.append((self.__identity_field, ASCENDING))
+        if str_available(self.__datetime_field):
+            index.append((self.__datetime_field, ASCENDING))
+        collection.create_index(index, background=True)
 
     def __check_recycle_connection(self):
         if self.__connection_count >= self.__connection_threshold:

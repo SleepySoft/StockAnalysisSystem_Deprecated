@@ -360,7 +360,8 @@ class UniversalDataCenter:
             since, until = default_since(), now()
         else:
             since, until = self.calc_update_range(uri, identify, time_serial)
-        if since == until:
+        # TODO: How to be more grace?
+        if date2text(since) == date2text(until):
             # Does not need update.
             return True
         print('%s: [%s] -> Update range: %s - %s' % (uri, str(identify), date2text(since), date2text(until)))
